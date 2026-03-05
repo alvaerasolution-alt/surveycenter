@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Edit Banner')
+@section('page-title', 'Edit Banner')
 @section('content')
 <div class="p-6 max-w-2xl">
     <h1 class="text-xl font-bold mb-6">

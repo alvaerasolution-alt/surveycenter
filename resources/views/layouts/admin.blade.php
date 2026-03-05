@@ -327,7 +327,7 @@
 
                 {{-- Breadcrumb / Page Title --}}
                 <div class="min-w-0">
-                    <h1 class="text-[15px] font-semibold text-gray-900 truncate">@yield('page-title', '@yield("title", "Dashboard")')</h1>
+                    <h1 class="text-[15px] font-semibold text-gray-900 truncate">@hasSection('page-title')@yield('page-title')@elseif(View::hasSection('title'))@yield('title')@else Dashboard @endif</h1>
                     @hasSection('breadcrumb')
                         <div class="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
                             <span>Admin</span>
