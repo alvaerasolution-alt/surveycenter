@@ -134,7 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Before form submit, copy Quill HTML to hidden input
     document.querySelector('form').addEventListener('submit', function() {
-        document.getElementById('terms-content-input').value = quill.getSemanticHTML();
+        // use .root.innerHTML to get the full raw HTML from quill editor correctly
+        document.getElementById('terms-content-input').value = quill.root.innerHTML;
     });
 });
 </script>
