@@ -26,7 +26,7 @@ class CRMController extends Controller
             $query->where('status', 'paid');
         })->with(['transactions' => function ($query) {
             $query->where('status', 'paid');
-        }])->get();
+        }])->latest()->get();
 
         // Pipeline data from customers table
         $pipeline = [
