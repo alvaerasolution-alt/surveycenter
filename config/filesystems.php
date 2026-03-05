@@ -40,13 +40,10 @@ return [
 
         'public' => [
             'driver' => 'local',
-            // 'root' => storage_path('app/public'),
-            // 'root' => base_path('../surveycenter.co.id/storage'),
-            'root' => env('STORAGE_PATH', base_path('../surveycenter.co.id/storage')),
-            'url' => env('APP_URL') . '/storage',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
-            'report' => false,
         ],
 
         's3' => [
@@ -76,9 +73,7 @@ return [
     */
 
     'links' => [
-        // public_path('storage') => storage_path('app/public'),
-        // public_path('storage') => base_path('../surveycenter.co.id/storage'),
-        public_path('storage') => env('STORAGE_PATH', base_path('../surveycenter.co.id/storage')),
+        public_path('storage') => storage_path('app/public'),
     ],
 
 ];
