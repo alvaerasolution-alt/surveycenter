@@ -20,7 +20,7 @@
     @endif
 
     {{-- Form --}}
-    <form action="{{ route('admin.terms.update') }}" method="POST" class="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+    <form id="termsForm" action="{{ route('admin.terms.update') }}" method="POST" class="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
         @csrf
 
         <div>
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Quill parses it on init via the pre-populated div
 
     // Before form submit, copy Quill HTML to hidden input
-    document.querySelector('form').addEventListener('submit', function() {
+    document.getElementById('termsForm').addEventListener('submit', function() {
         // use .root.innerHTML to get the full raw HTML from quill editor correctly
         document.getElementById('terms-content-input').value = quill.root.innerHTML;
     });
