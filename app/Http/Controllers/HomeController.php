@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\CustomerStory;
 use App\Models\DiscountBanner;
 use App\Models\TestimoniImage;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
@@ -20,28 +21,27 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Ambil data Tabs
-        $tabs = Tab::orderBy('order')->get();
-
-        // Ambil data Partner Logos
-        $partnerLogos = PartnerLogo::all();
-
-        // Ambil data Customer Stories untuk Carousel
-        $customerStories = CustomerStory::latest()->get();
-
-        // Ambil artikel terbaru
-        $articles = Article::latest()->take(6)->get();
-
-        $jenis = Layanan::where('category', 'jenis')->get();
-        $tambahan = Layanan::where('category', 'tambahan')->get();
-
-        $banners = DiscountBanner::all();
-
-        // Ambil gambar testimoni aktif
-        $testimoniImages = TestimoniImage::where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Caching queries selama 30 menit
+        $tabs = Cache::remember('home_tabs', now()->addMinutes(30), fn() => Tab::orderBy('order')->get());
+        
+        $partnerLogos = Cache::remember('home_partner_logos', now()->addMinutes(30), fn() => PartnerLogo::all());
+        
+        $customerStories = Cache::remember('home_customer_stories', now()->addMinutes(30), fn() => CustomerStory::latest()->get());
+        
+        $articles = Cache::remember('home_articles', now()->addMinutes(30), fn() => Article::latest()->take(6)->get());
+        
+        $jenis = Cache::remember('home_layanan_jenis', now()->addMinutes(30), fn() => Layanan::where('category', 'jenis')->get());
+        
+        $tambahan = Cache::remember('home_layanan_tambahan', now()->addMinutes(30), fn() => Layanan::where('category', 'tambahan')->get());
+        
+        $banners = Cache::remember('home_banners', now()->addMinutes(30), fn() => DiscountBanner::all());
+        
+        $testimoniImages = Cache::remember('home_testimoni_images', now()->addMinutes(30), fn() => 
+            TestimoniImage::where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('created_at', 'desc')
+                ->get()
+        );
 
         // Kirim ke view welcome.blade.php
         return view('welcome', compact('tabs', 'partnerLogos', 'customerStories', 'articles', 'jenis', 'tambahan', 'banners', 'testimoniImages'));

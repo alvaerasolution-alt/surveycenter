@@ -227,7 +227,7 @@
       <div class="relative mx-auto bg-gray-900 rounded-[2.5rem] p-3 shadow-2xl w-full max-w-2xl border-4 border-gray-800">
         <div class="absolute top-3.5 left-1/2 -translate-x-1/2 w-16 h-1.5 bg-gray-700 rounded-full z-10"></div>
         <div class="rounded-[2rem] overflow-hidden bg-black">
-          <video class="w-full aspect-video block" controls poster="{{ asset('storage/assets/bg.png') }}">
+          <video class="w-full aspect-video block" controls preload="none" poster="{{ asset('storage/assets/bg.png') }}">
             <source src="{{ asset('storage/assets/video.mp4') }}" type="video/mp4">
             Browser Anda tidak mendukung tag video.
           </video>
