@@ -67,7 +67,7 @@
         <p class="text-sm text-gray-500 mb-4">per pertanyaan / per responden</p>
         <div class="bg-red-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 border border-red-200">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          Minimal order Rp 100.000 per survey
+          Minimal order Rp 50.000 per survey
         </div>
       </div>
 
@@ -203,7 +203,7 @@
                 <span class="text-sm font-bold text-gray-900">Total Setelah Diskon</span>
                 <span id="totalCost" class="text-2xl font-extrabold text-orange-500">Rp 0</span>
               </div>
-              <p id="minWarning" class="hidden text-xs text-red-500 font-medium text-right">⚠ Minimal Rp 100.000</p>
+              <p id="minWarning" class="hidden text-xs text-red-500 font-medium text-right">⚠ Minimal Rp 50.000</p>
             </div>
           </div>
 
@@ -311,7 +311,7 @@ function updateSubmitState() {
     const agreeTerms     = document.getElementById('agreeTerms');
     const submitButton   = document.getElementById('submitButton');
     if (!submitButton) return;
-    const MIN = 100000;
+    const MIN = 50000;
     const price = parseInt(totalCostInput ? totalCostInput.value : 0) || 0;
     submitButton.disabled = !(price >= MIN && agreeTerms && agreeTerms.checked);
 }
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userTypeSelect = document.getElementById('userType');
     const resultBox      = document.getElementById('resultBox');
     const placeholder    = document.getElementById('calcPlaceholder');
-    const MIN            = 100000;
+    const MIN            = 50000;
 
     const fmt = n => 'Rp ' + n.toLocaleString('id-ID');
 
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Submit guard
     document.getElementById('orderForm').addEventListener('submit', e => {
         const p = parseInt(document.getElementById('postTotalCost').value) || 0;
-        if (p < MIN) { e.preventDefault(); alert('Total biaya minimal Rp 100.000'); return false; }
+        if (p < MIN) { e.preventDefault(); alert('Total biaya minimal Rp 50.000'); return false; }
         if (!document.getElementById('agreeTerms').checked) { e.preventDefault(); alert('Setujui Syarat & Ketentuan terlebih dahulu'); return false; }
     });
 });
