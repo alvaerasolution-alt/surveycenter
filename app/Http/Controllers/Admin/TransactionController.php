@@ -1,0 +1,100 @@
+<?php
+
+// app/Http/Controllers/Admin/TransactionController.php
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Transaction;
+use App\Models\Survey;
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class TransactionController extends Controller
+{
+    public function index()
+    {
+        $transactions = Transaction::with(['survey', 'user'])->latest()->paginate(10);
+        return view('admin.transactions.index', compact('transactions'));
+    }
+
+    public function show(Transaction $transaction)
+    {
+        $transaction->load(['user', 'survey']);
+        return view('admin.transactions.show', compact('transaction'));
+    }
+
+    public function create()
+    {
+        $surveys = Survey::all();
+        $users = User::all();
+        return view('admin.transactions.create', compact('surveys', 'users'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'amount' => 'required|integer',
+            'status' => 'required|string',
+            'survey_id' => 'nullable|exists:surveys,id',
+            'survey_title' => 'nullable|string|max:255',
+        ]);
+
+        // Jika survey_id tidak dikirim, buat survey baru
+        if (!$request->survey_id) {
+            $survey = \App\Models\Survey::create([
+                'user_id' => $request->user_id,
+                'title' => $request->survey_title ?? 'Survey baru',
+            ]);
+            $survey_id = $survey->id;
+        } else {
+            $survey_id = $request->survey_id;
+        }
+
+        // Buat transaksi
+        \App\Models\Transaction::create([
+            'survey_id' => $survey_id,
+            'user_id' => $request->user_id,
+            'amount' => $request->amount,
+            'status' => $request->status,
+            'singapay_ref' => $request->singapay_ref,
+            'payment_method' => $request->payment_method,
+        ]);
+
+        return redirect()->route('admin.transaction.index')
+            ->with('success', 'Transaction berhasil dibuat!');
+    }
+
+
+    public function edit(Transaction $transaction)
+    {
+        $surveys = Survey::all();
+        $users = User::all();
+        return view('admin.transactions.edit', compact('transaction', 'surveys', 'users'));
+    }
+
+    public function update(Request $request, Transaction $transaction)
+    {
+        $validated = $request->validate([
+            'survey_id' => 'required|exists:surveys,id',
+            'user_id' => 'nullable|exists:users,id',
+            'amount' => 'required|integer|min:0',
+            'payment_method' => 'nullable|string|max:50',
+            'status' => 'required|string',
+            'singapay_ref' => 'nullable|string',
+        ]);
+
+        $transaction->update($validated);
+
+        return redirect()->route('admin.transactions.index')
+            ->with('success', 'Transaction updated successfully.');
+    }
+
+    public function destroy(Transaction $transaction)
+    {
+        $transaction->delete();
+
+        return redirect()->route('admin.transactions.index')
+            ->with('success', 'Transaction deleted successfully.');
+    }
+}
