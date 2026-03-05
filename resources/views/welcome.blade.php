@@ -164,18 +164,20 @@
   <div class="relative overflow-hidden">
     <div id="discountSlider" class="flex transition-transform duration-700 ease-in-out">
       @foreach ($banners as $banner)
-        <div class="flex items-center justify-between px-8 py-5 flex-shrink-0" style="background: {{ $banner->background }}; width: 100%;">
-          <div class="max-w-[70%] text-white font-extrabold">
+        <div class="relative flex items-center justify-between px-8 py-5 flex-shrink-0" style="background: {{ $banner->background }}; width: 100%;">
+          {{-- Dark overlay for text contrast --}}
+          <div class="absolute inset-0 bg-black/40"></div>
+          <div class="relative max-w-[70%] text-white font-extrabold" style="text-shadow: 0 1px 4px rgba(0,0,0,.5);">
             <h2 class="text-xl md:text-2xl font-extrabold mb-1">{{ $banner->title }}</h2>
             <p class="text-sm md:text-base font-normal text-white/90">{{ $banner->subtitle }}</p>
             @if ($banner->button_text && $banner->button_link)
-              <a href="{{ $banner->button_link }}" class="inline-block mt-3 px-5 py-2 bg-black text-white rounded-lg font-bold text-sm hover:bg-gray-900 transition">
+              <a href="{{ $banner->button_link }}" class="inline-block mt-3 px-5 py-2 bg-white text-gray-900 rounded-lg font-bold text-sm hover:bg-gray-100 transition shadow">
                 {{ $banner->button_text }}
               </a>
             @endif
           </div>
           @if ($banner->image)
-            <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="rounded-lg shadow-md w-36 h-24 object-cover hidden sm:block">
+            <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="relative rounded-lg shadow-md w-36 h-24 object-cover hidden sm:block">
           @endif
         </div>
       @endforeach
