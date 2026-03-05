@@ -80,7 +80,7 @@
             <input type="hidden" name="background" id="backgroundInput" value="{{ old('background', $discountBanner->background ?? 'linear-gradient(135deg, #FF6B1A, #FF8C42)') }}">
 
             {{-- Live Preview --}}
-            <div id="bannerPreview" class="rounded-xl p-5 flex items-center justify-between shadow-sm border border-gray-200 mt-2" style="background: {{ old('background', $discountBanner->background ?? 'linear-gradient(135deg, #FF6B1A, #FF8C42)') }};">
+            <div id="bannerPreview" class="rounded-xl p-5 flex items-center justify-between shadow-sm border border-gray-200 mt-2 relative overflow-hidden" style="background: {{ old('background', $discountBanner->background ?? 'linear-gradient(135deg, #FF6B1A, #FF8C42)') }};">
                 <div>
                     <div class="absolute inset-0 bg-black/40 rounded-xl"></div>
                     <h3 class="relative text-lg font-bold text-white" style="text-shadow:0 1px 3px rgba(0,0,0,.4)">Preview Judul Banner</h3>
