@@ -32,6 +32,36 @@
         <canvas id="pipelineChart" height="120"></canvas>
     </div>
 
+    {{-- Charts Grid: Revenue + Follow-Up + Transaction --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {{-- Monthly Revenue --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h2 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-5 h-5 text-orange-500"></i>
+                Revenue Bulanan (6 Bulan Terakhir)
+            </h2>
+            <canvas id="revenueChart" height="160"></canvas>
+        </div>
+
+        {{-- Follow-Up & Transaction Status side by side --}}
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <h2 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <i data-lucide="phone-call" class="w-4 h-4 text-amber-500"></i>
+                    Follow-Up
+                </h2>
+                <canvas id="followUpChart" height="180"></canvas>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <h2 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-4 h-4 text-emerald-500"></i>
+                    Transaksi
+                </h2>
+                <canvas id="transactionChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+
     {{-- Customer Sudah Bayar --}}
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -156,15 +186,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
-            const ctx = document.getElementById('pipelineChart').getContext('2d');
-            new Chart(ctx, {
+            // Pipeline Chart (Customer Status)
+            const ctxPipeline = document.getElementById('pipelineChart').getContext('2d');
+            new Chart(ctxPipeline, {
                 type: 'bar',
                 data: {
-                    labels: ['Lead', 'Terkualifikasi', 'Proposal', 'Selesai'],
+                    labels: ['Lead', 'Prospect', 'Customer'],
                     datasets: [{
                         label: 'Jumlah',
-                        data: [40, 30, 20, 15],
-                        backgroundColor: ['#6366f1', '#818cf8', '#34d399', '#10b981'],
+                        data: [{{ $pipeline['lead'] }}, {{ $pipeline['prospect'] }}, {{ $pipeline['customer'] }}],
+                        backgroundColor: ['#6366f1', '#818cf8', '#10b981'],
                         borderRadius: 8,
                         barThickness: 50
                     }]
@@ -184,7 +215,100 @@
                     },
                     scales: {
                         x: { grid: { display: false } },
-                        y: { beginAtZero: true }
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+
+            // Monthly Revenue Chart
+            const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctxRevenue, {
+                type: 'line',
+                data: {
+                    labels: {!! json_encode($monthLabels) !!},
+                    datasets: [{
+                        label: 'Revenue (Rp)',
+                        data: {!! json_encode($monthlyRevenue) !!},
+                        borderColor: '#f97316',
+                        backgroundColor: 'rgba(249,115,22,0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#f97316'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            callbacks: {
+                                label: function(ctx) {
+                                    return 'Rp ' + ctx.parsed.y.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(v) { return 'Rp ' + (v/1000) + 'k'; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Follow-Up Status Chart
+            const ctxFollowUp = document.getElementById('followUpChart').getContext('2d');
+            new Chart(ctxFollowUp, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Contacted', 'Negotiation', 'Closed'],
+                    datasets: [{
+                        data: [{{ $followUpStats['pending'] }}, {{ $followUpStats['contacted'] }}, {{ $followUpStats['negotiation'] }}, {{ $followUpStats['closed'] }}],
+                        backgroundColor: ['#fbbf24', '#3b82f6', '#a855f7', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 15, usePointStyle: true, pointStyle: 'circle', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+
+            // Transaction Status Chart
+            const ctxTrx = document.getElementById('transactionChart').getContext('2d');
+            new Chart(ctxTrx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Paid'],
+                    datasets: [{
+                        data: [{{ $transactionStats['pending'] }}, {{ $transactionStats['paid'] }}],
+                        backgroundColor: ['#fbbf24', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 15, usePointStyle: true, pointStyle: 'circle', font: { size: 12 } }
+                        }
                     }
                 }
             });
