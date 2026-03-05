@@ -440,13 +440,13 @@
     {{-- Header --}}
     <div class="text-center mb-12">
       <span class="inline-block bg-green-100 text-green-600 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
-        💬 Testimoni Pelanggan
+        💬 Project Delivered
       </span>
-      <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
+      <!-- <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
         Apa Kata <span class="text-orange-500">Mereka?</span>
-      </h2>
+      </h2> -->
       <p class="text-gray-500 text-sm md:text-base max-w-xl mx-auto">
-        Percakapan nyata dari klien dan responden setia kami — tidak direkayasa, langsung dari WhatsApp.
+        Beberapa cuplikan project yang pernah kami buat
       </p>
     </div>
 
