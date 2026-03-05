@@ -7,9 +7,9 @@
     <title>{{ $seoTitle ?? 'Jasa Survey Pasar - Jasa Sebar Kuesioner - Survey Brand Awareness | SurveyCenter' }}</title>
 
     {{-- Favicon --}}
-    <link rel="icon" type="image/png" href="{{ asset('storage/assets/logosc.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('storage/assets/logosc.png') }}">
-    <link rel="shortcut icon" href="{{ asset('storage/assets/logosc.png') }}" type="image/png">
+    <link rel="icon" type="image/png" href="{{ asset('assets/logosc.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/logosc.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/logosc.png') }}" type="image/png">
 
     {{-- SEO Meta --}}
     <meta name="description" content="{{ $seoDesc ?? 'Jasa Sebar Kuesioner - Jasa Survey Pasar - Market Riset. Temukan solusi profesional untuk pengumpulan data dan analisis pasar dengan layanan jasa yang terpercaya.' }}">

@@ -42,7 +42,7 @@
 
             <!-- Kanan: Gambar -->
             <div class="flex justify-center">
-                <img src="https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img,w_707/https://surveycenter.co.id/assets/img/owl-mascot.png" 
+                <img src="{{ asset('assets/owl-mascot.png') }}" 
                      alt="Survey Center Indonesia" 
                      class="w-80 md:w-[420px] object-contain">
             </div>

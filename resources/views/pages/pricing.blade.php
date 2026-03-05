@@ -292,10 +292,10 @@
     </div>
     <div class="grid md:grid-cols-2 gap-6 items-center">
       <div class="flex justify-center">
-        <img src="{{ asset('storage/assets/Harga-Survey-Center-1024x606.png') }}" alt="Price Level Table" class="rounded-xl shadow max-w-full">
+        <img src="{{ asset('assets/Harga-Survey-Center-1024x606.png') }}" alt="Price Level Table" class="rounded-xl shadow max-w-full">
       </div>
       <div class="flex justify-center">
-        <img src="{{ asset('storage/assets/incase-768x247.jpg') }}" alt="Price Formula" class="rounded-xl shadow max-w-full">
+        <img src="{{ asset('assets/incase-768x247.jpg') }}" alt="Price Formula" class="rounded-xl shadow max-w-full">
       </div>
     </div>
   </div>

@@ -6,7 +6,7 @@
       {{-- Kolom 1: Company Info + Layanan --}}
       <div>
         <div class="flex items-center gap-3 mb-4">
-          <img src="{{ asset('storage/assets/logosc.png') }}" alt="Logo" class="w-12 h-12 object-contain drop-shadow">
+          <img src="{{ asset('assets/logosc.png') }}" alt="Logo" class="w-12 h-12 object-contain drop-shadow">
           <div>
             <h3 class="font-extrabold text-base leading-tight">Survey Center<br>Indonesia</h3>
             <p class="text-xs text-orange-200 mt-0.5">PT. Market Research & Branding</p>

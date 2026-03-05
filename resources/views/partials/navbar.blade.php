@@ -4,7 +4,7 @@
 
     {{-- Logo --}}
     <a href="{{ route('landing') }}" class="flex items-start gap-3 flex-shrink-0">
-      <img src="{{ asset('storage/assets/logosc.png') }}" alt="SurveyCenter Logo" class="w-12 h-12 object-contain">
+      <img src="{{ asset('assets/logosc.png') }}" alt="SurveyCenter Logo" class="w-12 h-12 object-contain">
       <div class="leading-tight">
         <p class="text-base font-extrabold text-orange-500 leading-tight">Survey Center<br>Indonesia</p>
         <p class="text-[10px] text-gray-400 mt-0.5">PT. Market Research & Branding</p>

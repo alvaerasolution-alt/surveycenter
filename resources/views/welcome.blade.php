@@ -137,7 +137,7 @@
 
         {{-- RIGHT: Mascot --}}
         <div class="flex justify-center md:justify-end">
-          <img src="{{ asset('storage/assets/logosc.png') }}" alt="SurveyCenter Mascot"
+          <img src="{{ asset('assets/logosc.png') }}" alt="SurveyCenter Mascot"
                class="float-mascot w-60 sm:w-72 md:w-[380px] lg:w-[420px] drop-shadow-[0_30px_30px_rgba(0,0,0,0.2)]">
         </div>
 
@@ -228,15 +228,19 @@
       {{-- Phone frame --}}
       <div class="relative mx-auto bg-gray-900 rounded-[2.5rem] p-3 shadow-2xl w-full max-w-2xl border-4 border-gray-800">
         <div class="absolute top-3.5 left-1/2 -translate-x-1/2 w-16 h-1.5 bg-gray-700 rounded-full z-10"></div>
-        <div class="rounded-[2rem] overflow-hidden bg-black">
-          <video class="w-full aspect-video block" controls preload="none" poster="{{ asset('storage/assets/bg.png') }}">
-            <source src="{{ asset('storage/assets/video.mp4') }}" type="video/mp4">
+        <div class="rounded-[2rem] overflow-hidden bg-black flex justify-center">
+          <video class="w-full aspect-video hidden md:block" controls preload="none" poster="{{ asset('assets/bg.png') }}">
+            <source src="{{ asset('assets/video.mp4') }}" type="video/mp4">
+            Browser Anda tidak mendukung tag video.
+          </video>
+          <video class="w-[80%] aspect-[9/16] block md:hidden" controls preload="none" poster="{{ asset('assets/bg.png') }}">
+            <source src="{{ asset('assets/survey1.mp4') }}" type="video/mp4">
             Browser Anda tidak mendukung tag video.
           </video>
         </div>
       </div>
       {{-- Mascot overlapping the frame --}}
-      <img src="{{ asset('storage/assets/logosc.png') }}" alt="Mascot"
+      <img src="{{ asset('assets/logosc.png') }}" alt="Mascot"
            class="absolute -bottom-8 -right-4 md:-right-12 w-24 md:w-32 drop-shadow-xl pointer-events-none"
            style="animation: floatSlow 4s ease-in-out infinite;">
     </div>

@@ -98,7 +98,7 @@
     <div class="invoice-box">
         <!-- Header -->
         <div class="header" style="text-align:center; margin-bottom:20px;">
-            {{-- <img src="{{ url('storage/assets/logosc.png') }}" alt="Logo" style="height:80px; margin-bottom:10px;"> --}}
+            {{-- <img src="{{ url('assets/logosc.png') }}" alt="Logo" style="height:80px; margin-bottom:10px;"> --}}
             <div class="company" style="font-size:22px; font-weight:bold;">
                 Survey Center Indonesia
             </div>
