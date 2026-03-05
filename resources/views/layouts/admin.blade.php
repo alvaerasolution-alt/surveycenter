@@ -193,7 +193,7 @@
 
                 @php
                     $adminLinks = [
-                        ['route' => '/admin/dashboard', 'is' => 'admin/dashboard', 'icon' => 'layout-dashboard', 'label' => 'Dashboard', 'check' => 'is'],
+                        ['route' => 'admin.dashboard', 'is' => 'admin.dashboard', 'icon' => 'layout-dashboard', 'label' => 'Dashboard', 'check' => 'routeIs'],
                         ['route' => 'settings.edit', 'is' => 'settings.*', 'icon' => 'settings', 'label' => 'Pengaturan', 'check' => 'routeIs'],
                     ];
                     $contentLinks = [
