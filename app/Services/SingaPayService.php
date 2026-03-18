@@ -94,8 +94,6 @@ class SingaPayService
                 'VA_DANAMON',
                 'VA_MAYBANK',
             ],
-            'success_redirect_url' => 'https://surveycenter.co.id/history',
-            'failed_redirect_url' => 'https://surveycenter.co.id/history',
         ];
 
         try {
