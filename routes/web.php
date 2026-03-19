@@ -300,11 +300,11 @@ Route::middleware(['auth'])->prefix('faspay/test')->name('faspay.')->group(funct
 });
 
 // Faspay Webhook Routes (NO auth required - Faspay will call these)
-Route::post('/api/webhook/faspay/notification', [FaspayController::class, 'notification'])
+Route::post('/api/webhook/faspay/payment', [FaspayController::class, 'notification'])
     ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
     ->name('faspay.webhook.notification');
 
-Route::get('/transaction/faspay/return', [FaspayController::class, 'returnUrl'])->name('faspay.webhook.return');
+Route::get('/payment/return', [FaspayController::class, 'returnUrl'])->name('faspay.webhook.return');
 
 // Faspay Debug Routes (dev only)
 Route::middleware(['auth'])->prefix('faspay')->group(function () {
