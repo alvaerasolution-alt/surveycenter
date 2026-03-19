@@ -70,7 +70,7 @@ class FaspayTestTransactionController extends Controller
                 'customer_phone' => $validated['customer_phone'],
                 'bill_description' => $validated['bill_description'] ?? 'Test Transaction',
                 'notes' => $validated['notes'],
-                'expires_at' => now()->addMinutes(config('faspay.invoice_expiration', 30)),
+                'expires_at' => now()->addMinutes((int) config('faspay.invoice_expiration', 30)),
             ]);
 
             return redirect()->route('faspay.test-transaction.payment', $transaction)

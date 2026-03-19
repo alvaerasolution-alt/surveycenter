@@ -69,7 +69,7 @@ return [
     /**
      * Transaction Expiration (in minutes)
      */
-    'invoice_expiration' => env('FASPAY_INVOICE_EXPIRATION', 30),
+    'invoice_expiration' => (int) env('FASPAY_INVOICE_EXPIRATION', 30),
     
     /**
      * Enable detailed logging
