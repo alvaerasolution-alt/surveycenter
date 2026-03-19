@@ -109,12 +109,15 @@ class FaspayService
             }
 
             // Send request to Faspay API (using xpress endpoint which is simpler)
-            $response = Http::timeout(30)
-                ->post("{$this->paymentUrl}create", $invoiceData)
-                ->json();
+            $apiReq = Http::timeout(30)->post("{$this->paymentUrl}create", $invoiceData);
+            $response = $apiReq->json() ?? [];
 
             if ($this->loggingEnabled) {
-                Log::info('Faspay invoice response', $response);
+                Log::info('Faspay invoice response', [
+                    'status' => $apiReq->status(),
+                    'body' => $apiReq->body(),
+                    'parsed' => $response
+                ]);
             }
 
             return [
