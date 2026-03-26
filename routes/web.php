@@ -61,6 +61,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{survey}/edit', [UserSurveyController::class, 'edit'])->name('edit');
         Route::put('/{survey}', [UserSurveyController::class, 'update'])->name('update');
         Route::delete('/{survey}', [UserSurveyController::class, 'destroy'])->name('destroy');
+        Route::get('/{survey}/export/pdf', [UserSurveyController::class, 'exportPdf'])->name('export-pdf');
+        Route::get('/{survey}/export/responses-pdf', [UserSurveyController::class, 'exportResponsesPdf'])->name('export-responses-pdf');
     });
 
     // User Transaction Routes

@@ -147,6 +147,26 @@
         </div>
     </div>
 
+    {{-- Export Section --}}
+    <div class="bg-white rounded-xl border border-gray-200/80 p-6">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            Export Data
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a href="{{ route('user.surveys.export-pdf', $survey) }}" class="flex items-center justify-center gap-2 px-4 py-3 bg-orange-50 text-orange-600 rounded-lg font-medium text-sm hover:bg-orange-100 transition border border-orange-200">
+                <i data-lucide="file-pdf" class="w-4 h-4"></i>
+                Laporan Survey (PDF)
+            </a>
+            @if($survey->responses->isNotEmpty())
+                <a href="{{ route('user.surveys.export-responses-pdf', $survey) }}" class="flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 text-blue-600 rounded-lg font-medium text-sm hover:bg-blue-100 transition border border-blue-200">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    Data Respons (PDF)
+                </a>
+            @endif
+        </div>
+    </div>
+
     {{-- Transaction History --}}
     <div class="bg-white rounded-xl border border-gray-200/80 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">

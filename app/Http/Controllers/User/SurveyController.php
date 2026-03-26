@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Survey;
 use App\Models\Transaction;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -171,5 +172,70 @@ class SurveyController extends Controller
 
         return redirect()->route('user.surveys.index')
             ->with('success', 'Survey berhasil dihapus!');
+    }
+
+    /**
+     * Export survey details to PDF
+     */
+    public function exportPdf(Survey $survey)
+    {
+        // Ensure user owns this survey
+        if ($survey->user_id != Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Load relationships
+        $survey->load(['responses', 'transactions' => function($q) {
+            $q->latest();
+        }]);
+
+        // Generate PDF
+        $pdf = Pdf::loadView('user.surveys.export-pdf', [
+            'survey' => $survey,
+            'transactions' => $survey->transactions,
+            'responses' => $survey->responses,
+            'user' => Auth::user(),
+            'generatedAt' => now(),
+        ])
+        ->setPaper('a4')
+        ->setOption('margin-top', 10)
+        ->setOption('margin-bottom', 10)
+        ->setOption('margin-left', 10)
+        ->setOption('margin-right', 10);
+
+        return $pdf->download("survey-{$survey->id}-" . now()->format('Y-m-d-His') . ".pdf");
+    }
+
+    /**
+     * Export survey responses to PDF
+     */
+    public function exportResponsesPdf(Survey $survey)
+    {
+        // Ensure user owns this survey
+        if ($survey->user_id != Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Load responses
+        $survey->load('responses');
+
+        if ($survey->responses->isEmpty()) {
+            return back()->with('error', 'Tidak ada respons untuk diekspor.');
+        }
+
+        // Generate PDF
+        $pdf = Pdf::loadView('user.surveys.export-responses-pdf', [
+            'survey' => $survey,
+            'responses' => $survey->responses,
+            'user' => Auth::user(),
+            'generatedAt' => now(),
+        ])
+        ->setPaper('a4', 'landscape')
+        ->setOption('margin-top', 10)
+        ->setOption('margin-bottom', 10)
+        ->setOption('margin-left', 10)
+        ->setOption('margin-right', 10);
+
+        return $pdf->download("survey-responses-{$survey->id}-" . now()->format('Y-m-d-His') . ".pdf");
     }
 }
