@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PaymentFailedMail;
+use App\Mail\PaymentSuccessMail;
 use App\Models\Transaction;
 use App\Services\SingaPayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -132,33 +135,65 @@ class PaymentController extends Controller
     }
 
     /**
-     * Map Singapay status code to our transaction status
+     * Handle webhook from Singapay - called when payment is confirmed
+     * This should be called from the webhook handler, not directly by users
      */
-    private function mapSingapayStatus($code)
+    public function handleWebhook($transactionId, $status)
     {
-        return match($code) {
-            2 => 'paid',           // Payment Success
-            1 => 'processing',     // In Process
-            3 => 'failed',         // Payment Failed
-            7 => 'expired',        // Payment Expired
-            8 => 'cancelled',      // Payment Cancelled
-            default => null
-        };
-    }
+        $transaction = Transaction::find($transactionId);
+        
+        if (!$transaction) {
+            Log::warning('Webhook: Transaction not found', ['transaction_id' => $transactionId]);
+            return false;
+        }
 
-    /**
-     * Get status message
-     */
-    private function getStatusMessage($status)
-    {
-        return match($status) {
-            'paid' => 'Pembayaran berhasil diproses',
-            'processing' => 'Pembayaran sedang diproses',
-            'pending' => 'Menunggu pembayaran',
-            'failed' => 'Pembayaran gagal',
-            'expired' => 'Pembayaran telah kadaluarsa',
-            'cancelled' => 'Pembayaran dibatalkan',
-            default => 'Status tidak diketahui'
-        };
+        $oldStatus = $transaction->status;
+        
+        // Update transaction status
+        if ($status === 'paid') {
+            $transaction->update(['status' => 'paid']);
+            
+            Log::info('Payment Confirmed via Webhook', [
+                'transaction_id' => $transaction->id,
+                'user_id' => $transaction->user_id,
+                'old_status' => $oldStatus
+            ]);
+            
+            // Send success email
+            try {
+                Mail::to($transaction->user->email)->queue(new PaymentSuccessMail($transaction));
+                Log::info('Payment Success Email Queued', ['transaction_id' => $transaction->id]);
+            } catch (\Exception $e) {
+                Log::error('Failed to Queue Payment Success Email', [
+                    'transaction_id' => $transaction->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+            
+            return true;
+        } elseif ($status === 'failed' || $status === 'expired' || $status === 'cancelled') {
+            $transaction->update(['status' => 'failed']);
+            
+            Log::info('Payment Failed via Webhook', [
+                'transaction_id' => $transaction->id,
+                'user_id' => $transaction->user_id,
+                'reason' => $status
+            ]);
+            
+            // Send failed email
+            try {
+                Mail::to($transaction->user->email)->queue(new PaymentFailedMail($transaction));
+                Log::info('Payment Failed Email Queued', ['transaction_id' => $transaction->id]);
+            } catch (\Exception $e) {
+                Log::error('Failed to Queue Payment Failed Email', [
+                    'transaction_id' => $transaction->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+            
+            return true;
+        }
+        
+        return false;
     }
 }
