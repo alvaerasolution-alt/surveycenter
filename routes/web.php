@@ -20,6 +20,8 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\SurveyController as UserSurveyController;
+use App\Http\Controllers\User\TransactionController as UserTransactionController;
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
 use App\Http\Controllers\Admin\TransactionProgressController as AdminTransactionProgressController;
 use App\Http\Controllers\Admin\ResponseController;
@@ -46,8 +48,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/history', [TransactionController::class, 'history'])
         ->name('user.history');
 
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('user.profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('user.profile.edit');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('user.profile.update');
+
+    // User Survey Routes
+    Route::prefix('my-surveys')->name('user.surveys.')->group(function () {
+        Route::get('/', [UserSurveyController::class, 'index'])->name('index');
+        Route::get('/create', [UserSurveyController::class, 'create'])->name('create');
+        Route::post('/', [UserSurveyController::class, 'store'])->name('store');
+        Route::get('/{survey}', [UserSurveyController::class, 'show'])->name('show');
+        Route::get('/{survey}/edit', [UserSurveyController::class, 'edit'])->name('edit');
+        Route::put('/{survey}', [UserSurveyController::class, 'update'])->name('update');
+        Route::delete('/{survey}', [UserSurveyController::class, 'destroy'])->name('destroy');
+    });
+
+    // User Transaction Routes
+    Route::prefix('my-transactions')->name('user.transactions.')->group(function () {
+        Route::get('/', [UserTransactionController::class, 'index'])->name('index');
+        Route::get('/{transaction}', [UserTransactionController::class, 'show'])->name('show');
+    });
 });
 
 Route::get('/about', function () {
@@ -244,14 +264,14 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     Route::put('customer-stories/{customerStory}', [CustomerStoryController::class, 'update'])->name('customer-stories.update');
     Route::delete('customer-stories/{customerStory}', [CustomerStoryController::class, 'destroy'])->name('customer-stories.destroy');
 
-    // Article CRUD
-    // ✅ Semua route berada di bawah /admin/...
-    Route::get('articles', [ArticleController::class, 'index'])->name('articles.index');
-    Route::get('articles/create', [ArticleController::class, 'create'])->name('articles.create');
-    Route::post('articles', [ArticleController::class, 'store'])->name('articles.store');
-    Route::get('articles/{article}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
-    Route::put('articles/{article}', [ArticleController::class, 'update'])->name('articles.update');
-    Route::delete('articles/{id}', [ArticleController::class, 'destroy'])->name('articles.destroy');
+     // Article CRUD
+     // ✅ Semua route berada di bawah /admin/...
+     Route::get('articles', [ArticleController::class, 'index'])->name('admin.articles.index');
+     Route::get('articles/create', [ArticleController::class, 'create'])->name('admin.articles.create');
+     Route::post('articles', [ArticleController::class, 'store'])->name('admin.articles.store');
+     Route::get('articles/{article}/edit', [ArticleController::class, 'edit'])->name('admin.articles.edit');
+     Route::put('articles/{article}', [ArticleController::class, 'update'])->name('admin.articles.update');
+     Route::delete('articles/{id}', [ArticleController::class, 'destroy'])->name('admin.articles.destroy');
 
     Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::resource('layanan', AdminLayananController::class);

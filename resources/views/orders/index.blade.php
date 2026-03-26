@@ -9,9 +9,9 @@
             <h2 class="text-xl font-bold text-gray-800 mb-6">Menu</h2>
             <ul class="space-y-3">
                 <li>
-                    <a href="{{ route('profile.show') }}"
+                    <a href="{{ route('user.profile.show') }}"
                         class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-yellow-200 transition
-                        {{ request()->routeIs('profile.show') ? 'bg-yellow-300 font-semibold' : '' }}">
+                        {{ request()->routeIs('user.profile.show') ? 'bg-yellow-300 font-semibold' : '' }}">
                         Edit Profile
                     </a>
                 </li>

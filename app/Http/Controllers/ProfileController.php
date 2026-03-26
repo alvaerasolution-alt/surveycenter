@@ -16,6 +16,13 @@ class ProfileController extends Controller
         return view('user.profile.show', compact('user'));
     }
 
+    // Menampilkan form edit profil
+    public function edit()
+    {
+        $user = Auth::user();
+        return view('user.profile.edit', compact('user'));
+    }
+
     // Update profil
     public function update(Request $request)
     {
@@ -39,6 +46,6 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return redirect()->route('profile.show')->with('success', 'Profil berhasil diperbarui!');
+        return redirect()->route('user.profile.show')->with('success', 'Profil berhasil diperbarui!');
     }
 }

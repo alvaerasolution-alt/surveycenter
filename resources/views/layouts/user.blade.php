@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Dashboard') — SurveyCenter</title>
+
+    {{-- Favicon --}}
+    <link rel="icon" type="image/png" href="{{ asset('assets/logosc.png') }}">
+
+    {{-- TailwindCSS --}}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    fontSize: {
+                        '2xs': ['0.65rem', { lineHeight: '1rem' }],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    {{-- AlpineJS --}}
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    {{-- Google Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    {{-- Lucide Icons --}}
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar { width: 0; }
+        .sidebar-scroll { scrollbar-width: none; }
+
+        .content-scroll::-webkit-scrollbar { width: 5px; }
+        .content-scroll::-webkit-scrollbar-track { background: transparent; }
+        .content-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+        .nav-item {
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: #fff;
+            border-radius: 0 3px 3px 0;
+        }
+
+        .nav-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: all 0.15s ease;
+        }
+        .nav-item:hover .nav-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #c2410c 0%, #ea580c 50%, #f97316 100%);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-enter { animation: fadeInUp 0.3s ease-out; }
+    </style>
+
+    @stack('styles')
+</head>
+
+<body class="bg-[#f8f9fc] text-gray-800" x-data="{ sidebarOpen: true, mobileSidebar: false, userMenu: false, notifMenu: false }">
+
+    <div class="flex h-screen overflow-hidden">
+
+        {{-- Mobile Overlay --}}
+        <div x-show="mobileSidebar"
+             x-transition:enter="transition-opacity ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="mobileSidebar = false"
+             class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40 lg:hidden"
+             style="display: none;"></div>
+
+        {{-- ═══════════════════════════════════════ --}}
+        {{-- SIDEBAR --}}
+        {{-- ═══════════════════════════════════════ --}}
+        <aside :class="[
+                sidebarOpen ? 'w-[260px]' : 'w-[70px]',
+                mobileSidebar ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            ]"
+            class="fixed lg:relative inset-y-0 left-0 z-50 flex flex-col sidebar-gradient text-white transition-all duration-300 ease-in-out shadow-xl shadow-orange-900/20">
+
+            {{-- Logo --}}
+            <div class="flex items-center h-[64px] px-4 flex-shrink-0">
+                <a href="{{ url('/') }}" class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <span class="text-white font-extrabold text-xs tracking-tight">SC</span>
+                    </div>
+                    <div x-show="sidebarOpen" x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="min-w-0">
+                        <span class="font-bold text-[13px] tracking-wide text-white block">SurveyCenter</span>
+                        <span class="text-2xs text-orange-200 font-medium">User Dashboard</span>
+                    </div>
+                </a>
+                <button @click="sidebarOpen = !sidebarOpen"
+                    class="ml-auto w-7 h-7 rounded-lg hover:bg-white/10 transition hidden lg:flex items-center justify-center group">
+                    <i x-show="sidebarOpen" data-lucide="chevrons-left" class="w-4 h-4 text-orange-200 group-hover:text-white"></i>
+                    <i x-show="!sidebarOpen" data-lucide="chevrons-right" class="w-4 h-4 text-orange-200 group-hover:text-white"></i>
+                </button>
+                <button @click="mobileSidebar = false" class="ml-auto w-7 h-7 rounded-lg hover:bg-white/10 transition lg:hidden flex items-center justify-center">
+                    <i data-lucide="x" class="w-4 h-4 text-orange-200"></i>
+                </button>
+            </div>
+
+            <div class="mx-4 border-t border-white/20"></div>
+
+            {{-- Navigation --}}
+            <nav class="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto sidebar-scroll">
+
+                <p x-show="sidebarOpen" class="px-3 mb-3 text-2xs font-semibold uppercase tracking-[0.15em] text-orange-200">Menu</p>
+                <div x-show="!sidebarOpen" class="mb-2 mx-3 border-t border-white/10"></div>
+
+                @php
+                    $userLinks = [
+                        ['route' => 'user.dashboard', 'is' => 'user.dashboard', 'icon' => 'layout-dashboard', 'label' => 'Dashboard'],
+                        ['route' => 'user.surveys.index', 'is' => 'user.surveys.*', 'icon' => 'clipboard-list', 'label' => 'Survey Saya'],
+                        ['route' => 'user.surveys.create', 'is' => 'user.surveys.create', 'icon' => 'plus-circle', 'label' => 'Buat Survey'],
+                        ['route' => 'user.transactions.index', 'is' => 'user.transactions.*', 'icon' => 'receipt', 'label' => 'Transaksi'],
+                    ];
+                @endphp
+
+                @foreach($userLinks as $link)
+                    @php
+                        $isActive = request()->routeIs($link['is']);
+                    @endphp
+                    <div class="relative">
+                        <a href="{{ route($link['route']) }}"
+                           class="nav-item {{ $isActive ? 'active' : '' }} flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium
+                           {{ $isActive ? 'bg-white/20 text-white' : 'text-orange-100 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="{{ $link['icon'] }}" class="w-[18px] h-[18px] flex-shrink-0"></i>
+                            <span x-show="sidebarOpen" class="whitespace-nowrap">{{ $link['label'] }}</span>
+                        </a>
+                        <div x-show="!sidebarOpen" class="nav-tooltip absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[60]">
+                            <div class="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-xl whitespace-nowrap border border-white/10">
+                                {{ $link['label'] }}
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+                <div class="pt-4">
+                    <p x-show="sidebarOpen" class="px-3 mb-3 text-2xs font-semibold uppercase tracking-[0.15em] text-orange-200">Akun</p>
+                    <div x-show="!sidebarOpen" class="mb-2 mx-3 border-t border-white/10"></div>
+                </div>
+
+                @php
+                    $accountLinks = [
+                        ['route' => 'user.profile.show', 'is' => 'user.profile.*', 'icon' => 'user-circle', 'label' => 'Profil Saya'],
+                    ];
+                @endphp
+
+                @foreach($accountLinks as $link)
+                    @php
+                        $isActive = request()->routeIs($link['is']);
+                    @endphp
+                    <div class="relative">
+                        <a href="{{ route($link['route']) }}"
+                           class="nav-item {{ $isActive ? 'active' : '' }} flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium
+                           {{ $isActive ? 'bg-white/20 text-white' : 'text-orange-100 hover:bg-white/10 hover:text-white' }}">
+                            <i data-lucide="{{ $link['icon'] }}" class="w-[18px] h-[18px] flex-shrink-0"></i>
+                            <span x-show="sidebarOpen" class="whitespace-nowrap">{{ $link['label'] }}</span>
+                        </a>
+                        <div x-show="!sidebarOpen" class="nav-tooltip absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[60]">
+                            <div class="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-xl whitespace-nowrap border border-white/10">
+                                {{ $link['label'] }}
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+            </nav>
+
+            {{-- Bottom --}}
+            <div class="px-3 pb-4 flex-shrink-0 space-y-1">
+                <div class="border-t border-white/20 mb-3"></div>
+
+                <div class="relative">
+                    <a href="{{ url('/') }}"
+                        class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium text-orange-100 hover:bg-white/10 hover:text-white">
+                        <i data-lucide="home" class="w-[18px] h-[18px] flex-shrink-0"></i>
+                        <span x-show="sidebarOpen" class="whitespace-nowrap">Kembali ke Website</span>
+                    </a>
+                    <div x-show="!sidebarOpen" class="nav-tooltip absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[60]">
+                        <div class="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-xl whitespace-nowrap border border-white/10">Kembali ke Website</div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <div class="relative">
+                        <button type="submit"
+                            class="nav-item flex items-center gap-3 w-full px-3 py-2 rounded-lg text-[13px] font-medium text-orange-200 hover:bg-red-500/20 hover:text-white">
+                            <i data-lucide="log-out" class="w-[18px] h-[18px] flex-shrink-0"></i>
+                            <span x-show="sidebarOpen" class="whitespace-nowrap">Keluar</span>
+                        </button>
+                        <div x-show="!sidebarOpen" class="nav-tooltip absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[60]">
+                            <div class="bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-xl whitespace-nowrap border border-white/10">Keluar</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        {{-- ═══════════════════════════════════════ --}}
+        {{-- MAIN CONTENT --}}
+        {{-- ═══════════════════════════════════════ --}}
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+            {{-- Top Bar --}}
+            <header class="h-[64px] bg-white/80 backdrop-blur-lg border-b border-gray-200/80 flex items-center px-4 sm:px-6 lg:px-8 flex-shrink-0 z-30">
+                <button @click="mobileSidebar = true" class="p-2 -ml-2 rounded-lg hover:bg-gray-100 transition lg:hidden mr-1">
+                    <i data-lucide="align-left" class="w-5 h-5 text-gray-500"></i>
+                </button>
+
+                <div class="min-w-0">
+                    <h1 class="text-[15px] font-semibold text-gray-900 truncate">@yield('page-title', 'Dashboard')</h1>
+                    <p class="text-xs text-gray-400 truncate hidden sm:block">@yield('page-description', '')</p>
+                </div>
+
+                <div class="flex-1"></div>
+
+                <div class="flex items-center gap-2">
+                    {{-- Notifications --}}
+                    <div class="relative" @click.away="notifMenu = false">
+                        <button @click="notifMenu = !notifMenu"
+                            class="relative p-2 rounded-lg hover:bg-gray-100 transition">
+                            <i data-lucide="bell" class="w-5 h-5 text-gray-500"></i>
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+
+                        <div x-show="notifMenu"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl shadow-gray-200/50 border border-gray-200 py-2 z-50"
+                             style="display: none;">
+                            <div class="px-4 py-2 border-b border-gray-100">
+                                <h3 class="text-sm font-semibold text-gray-900">Notifikasi</h3>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <div class="px-4 py-8 text-center text-sm text-gray-400">
+                                    <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
+                                    Belum ada notifikasi
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- User Menu --}}
+                    <div class="relative" @click.away="userMenu = false">
+                        <button @click="userMenu = !userMenu"
+                            class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-100 transition">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-sm">
+                                <span class="text-white font-bold text-xs">{{ substr(auth()->user()->name ?? 'U', 0, 1) }}</span>
+                            </div>
+                            <div class="hidden sm:block text-left">
+                                <p class="text-xs font-semibold text-gray-700 leading-none">{{ auth()->user()->name ?? 'User' }}</p>
+                                <p class="text-2xs text-gray-400 leading-none mt-0.5">Member</p>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 hidden sm:block"></i>
+                        </button>
+
+                        <div x-show="userMenu"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl shadow-gray-200/50 border border-gray-200 py-1.5 z-50"
+                             style="display: none;">
+                            <a href="{{ route('user.profile.show') }}" class="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition">
+                                <i data-lucide="user-circle" class="w-4 h-4 text-gray-400"></i>
+                                Profil Saya
+                            </a>
+                            <a href="{{ url('/') }}" class="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition">
+                                <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
+                                Ke Website
+                            </a>
+                            <div class="my-1 border-t border-gray-100"></div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-red-600 hover:bg-red-50 transition w-full text-left">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                                    Keluar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            {{-- Page Content --}}
+            <main class="flex-1 overflow-y-auto content-scroll">
+                <div class="p-4 sm:p-6 lg:p-8 page-enter">
+                    {{-- Flash Messages --}}
+                    @if(session('success'))
+                        <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-[13px]"
+                             x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+                             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                            <div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            </div>
+                            <span class="font-medium">{{ session('success') }}</span>
+                            <button @click="show = false" class="ml-auto p-0.5 rounded hover:bg-emerald-100 transition">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200/60 text-red-700 text-[13px]"
+                             x-data="{ show: true }" x-show="show"
+                             x-transition:leave="transition ease-in duration-200">
+                            <div class="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="x" class="w-3 h-3 text-white"></i>
+                            </div>
+                            <span class="font-medium">{{ session('error') }}</span>
+                            <button @click="show = false" class="ml-auto p-0.5 rounded hover:bg-red-100 transition">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    @endif
+
+                    @yield('content')
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+
+    @stack('scripts')
+</body>
+
+</html>
