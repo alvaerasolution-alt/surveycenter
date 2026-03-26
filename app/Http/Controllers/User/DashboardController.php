@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Survey;
-
+use App\Models\Transaction;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -13,15 +13,41 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Data dummy untuk statistik
-        $totalSurveys = \App\Models\Survey::count();
-        $totalQuestions = \App\Models\Survey::sum('question_count');
-        $totalCost = ($totalQuestions * 1000);
+        // Statistik survey milik user
+        $totalSurveys = Survey::where('user_id', $user->id)->count();
+        $totalQuestions = Survey::where('user_id', $user->id)->sum('question_count');
+        $totalResponden = Survey::where('user_id', $user->id)->withCount('responses')->get()->sum('responses_count');
+        
+        // Statistik transaksi
+        $totalTransactions = Transaction::where('user_id', $user->id)->count();
+        $totalSpent = Transaction::where('user_id', $user->id)->where('status', 'paid')->sum('amount');
+        $pendingPayments = Transaction::where('user_id', $user->id)->where('status', 'pending')->sum('amount');
 
-        return view('user.dashboard.dashboard', [
-            'totalSurveys' => $totalSurveys,
-            'totalQuestions' => $totalQuestions,
-            'totalCost' => $totalCost,
-        ]);
+        // Survey terbaru milik user
+        $recentSurveys = Survey::where('user_id', $user->id)
+            ->withCount('responses')
+            ->with('transactions')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Transaksi terakhir
+        $recentTransactions = Transaction::where('user_id', $user->id)
+            ->with('survey')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('user.dashboard.index', compact(
+            'user',
+            'totalSurveys',
+            'totalQuestions',
+            'totalResponden',
+            'totalTransactions',
+            'totalSpent',
+            'pendingPayments',
+            'recentSurveys',
+            'recentTransactions'
+        ));
     }
 }

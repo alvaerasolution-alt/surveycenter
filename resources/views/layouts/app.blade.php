@@ -32,6 +32,9 @@
     {{-- Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+    {{-- Stacked Styles --}}
+    @stack('styles')
+
     {{-- Custom Inline CSS --}}
     <style>
         /* Banner Animations */

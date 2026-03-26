@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,7 +12,8 @@ class UserAuthController extends Controller
     // Menampilkan halaman login
     public function showLoginForm()
     {
-        return view('auth.login');
+        $articles = Article::latest()->take(4)->get();
+        return view('auth.login', compact('articles'));
     }
 
     // Proses login
