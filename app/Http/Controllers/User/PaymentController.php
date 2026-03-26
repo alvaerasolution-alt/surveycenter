@@ -68,7 +68,7 @@ class PaymentController extends Controller
                     [
                         'name' => $transaction->survey->title ?? 'Survey Payment',
                         'quantity' => 1,
-                        'price' => $transaction->amount
+                        'unit_price' => $transaction->amount
                     ]
                 ]
             );
