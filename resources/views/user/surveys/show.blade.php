@@ -29,7 +29,7 @@
             </div>
             <div class="flex items-center gap-2">
                 @if($latestTransaction && $latestTransaction->status === 'pending')
-                    <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg font-medium text-sm hover:bg-orange-700 transition">
+                    <a href="{{ route('user.payments.show', $latestTransaction->id) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg font-medium text-sm hover:bg-orange-700 transition">
                         <i data-lucide="credit-card" class="w-4 h-4"></i>
                         Bayar Sekarang
                     </a>
