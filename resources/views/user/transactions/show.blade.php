@@ -155,10 +155,10 @@
             Lihat Survey
         </a>
         @if($transaction->status === 'pending')
-            <button onclick="alert('Fitur pembayaran akan segera tersedia')" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition">
+            <a href="{{ route('user.payments.show', $transaction) }}" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition">
                 <i data-lucide="credit-card" class="w-4 h-4 inline mr-2"></i>
                 Bayar Sekarang
-            </button>
+            </a>
         @endif
     </div>
 

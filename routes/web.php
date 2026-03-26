@@ -68,6 +68,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [UserTransactionController::class, 'index'])->name('index');
         Route::get('/{transaction}', [UserTransactionController::class, 'show'])->name('show');
     });
+
+    // User Payment Routes
+    Route::prefix('payments')->name('user.payments.')->group(function () {
+        Route::get('/{transaction}', [\App\Http\Controllers\User\PaymentController::class, 'show'])->name('show');
+        Route::post('/{transaction}/process', [\App\Http\Controllers\User\PaymentController::class, 'process'])->name('process');
+        Route::get('/{transaction}/success', [\App\Http\Controllers\User\PaymentController::class, 'success'])->name('success');
+        Route::get('/{transaction}/failed', [\App\Http\Controllers\User\PaymentController::class, 'failed'])->name('failed');
+    });
 });
 
 Route::get('/about', function () {

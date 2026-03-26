@@ -17,6 +17,10 @@ class Transaction extends Model
         'singapay_ref',
         'payment_method',
         'progress',
+        'bill_no',
+        'payment_ref',
+        'trx_id',
+        'qr_data',
     ];
 
     public function survey()
