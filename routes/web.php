@@ -44,6 +44,9 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('user.dashboard');
+    
+    Route::get('/analytics', [\App\Http\Controllers\User\AnalyticsController::class, 'index'])
+        ->name('user.analytics');
 
     Route::get('/history', [TransactionController::class, 'history'])
         ->name('user.history');
