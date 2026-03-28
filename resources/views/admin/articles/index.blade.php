@@ -12,7 +12,7 @@
                 <h2 class="text-xl font-semibold text-gray-900">Daftar Article</h2>
                 <p class="text-sm text-gray-500 mt-1">Kelola semua artikel blog</p>
             </div>
-            <a href="{{ route('articles.create') }}"
+            <a href="{{ route('admin.articles.create') }}"
                class="inline-flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition shadow-sm">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 Tambah Article
@@ -21,7 +21,7 @@
 
         {{-- Search --}}
         <div class="bg-white rounded-xl border border-gray-200 p-4">
-            <form action="{{ route('articles.index') }}" method="GET" class="flex gap-3">
+            <form action="{{ route('admin.articles.index') }}" method="GET" class="flex gap-3">
                 <div class="relative flex-1">
                     <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
                     <input type="text" name="search" placeholder="Cari artikel..." value="{{ request('search') }}"
@@ -69,10 +69,10 @@
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <div class="flex items-center justify-end gap-1">
-                                        <a href="{{ route('articles.edit', $article->id) }}" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-600 transition" title="Edit">
+                                        <a href="{{ route('admin.articles.edit', $article->id) }}" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-600 transition" title="Edit">
                                             <i data-lucide="pencil" class="w-4 h-4"></i>
                                         </a>
-                                        <form action="{{ route('articles.destroy', $article->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin hapus?')">
+                                        <form action="{{ route('admin.articles.destroy', $article->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin hapus?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="p-1.5 rounded-lg hover:bg-red-50 text-gray-500 hover:text-red-600 transition" title="Hapus">

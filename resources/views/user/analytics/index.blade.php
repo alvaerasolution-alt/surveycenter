@@ -8,7 +8,7 @@
 <div class="space-y-6">
     
     {{-- Key Metrics --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {{-- Total Surveys --}}
         <div class="bg-white rounded-xl border border-gray-200/80 p-5">
             <div class="flex items-center justify-between mb-4">
@@ -31,30 +31,6 @@
             </div>
             <p class="text-2xl font-bold text-gray-900">{{ $totalResponses }}</p>
             <p class="text-xs text-gray-500 mt-1">Total responden</p>
-        </div>
-
-        {{-- Total Spending --}}
-        <div class="bg-white rounded-xl border border-gray-200/80 p-5">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <i data-lucide="wallet" class="w-5 h-5 text-purple-600"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-400">SPENDING</span>
-            </div>
-            <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalSpending, 0, ',', '.') }}</p>
-            <p class="text-xs text-gray-500 mt-1">Total yang dihabiskan</p>
-        </div>
-
-        {{-- Revenue Paid --}}
-        <div class="bg-white rounded-xl border border-gray-200/80 p-5">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                    <i data-lucide="trending-up" class="w-5 h-5 text-orange-600"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-400">REVENUE</span>
-            </div>
-            <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($paidTransactions, 0, ',', '.') }}</p>
-            <p class="text-xs text-gray-500 mt-1">Pembayaran dikonfirmasi</p>
         </div>
     </div>
 

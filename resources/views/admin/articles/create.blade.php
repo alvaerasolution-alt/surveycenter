@@ -4,7 +4,7 @@
   <div class="max-w-3xl mx-auto py-10 px-6 md:px-2">
     <h2 class="text-3xl font-bold mb-6">{{ isset($article) ? 'Edit' : 'Tambah' }} Article</h2>
 
-    <form action="{{ isset($article) ? route('articles.update', $article->id) : route('articles.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ isset($article) ? route('admin.articles.update', $article->id) : route('admin.articles.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
       @if (isset($article))
         @method('PUT')

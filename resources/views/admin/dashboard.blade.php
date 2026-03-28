@@ -35,7 +35,7 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             @php
                 $actions = [
-                    ['route' => 'articles.create', 'icon' => 'file-plus', 'label' => 'Artikel Baru', 'color' => 'orange', 'gradient' => 'from-orange-500 to-orange-600'],
+                    ['route' => 'admin.articles.create', 'icon' => 'file-plus', 'label' => 'Artikel Baru', 'color' => 'orange', 'gradient' => 'from-orange-500 to-orange-600'],
                     ['route' => 'admin.layanan.create', 'icon' => 'briefcase', 'label' => 'Layanan Baru', 'color' => 'emerald', 'gradient' => 'from-emerald-500 to-emerald-600'],
                     ['route' => 'admin.transactions.index', 'icon' => 'credit-card', 'label' => 'Lihat Transaksi', 'color' => 'amber', 'gradient' => 'from-amber-500 to-amber-600'],
                     ['route' => 'crm.dashboard', 'icon' => 'bar-chart-3', 'label' => 'Buka CRM', 'color' => 'blue', 'gradient' => 'from-blue-500 to-cyan-600'],
@@ -67,7 +67,7 @@
                     ['route' => 'admin.discount-banners.index', 'icon' => 'image', 'label' => 'Banners', 'desc' => 'Banner promosi'],
                     ['route' => 'partner-logos.index', 'icon' => 'award', 'label' => 'Partner Logos', 'desc' => 'Logo klien & partner'],
                     ['route' => 'customer-stories.index', 'icon' => 'message-square-quote', 'label' => 'Customer Stories', 'desc' => 'Testimoni pelanggan'],
-                    ['route' => 'articles.index', 'icon' => 'file-text', 'label' => 'Articles', 'desc' => 'Blog & artikel'],
+                    ['route' => 'admin.articles.index', 'icon' => 'file-text', 'label' => 'Articles', 'desc' => 'Blog & artikel'],
                     ['route' => 'admin.layanan.index', 'icon' => 'briefcase', 'label' => 'Layanan', 'desc' => 'Daftar layanan'],
                     ['route' => 'admin.seo.index', 'icon' => 'search', 'label' => 'SEO', 'desc' => 'Optimasi mesin pencari'],
                 ];

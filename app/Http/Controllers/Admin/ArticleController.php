@@ -61,7 +61,7 @@ class ArticleController extends Controller
 
         Article::create($data);
 
-        return redirect()->route('articles.index')->with('success', 'Article created successfully!');
+        return redirect()->route('admin.articles.index')->with('success', 'Article created successfully!');
     }
 
     public function edit($id)
@@ -106,7 +106,7 @@ class ArticleController extends Controller
         // dd($data);
         $article->update($data);
 
-        return redirect()->route('articles.index')->with('success', 'Article updated successfully!');
+        return redirect()->route('admin.articles.index')->with('success', 'Article updated successfully!');
     }
 
 
@@ -120,6 +120,6 @@ class ArticleController extends Controller
 
         $article->delete();
 
-        return redirect()->route('articles.index')->with('success', 'Article deleted successfully!');
+        return redirect()->route('admin.articles.index')->with('success', 'Article deleted successfully!');
     }
 }

@@ -168,14 +168,14 @@ Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index'
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/category/{category?}', [BlogController::class, 'category'])->name('blog.category');
-Route::get('/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
-Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index'); // list semua artikel
-Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show'); // detail artikel
+
 
 // route dinamis halaman layanan
 Route::get('/layanan/{slug}', [App\Http\Controllers\LayananController::class, 'show'])
     ->name('layanan.show');
+
+Route::get('/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 
 Route::middleware(['auth'])->group(function () {

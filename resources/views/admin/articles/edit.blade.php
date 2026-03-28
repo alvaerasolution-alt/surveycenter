@@ -7,7 +7,7 @@
     <div class="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">✏️ Edit Artikel</h1>
-        <a href="{{ route('articles.index') }}" class="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1 transition">
+        <a href="{{ route('admin.articles.index') }}" class="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1 transition">
           ← Kembali ke Daftar
         </a>
       </div>
@@ -31,7 +31,7 @@
       @endif
 
       {{-- Form Edit --}}
-      <form action="{{ route('articles.update', $article->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+      <form action="{{ route('admin.articles.update', $article->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
 
@@ -80,7 +80,7 @@
 
         {{-- Tombol Aksi --}}
         <div class="flex justify-end items-center gap-3 pt-6 border-t border-gray-200">
-          <a href="{{ route('articles.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2 rounded-lg font-medium transition">
+          <a href="{{ route('admin.articles.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2 rounded-lg font-medium transition">
             Batal
           </a>
           <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition flex items-center gap-2">

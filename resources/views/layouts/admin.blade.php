@@ -202,7 +202,7 @@
                         ['route' => 'partner-logos.index', 'is' => 'partner-logos.*', 'icon' => 'award', 'label' => 'Kelola Logos', 'check' => 'routeIs'],
                         ['route' => 'customer-stories.index', 'is' => 'customer-stories.*', 'icon' => 'message-square-quote', 'label' => 'Customer Stories', 'check' => 'routeIs'],
                         ['route' => 'admin.testimoni.index', 'is' => 'admin.testimoni.*', 'icon' => 'message-circle', 'label' => 'Testimoni', 'check' => 'routeIs'],
-                        ['route' => 'articles.index', 'is' => 'articles.*', 'icon' => 'file-text', 'label' => 'Kelola Articles', 'check' => 'routeIs'],
+                        ['route' => 'admin.articles.index', 'is' => 'admin.articles.*', 'icon' => 'file-text', 'label' => 'Kelola Articles', 'check' => 'routeIs'],
                     ];
                     $businessLinks = [
                         ['route' => 'admin.layanan.index', 'is' => 'admin.layanan.*', 'icon' => 'briefcase', 'label' => 'Kelola Layanan', 'check' => 'routeIs'],
