@@ -66,6 +66,18 @@
                 @enderror
             </div>
 
+            {{-- WhatsApp (Phone) --}}
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Nomor WhatsApp <span class="text-red-500">*</span></label>
+                <input type="tel" name="phone" id="phone" value="{{ old('phone', $user->phone) }}" required pattern="^08[0-9]{8,13}$"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition @error('phone') border-red-500 @enderror"
+                    placeholder="08xxxxxxxxxx">
+                <p class="mt-1 text-xs text-gray-400">Gunakan format 08... (contoh: 081234567890)</p>
+                @error('phone')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             {{-- Divider --}}
             <div class="border-t border-gray-100 pt-6">
                 <h3 class="text-sm font-semibold text-gray-900 mb-4">Ubah Password</h3>

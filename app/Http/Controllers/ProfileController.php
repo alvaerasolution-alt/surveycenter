@@ -32,12 +32,14 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'required|string|regex:/^08[0-9]{8,13}$/|unique:users,phone,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed', // password optional
         ]);
 
         // Update field
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->phone = $request->phone;
 
         // Update password jika diisi
         if ($request->filled('password')) {
@@ -47,5 +49,20 @@ class ProfileController extends Controller
         $user->save();
 
         return redirect()->route('user.profile.show')->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    // Update nomor HP via Modal
+    public function updatePhone(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'phone' => 'required|string|regex:/^08[0-9]{8,13}$/|unique:users,phone,' . $user->id,
+        ]);
+
+        $user->phone = $request->phone;
+        $user->save();
+
+        return redirect()->back()->with('success', 'Nomor HP berhasil disimpan.');
     }
 }

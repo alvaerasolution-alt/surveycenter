@@ -4,6 +4,19 @@
 <style>
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .otp-input {
+        width: 48px; height: 56px;
+        text-align: center; font-size: 22px; font-weight: 800;
+        border: 2px solid #e2e8f0; border-radius: 8px;
+        background: #f8fafc;
+        transition: all 0.2s;
+        outline: none;
+    }
+    .otp-input:focus {
+        border-color: #ea580c;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+    }
 </style>
 @endpush
 
@@ -58,11 +71,18 @@
 
     <div class="w-full lg:w-[55%] lg:ml-auto min-h-screen lg:min-h-[calc(100vh-64px)] flex flex-col justify-center items-center relative z-20 px-8 py-10 bg-white lg:bg-transparent">
         <div class="w-full max-w-[390px] my-auto">
-            <h1 class="text-[34px] font-extrabold text-[#071D49] tracking-tight mb-[18px]">Reset Password</h1>
+            <h1 class="text-[34px] font-extrabold text-[#071D49] tracking-tight mb-[18px]">Verifikasi OTP</h1>
             
-            <p class="text-[13px] text-slate-500 leading-relaxed max-w-[340px] mb-8 mt-1">
-                Masukkan password baru untuk akun Anda.
+            <p class="text-[13px] text-slate-500 leading-relaxed max-w-[340px] mb-2 mt-1">
+                Masukkan 6 digit kode OTP yang telah dikirim ke WhatsApp
             </p>
+            <p class="text-[14px] font-bold text-[#071D49] mb-8">{{ $phone }}</p>
+
+            @if (session('status'))
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded text-[12.5px] mb-6 shadow-sm font-medium">
+                    {{ session('status') }}
+                </div>
+            @endif
 
             @if ($errors->any())
                 <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-[12.5px] mb-6 shadow-sm">
@@ -74,36 +94,90 @@
                 </div>
             @endif
 
-            <form action="{{ route('password.update') }}" method="POST">
+            <form action="{{ route('password.otp.verify') }}" method="POST" id="otpForm">
                 @csrf
                 <input type="hidden" name="phone" value="{{ $phone }}">
-                <input type="hidden" name="token" value="{{ $token }}">
+                <input type="hidden" name="otp" id="otpHidden">
 
-                <div class="mb-5">
-                    <label class="block text-[10.5px] font-extrabold text-[#071D49] mb-2.5 tracking-widest uppercase" for="password">Password Baru</label>
-                    <input type="password" id="password" name="password" 
-                           class="w-full px-4 py-3 bg-[#f1f5f9] border-none rounded-md text-[14px] text-[#071D49] font-medium focus:ring-2 focus:ring-[#ea580c] focus:bg-white transition-all outline-none" 
-                           placeholder="Minimal 8 karakter" required autofocus>
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-[10.5px] font-extrabold text-[#071D49] mb-2.5 tracking-widest uppercase" for="password_confirmation">Konfirmasi Password</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" 
-                           class="w-full px-4 py-3 bg-[#f1f5f9] border-none rounded-md text-[14px] text-[#071D49] font-medium focus:ring-2 focus:ring-[#ea580c] focus:bg-white transition-all outline-none" 
-                           placeholder="Ulangi password baru" required>
+                <div class="flex gap-3 justify-center mb-8">
+                    @for ($i = 0; $i < 6; $i++)
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+                               class="otp-input" data-index="{{ $i }}"
+                               autocomplete="off">
+                    @endfor
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-md font-bold text-[14.5px] transition-colors shadow-sm mb-6 mt-2">
-                    Reset Password
+                    Verifikasi
                 </button>
+            </form>
                 
-                <div class="text-center mt-2">
-                    <a href="{{ route('login') }}" class="inline-block text-[13px] font-semibold text-slate-500 hover:text-[#ea580c] transition-colors">
-                        ← Kembali ke halaman login
+            <div class="text-center mt-2 space-y-3">
+                <form action="{{ route('password.otp.resend') }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="phone" value="{{ $phone }}">
+                    <button type="submit" class="text-[13px] font-semibold text-[#ea580c] hover:text-[#c2410c] transition-colors">
+                        Kirim Ulang OTP
+                    </button>
+                </form>
+                <div>
+                    <a href="{{ route('password.request') }}" class="inline-block text-[13px] font-semibold text-slate-500 hover:text-[#ea580c] transition-colors">
+                        ← Ganti nomor HP
                     </a>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('.otp-input');
+    const hiddenInput = document.getElementById('otpHidden');
+    const form = document.getElementById('otpForm');
+
+    function updateHidden() {
+        let otp = '';
+        inputs.forEach(input => otp += input.value);
+        hiddenInput.value = otp;
+    }
+
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+            updateHidden();
+            // Auto-submit when all 6 digits are entered
+            if (hiddenInput.value.length === 6) {
+                form.submit();
+            }
+        });
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !this.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+            for (let i = 0; i < Math.min(paste.length, 6); i++) {
+                inputs[i].value = paste[i];
+            }
+            updateHidden();
+            if (paste.length >= 6) {
+                inputs[5].focus();
+                form.submit();
+            } else {
+                inputs[Math.min(paste.length, 5)].focus();
+            }
+        });
+    });
+
+    inputs[0].focus();
+});
+</script>
 @endsection

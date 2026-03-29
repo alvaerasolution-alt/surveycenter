@@ -2,13 +2,8 @@
 
 @push('styles')
 <style>
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 @endpush
 
@@ -17,7 +12,6 @@
     
     {{-- Header --}}
     <header class="absolute top-0 left-0 right-0 w-full flex justify-between items-center px-8 lg:px-[8%] py-8 z-50">
-        {{-- Logo --}}
         <a href="{{ url('/') }}" class="flex items-center gap-2.5 text-[22px] font-bold tracking-tight text-[#071D49]">
             <div class="flex items-center gap-[3px]">
                 <div class="w-[3px] h-[15px] rounded-full bg-[#f97316]"></div>
@@ -26,8 +20,6 @@
             </div>
             <span>SurveyCenter</span>
         </a>
-        
-        {{-- Top Right --}}
         <div class="flex items-center gap-4 text-[13.5px] font-medium text-slate-500">
             <span class="hidden sm:inline text-[#64748b]">Sudah ingat?</span>
             <a href="{{ route('login') }}" class="px-5 py-2.5 rounded border border-slate-200 bg-white text-[#ea580c] font-bold shadow-sm hover:bg-slate-50 transition-colors">Log In</a>
@@ -60,7 +52,6 @@
             </div>
         </div>
 
-        {{-- Right half - Form --}}
     {{-- Curved Background --}}
     <div class="absolute right-0 top-0 bottom-0 w-[58%] bg-white z-10 pointer-events-none hidden lg:block" 
          style="border-top-left-radius: 25% 50%; border-bottom-left-radius: 25% 50%; box-shadow: -15px 0 45px rgba(0,0,0,0.01);"></div>
@@ -70,17 +61,15 @@
             <h1 class="text-[34px] font-extrabold text-[#071D49] tracking-tight mb-[18px]">Lupa Password</h1>
             
             <p class="text-[13px] text-slate-500 leading-relaxed max-w-[340px] mb-8 mt-1">
-                Masukkan email Anda dan kami akan mengirimkan link untuk mereset password.
+                Masukkan nomor HP (WhatsApp) yang terdaftar. Kami akan mengirimkan kode OTP untuk mereset password Anda.
             </p>
 
-            {{-- Status Message --}}
             @if (session('status'))
                 <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded text-[12.5px] mb-6 shadow-sm font-medium">
                     {{ session('status') }}
                 </div>
             @endif
 
-            {{-- Error Messages --}}
             @if ($errors->any())
                 <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-[12.5px] mb-6 shadow-sm">
                     <ul class="list-disc ml-4 text-left font-medium">
@@ -91,17 +80,17 @@
                 </div>
             @endif
 
-            <form action="{{ route('password.email') }}" method="POST">
+            <form action="{{ route('password.send-otp') }}" method="POST">
                 @csrf
                 <div class="mb-6">
-                    <label class="block text-[10.5px] font-extrabold text-[#071D49] mb-2.5 tracking-widest uppercase" for="email">Email Address</label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}" 
+                    <label class="block text-[10.5px] font-extrabold text-[#071D49] mb-2.5 tracking-widest uppercase" for="phone">Nomor HP (WhatsApp)</label>
+                    <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" 
                            class="w-full px-4 py-3 bg-[#f1f5f9] border-none rounded-md text-[14px] text-[#071D49] font-medium focus:ring-2 focus:ring-[#ea580c] focus:bg-white transition-all outline-none" 
-                           placeholder="nama@email.com" required autofocus>
+                           placeholder="08xxxxxxxxxx" required autofocus>
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-md font-bold text-[14.5px] transition-colors shadow-sm mb-6 mt-2">
-                    Kirim Link Reset
+                    Kirim Kode OTP
                 </button>
                 
                 <div class="text-center mt-2">
