@@ -232,7 +232,7 @@
         <div class="info-grid">
             <div class="info-row">
                 <div class="info-label">Total Respons</div>
-                <div class="info-value">{{ $responses->count() }}</div>
+                <div class="info-value">{{ $responses->sum('respond_count') }}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Total Transaksi</div>

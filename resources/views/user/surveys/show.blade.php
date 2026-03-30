@@ -60,7 +60,7 @@
                 </div>
                 <span class="text-xs font-medium text-gray-400">Responden</span>
             </div>
-            <p class="text-2xl font-bold text-gray-900">{{ $survey->responses->count() }}</p>
+            <p class="text-2xl font-bold text-gray-900">{{ $survey->responses->sum('respond_count') }}</p>
         </div>
 
         <div class="bg-white rounded-xl border border-gray-200/80 p-5">

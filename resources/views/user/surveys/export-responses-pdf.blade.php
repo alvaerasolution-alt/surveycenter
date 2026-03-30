@@ -136,7 +136,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>{{ $responses->count() }}</td>
+                <td>{{ $responses->sum('respond_count') }}</td>
                 <td>#{{ $survey->id }}</td>
                 <td>{{ $survey->question_count }}</td>
                 <td>{{ $survey->created_at->format('d/m/Y H:i') }}</td>
