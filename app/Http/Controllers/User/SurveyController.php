@@ -84,6 +84,7 @@ class SurveyController extends Controller
             'user_id' => $user->id,
             'title' => $request->title,
             'question_count' => $request->question_count,
+            'respondent_count' => $request->respondent_count,
         ]);
 
         // Create transaction

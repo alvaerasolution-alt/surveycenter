@@ -90,7 +90,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-gray-900 truncate">{{ $survey->title }}</p>
-                            <p class="text-xs text-gray-500">{{ $survey->question_count }} pertanyaan &bull; {{ $survey->responses_sum_respond_count ?? 0 }} responden</p>
+                            <p class="text-xs text-gray-500">{{ $survey->question_count }} pertanyaan &bull; {{ $survey->respondent_count }} responden</p>
                         </div>
                         @php
                             $latestTransaction = $survey->transactions->first();
