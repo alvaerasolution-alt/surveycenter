@@ -12,13 +12,15 @@ class SurveyCompletedNotification extends Notification
     use Queueable;
 
     public $survey;
+    public $messageText;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($survey)
+    public function __construct($survey, $messageText = null)
     {
         $this->survey = $survey;
+        $this->messageText = $messageText ?: 'Survey Anda "' . $this->survey->title . '" telah selesai (100%).';
     }
 
     /**
@@ -41,7 +43,7 @@ class SurveyCompletedNotification extends Notification
         return [
             'survey_id' => $this->survey->id,
             'title' => $this->survey->title,
-            'message' => 'Survey Anda "' . $this->survey->title . '" telah selesai (100%).',
+            'message' => $this->messageText,
             'url' => route('user.surveys.show', $this->survey->id)
         ];
     }

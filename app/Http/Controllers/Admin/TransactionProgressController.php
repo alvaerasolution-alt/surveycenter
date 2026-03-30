@@ -54,8 +54,18 @@ class TransactionProgressController extends Controller
         $transaction->progress = $request->progress;
         $transaction->save();
         
-        if ($oldProgress < 100 && $request->progress == 100) {
-            $transaction->user->notify(new \App\Notifications\SurveyCompletedNotification($transaction->survey));
+        $wantsToNotify = $request->filled('notification_message');
+        $justCompleted = ($oldProgress < 100 && $request->progress == 100);
+        
+        if ($wantsToNotify || $justCompleted) {
+            $msg = $request->notification_message;
+            if (!$msg && $justCompleted) {
+                $msg = 'Survey Anda "' . $transaction->survey->title . '" telah selesai (100%). Silakan periksa detailnya.';
+            }
+            
+            if ($msg) {
+                $transaction->user->notify(new \App\Notifications\SurveyCompletedNotification($transaction->survey, $msg));
+            }
         }
 
         return redirect()->route('admin.transactions.progress.index')
