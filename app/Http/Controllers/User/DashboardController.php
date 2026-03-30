@@ -16,7 +16,7 @@ class DashboardController extends Controller
         // Statistik survey milik user
         $totalSurveys = Survey::where('user_id', $user->id)->count();
         $totalQuestions = Survey::where('user_id', $user->id)->sum('question_count');
-        $totalResponden = \App\Models\Response::where('user_id', $user->id)->sum('respond_count');
+        $totalResponden = Survey::where('user_id', $user->id)->get()->sum('respondent_count');
         
         // Statistik transaksi
         $totalTransactions = Transaction::where('user_id', $user->id)->count();
