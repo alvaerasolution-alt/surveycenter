@@ -28,7 +28,7 @@ class AnalyticsController extends Controller
 
         // Calculate key metrics
         $totalSurveys = $surveys->count();
-        $totalResponses = $surveys->sum('responses_sum_respond_count');
+        $totalResponses = $surveys->sum('respondent_count');
         $totalSpending = Transaction::where('user_id', $user->id)->sum('amount');
         $paidTransactions = Transaction::where('user_id', $user->id)
             ->where('status', 'paid')
@@ -75,7 +75,7 @@ class AnalyticsController extends Controller
             ->map(function ($survey) {
                 return [
                     'survey' => $survey,
-                    'responses' => $survey->responses_sum_respond_count ?? 0,
+                    'responses' => $survey->respondent_count,
                     'transaction' => $survey->transactions->first(),
                 ];
             })
