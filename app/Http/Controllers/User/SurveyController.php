@@ -19,7 +19,7 @@ class SurveyController extends Controller
         $user = Auth::user();
         
         $query = Survey::where('user_id', $user->id)
-            ->withCount('responses')
+            ->withSum('responses', 'respond_count')
             ->with(['transactions' => function($q) {
                 $q->latest()->limit(1);
             }]);

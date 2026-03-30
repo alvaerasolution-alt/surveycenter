@@ -83,7 +83,7 @@
                                     <span class="text-sm font-medium text-gray-900">{{ $survey->question_count }}</span>
                                 </td>
                                 <td class="px-5 py-4 text-center">
-                                    <span class="text-sm font-medium text-gray-900">{{ $survey->responses_count }}</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $survey->responses_sum_respond_count ?? 0 }}</span>
                                 </td>
                                 <td class="px-5 py-4">
                                     <div class="flex items-center justify-center gap-2">

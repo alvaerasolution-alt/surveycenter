@@ -19,7 +19,7 @@ class AnalyticsController extends Controller
 
         // Get user's surveys with stats
         $surveys = Survey::where('user_id', $user->id)
-            ->withCount('responses')
+            ->withSum('responses', 'respond_count')
             ->with(['transactions' => function ($q) {
                 $q->latest()->limit(1);
             }])
@@ -28,7 +28,7 @@ class AnalyticsController extends Controller
 
         // Calculate key metrics
         $totalSurveys = $surveys->count();
-        $totalResponses = $surveys->sum('responses_count');
+        $totalResponses = $surveys->sum('responses_sum_respond_count');
         $totalSpending = Transaction::where('user_id', $user->id)->sum('amount');
         $paidTransactions = Transaction::where('user_id', $user->id)
             ->where('status', 'paid')
@@ -75,7 +75,7 @@ class AnalyticsController extends Controller
             ->map(function ($survey) {
                 return [
                     'survey' => $survey,
-                    'responses' => $survey->responses_count,
+                    'responses' => $survey->responses_sum_respond_count ?? 0,
                     'transaction' => $survey->transactions->first(),
                 ];
             })
