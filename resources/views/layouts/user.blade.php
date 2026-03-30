@@ -279,7 +279,9 @@
                         <button @click="notifMenu = !notifMenu"
                             class="relative p-2 rounded-lg hover:bg-gray-100 transition">
                             <i data-lucide="bell" class="w-5 h-5 text-gray-500"></i>
-                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                            @if(auth()->check() && auth()->user()->unreadNotifications->count() > 0)
+                                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            @endif
                         </button>
 
                         <div x-show="notifMenu"
@@ -291,14 +293,40 @@
                              x-transition:leave-end="opacity-0 scale-95"
                              class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl shadow-gray-200/50 border border-gray-200 py-2 z-50"
                              style="display: none;">
-                            <div class="px-4 py-2 border-b border-gray-100">
+                            <div class="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
                                 <h3 class="text-sm font-semibold text-gray-900">Notifikasi</h3>
+                                @if(auth()->check() && auth()->user()->unreadNotifications->count() > 0)
+                                    <form method="POST" action="{{ route('user.notifications.readAll') }}">
+                                        @csrf
+                                        <button type="submit" class="text-[11px] text-orange-600 hover:text-orange-700 font-medium pb-0.5">Tandai sudah dibaca</button>
+                                    </form>
+                                @endif
                             </div>
-                            <div class="max-h-64 overflow-y-auto">
-                                <div class="px-4 py-8 text-center text-sm text-gray-400">
-                                    <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
-                                    Belum ada notifikasi
-                                </div>
+                            <div class="max-h-80 overflow-y-auto">
+                                @if(auth()->check() && auth()->user()->notifications->count() > 0)
+                                    @foreach(auth()->user()->notifications->take(10) as $notification)
+                                        <a href="{{ route('user.notifications.read', $notification->id) }}" class="block px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition {{ $notification->read_at ? 'opacity-60' : 'bg-orange-50/20' }}">
+                                            <div class="flex gap-3">
+                                                <div class="flex-shrink-0 mt-0.5">
+                                                    <div class="w-8 h-8 rounded-full {{ $notification->read_at ? 'bg-gray-100 text-gray-500' : 'bg-orange-100 text-orange-600' }} flex items-center justify-center">
+                                                        <i data-lucide="bell" class="w-4 h-4"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium {{ $notification->read_at ? 'text-gray-700' : 'text-gray-900' }}">
+                                                        {{ $notification->data['message'] ?? 'Notification' }}
+                                                    </p>
+                                                    <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{{ $notification->created_at->diffForHumans() }}</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                @else
+                                    <div class="px-4 py-8 text-center text-sm text-gray-400">
+                                        <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
+                                        Belum ada notifikasi
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>

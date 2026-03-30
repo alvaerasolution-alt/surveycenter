@@ -50,8 +50,13 @@ class TransactionProgressController extends Controller
                 ->with('error', 'Hanya transaksi yang sudah dibayar yang bisa diupdate progress.');
         }
 
+        $oldProgress = $transaction->progress;
         $transaction->progress = $request->progress;
         $transaction->save();
+        
+        if ($oldProgress < 100 && $request->progress == 100) {
+            $transaction->user->notify(new \App\Notifications\SurveyCompletedNotification($transaction->survey));
+        }
 
         return redirect()->route('admin.transactions.progress.index')
             ->with('success', 'Progress berhasil diperbarui.');

@@ -85,13 +85,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{transaction}', [UserTransactionController::class, 'show'])->name('show');
     });
 
-    // User Payment Routes
+    // User Payments
     Route::prefix('payments')->name('user.payments.')->group(function () {
         Route::get('/{transaction}', [\App\Http\Controllers\User\PaymentController::class, 'show'])->name('show');
         Route::post('/{transaction}/process', [\App\Http\Controllers\User\PaymentController::class, 'process'])->name('process');
         Route::get('/{transaction}/success', [\App\Http\Controllers\User\PaymentController::class, 'success'])->name('success');
         Route::get('/{transaction}/failed', [\App\Http\Controllers\User\PaymentController::class, 'failed'])->name('failed');
     });
+
+    // User Notifications
+    Route::post('/notifications/read-all', [\App\Http\Controllers\User\NotificationController::class, 'markAllAsRead'])->name('user.notifications.readAll');
+    Route::get('/notifications/{id}/read', [\App\Http\Controllers\User\NotificationController::class, 'markAsRead'])->name('user.notifications.read');
 });
 
 Route::get('/about', function () {
