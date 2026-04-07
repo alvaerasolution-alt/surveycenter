@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // daftar middleware route kustom
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

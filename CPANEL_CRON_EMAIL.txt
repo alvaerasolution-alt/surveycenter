@@ -1,0 +1,31 @@
+===========================================================
+ KONFIGURASI CRON JOB CPANEL UNTUK EMAIL/QUEUE LARAVEL
+===========================================================
+
+Di server produksi (cPanel), email Anda akan mengantre di database.
+Agar email otomatis dikirim tanpa harus menjalankan terminal, 
+tambahkan pengaturan Cron Job di menu cPanel Anda.
+
+LANGKAH-LANGKAH:
+1. Login ke cPanel Anda.
+2. Cari menu "Cron Jobs" (di bagian Advanced).
+3. Di bagian "Add New Cron Job", atur waktunya menjadi:
+   - Common Settings: "Once Per Minute (* * * * *)"
+4. Di kolom "Command", copy-paste baris di bawah ini:
+
+   /usr/local/bin/php /home/USERNAME_CPANEL/public_html/survey/artisan schedule:run >> /dev/null 2>&1
+
+
+ATURAN PENTING & PENYESUAIAN COMMAND:
+- Ganti `USERNAME_CPANEL` dengan username cPanel Anda.
+- Ganti `/public_html/survey/artisan` dengan alamat (path) sejati folder aplikasi laravel Anda berada.
+- Jika `/usr/local/bin/php` tidak bekerja (versi terlalu rendah di cpanel), ganti path php-nya ke executable PHP 8.3, contohnya:
+  `/opt/cpanel/ea-php83/root/usr/bin/php /home/USERNAME/public_html/survey/artisan schedule:run >> /dev/null 2>&1`
+
+5. Klik tombol "Add New Cron Job".
+
+CARA KERJANYA BAGAIMANA?
+Di file `routes/console.php` (baris paling bawah), saya telah menambahkan perintah:
+Schedule::command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
+
+Ini memastikan bahwa setiap kali Cron Job cpanel mengeksekusi `schedule:run` per 1 menit, Laravel akan otomatis menarik semua antrean email di database (jika ada) dan mengirimkannya ke Mailtrap, lalu prosesnya akan dengan aman berhenti sendiri.

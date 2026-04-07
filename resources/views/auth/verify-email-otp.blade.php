@@ -34,7 +34,7 @@
             <span>SurveyCenter</span>
         </a>
         <div class="flex items-center gap-4 text-[13.5px] font-medium text-slate-500">
-            <span class="hidden sm:inline text-[#64748b]">Sudah ingat?</span>
+            <span class="hidden sm:inline text-[#64748b]">Sudah verifikasi?</span>
             <a href="{{ route('login') }}" class="px-5 py-2.5 rounded border border-slate-200 bg-white text-[#ea580c] font-bold shadow-sm hover:bg-slate-50 transition-colors">Log In</a>
         </div>
     </header>
@@ -71,14 +71,12 @@
 
     <div class="w-full lg:w-[55%] lg:ml-auto min-h-screen lg:min-h-[calc(100vh-64px)] flex flex-col justify-center items-center relative z-20 px-8 py-10 bg-white lg:bg-transparent">
         <div class="w-full max-w-[390px] my-auto">
-            <h1 class="text-[34px] font-extrabold text-[#071D49] tracking-tight mb-[18px]">Verifikasi OTP</h1>
+            <h1 class="text-[34px] font-extrabold text-[#071D49] tracking-tight mb-[18px]">Verifikasi Email</h1>
             
             <p class="text-[13px] text-slate-500 leading-relaxed max-w-[340px] mb-2 mt-1">
                 Masukkan 6 digit kode OTP yang telah dikirim ke email
             </p>
-            <p class="text-[14px] font-bold text-[#071D49] mb-8">
-                {{ $email ?? '' }}
-            </p>
+            <p class="text-[14px] font-bold text-[#071D49] mb-8">{{ $email }}</p>
 
             @if (session('status'))
                 <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded text-[12.5px] mb-6 shadow-sm font-medium">
@@ -96,10 +94,9 @@
                 </div>
             @endif
 
-            <form action="{{ route('password.otp.verify') }}" method="POST" id="otpForm">
+            <form action="{{ route('verification.verify') }}" method="POST" id="otpForm">
                 @csrf
-                <input type="hidden" name="method" value="email">
-                <input type="hidden" name="email" value="{{ $email ?? '' }}">
+                <input type="hidden" name="email" value="{{ $email }}">
                 <input type="hidden" name="otp" id="otpHidden">
 
                 <div class="flex gap-3 justify-center mb-8">
@@ -111,22 +108,21 @@
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-md font-bold text-[14.5px] transition-colors shadow-sm mb-6 mt-2">
-                    Verifikasi
+                    Verifikasi Email
                 </button>
             </form>
                 
             <div class="text-center mt-2 space-y-3">
-                <form action="{{ route('password.otp.resend') }}" method="POST" class="inline">
+                <form action="{{ route('verification.resend') }}" method="POST" class="inline">
                     @csrf
-                    <input type="hidden" name="method" value="email">
-                    <input type="hidden" name="email" value="{{ $email ?? '' }}">
+                    <input type="hidden" name="email" value="{{ $email }}">
                     <button type="submit" class="text-[13px] font-semibold text-[#ea580c] hover:text-[#c2410c] transition-colors">
-                        Kirim Ulang OTP
+                        Kirim Ulang Kode OTP
                     </button>
                 </form>
                 <div>
-                    <a href="{{ route('password.request') }}" class="inline-block text-[13px] font-semibold text-slate-500 hover:text-[#ea580c] transition-colors">
-                        ← Ganti metode reset
+                    <a href="{{ route('login') }}" class="inline-block text-[13px] font-semibold text-slate-500 hover:text-[#ea580c] transition-colors">
+                        ← Kembali ke halaman login
                     </a>
                 </div>
             </div>
@@ -153,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 inputs[index + 1].focus();
             }
             updateHidden();
-            // Auto-submit when all 6 digits are entered
             if (hiddenInput.value.length === 6) {
                 form.submit();
             }

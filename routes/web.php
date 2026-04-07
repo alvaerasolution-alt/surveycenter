@@ -41,7 +41,7 @@ Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
 
-// Password Reset via OTP
+// Password Reset via OTP (WhatsApp & Email)
 use App\Http\Controllers\Auth\ForgotPasswordController;
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendOtp'])->name('password.send-otp');
@@ -51,7 +51,14 @@ Route::post('/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name
 Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 
-Route::middleware(['auth'])->group(function () {
+// Email Verification (OTP)
+use App\Http\Controllers\Auth\EmailVerificationController;
+Route::get('/verify-email', [EmailVerificationController::class, 'showVerifyForm'])->name('verification.notice');
+Route::post('/verify-email', [EmailVerificationController::class, 'verifyOtp'])->name('verification.verify');
+Route::post('/verify-email/send', [EmailVerificationController::class, 'sendOtp'])->name('verification.send');
+Route::post('/verify-email/resend', [EmailVerificationController::class, 'resendOtp'])->name('verification.resend');
+
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('user.dashboard');
     

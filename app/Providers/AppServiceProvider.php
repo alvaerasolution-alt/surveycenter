@@ -48,12 +48,16 @@ class AppServiceProvider extends ServiceProvider
             $seoKeywords = null;
 
             if ($slug) {
-                $keys = ["seo_title_{$slug}", "seo_desc_{$slug}", "seo_keywords_{$slug}"];
-                $rows = Setting::whereIn('key', $keys)->get()->keyBy('key');
+                try {
+                    $keys = ["seo_title_{$slug}", "seo_desc_{$slug}", "seo_keywords_{$slug}"];
+                    $rows = Setting::whereIn('key', $keys)->get()->keyBy('key');
 
-                $seoTitle    = $rows["seo_title_{$slug}"]->value    ?? null;
-                $seoDesc     = $rows["seo_desc_{$slug}"]->value     ?? null;
-                $seoKeywords = $rows["seo_keywords_{$slug}"]->value ?? null;
+                    $seoTitle    = $rows["seo_title_{$slug}"]->value    ?? null;
+                    $seoDesc     = $rows["seo_desc_{$slug}"]->value     ?? null;
+                    $seoKeywords = $rows["seo_keywords_{$slug}"]->value ?? null;
+                } catch (\Throwable $e) {
+                    // Tetap render view walau DB belum siap/tidak tersedia.
+                }
             }
 
             $view->with(compact('seoTitle', 'seoDesc', 'seoKeywords'));
@@ -61,8 +65,15 @@ class AppServiceProvider extends ServiceProvider
 
         // General View Composer — shared data for all views
         View::composer('*', function ($view) {
-            $jenis    = Layanan::where('category', 'jenis')->get();
-            $tambahan = Layanan::where('category', 'tambahan')->get();
+            $jenis = collect();
+            $tambahan = collect();
+
+            try {
+                $jenis = Layanan::where('category', 'jenis')->get();
+                $tambahan = Layanan::where('category', 'tambahan')->get();
+            } catch (\Throwable $e) {
+                // Tetap render view walau DB belum siap/tidak tersedia.
+            }
 
             $cartItemCount = 0;
             if (Auth::check()) {

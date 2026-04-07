@@ -60,8 +60,8 @@
         <div class="w-full max-w-[390px] my-auto">
             <h1 class="text-[34px] font-extrabold text-[#071D49] tracking-tight mb-[18px]">Lupa Password</h1>
             
-            <p class="text-[13px] text-slate-500 leading-relaxed max-w-[340px] mb-8 mt-1">
-                Masukkan nomor HP (WhatsApp) yang terdaftar. Kami akan mengirimkan kode OTP untuk mereset password Anda.
+            <p class="text-[13px] text-slate-500 leading-relaxed max-w-[340px] mb-6 mt-1">
+                Masukkan email Anda untuk menerima kode OTP reset password.
             </p>
 
             @if (session('status'))
@@ -82,24 +82,26 @@
 
             <form action="{{ route('password.send-otp') }}" method="POST">
                 @csrf
+                <input type="hidden" name="method" value="email">
                 <div class="mb-6">
-                    <label class="block text-[10.5px] font-extrabold text-[#071D49] mb-2.5 tracking-widest uppercase" for="phone">Nomor HP (WhatsApp)</label>
-                    <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" 
+                    <label class="block text-[10.5px] font-extrabold text-[#071D49] mb-2.5 tracking-widest uppercase" for="reset-email">Email Address</label>
+                    <input type="email" id="reset-email" name="email" value="{{ old('email') }}" 
                            class="w-full px-4 py-3 bg-[#f1f5f9] border-none rounded-md text-[14px] text-[#071D49] font-medium focus:ring-2 focus:ring-[#ea580c] focus:bg-white transition-all outline-none" 
-                           placeholder="08xxxxxxxxxx" required autofocus>
+                           placeholder="nama@email.com" required>
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-md font-bold text-[14.5px] transition-colors shadow-sm mb-6 mt-2">
-                    Kirim Kode OTP
+                    Kirim OTP via Email
                 </button>
-                
-                <div class="text-center mt-2">
-                    <a href="{{ route('login') }}" class="inline-block text-[13px] font-semibold text-slate-500 hover:text-[#ea580c] transition-colors">
-                        ← Kembali ke halaman login
-                    </a>
-                </div>
             </form>
+                
+            <div class="text-center mt-2">
+                <a href="{{ route('login') }}" class="inline-block text-[13px] font-semibold text-slate-500 hover:text-[#ea580c] transition-colors">
+                    ← Kembali ke halaman login
+                </a>
+            </div>
         </div>
     </div>
 </div>
+
 @endsection
