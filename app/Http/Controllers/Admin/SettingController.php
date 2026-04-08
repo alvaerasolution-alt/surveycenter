@@ -10,22 +10,48 @@ class SettingController extends Controller
 {
     public function edit()
     {
-        $videoUrl = Setting::where('key', 'video_url')->first();
-        return view('admin.settings.edit', compact('videoUrl'));
+        $settings = Setting::whereIn('key', [
+            'video_url',
+            'footer_alamat',
+            'footer_whatsapp',
+            'footer_email',
+            'sosmed_facebook',
+            'sosmed_twitter',
+            'sosmed_linkedin',
+            'sosmed_instagram'
+        ])->pluck('value', 'key');
+
+        return view('admin.settings.edit', compact('settings'));
     }
 
     public function update(Request $request)
     {
         $request->validate([
-            'video_url' => 'required|string'
+            'video_url' => 'nullable|string',
+            'footer_alamat' => 'nullable|string',
+            'footer_whatsapp' => 'nullable|string',
+            'footer_email' => 'nullable|email',
+            'sosmed_facebook' => 'nullable|string',
+            'sosmed_twitter' => 'nullable|string',
+            'sosmed_linkedin' => 'nullable|string',
+            'sosmed_instagram' => 'nullable|string',
         ]);
 
-        Setting::updateOrCreate(
-            ['key' => 'video_url'],
-            ['value' => $request->video_url]
-        );
+        $keys = [
+            'video_url', 'footer_alamat', 'footer_whatsapp', 'footer_email',
+            'sosmed_facebook', 'sosmed_twitter', 'sosmed_linkedin', 'sosmed_instagram'
+        ];
 
-        return redirect()->back()->with('success', 'Video berhasil diperbarui!');
+        foreach ($keys as $key) {
+            if ($request->has($key)) {
+                Setting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $request->$key]
+                );
+            }
+        }
+
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui!');
     }
 
     // ─── Syarat & Ketentuan ───────────────────────────────────
