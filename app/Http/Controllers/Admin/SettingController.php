@@ -18,7 +18,8 @@ class SettingController extends Controller
             'sosmed_facebook',
             'sosmed_twitter',
             'sosmed_linkedin',
-            'sosmed_instagram'
+            'sosmed_instagram',
+            'sosmed_tiktok'
         ])->pluck('value', 'key');
 
         return view('admin.settings.edit', compact('settings'));
@@ -35,11 +36,12 @@ class SettingController extends Controller
             'sosmed_twitter' => 'nullable|string',
             'sosmed_linkedin' => 'nullable|string',
             'sosmed_instagram' => 'nullable|string',
+            'sosmed_tiktok' => 'nullable|string',
         ]);
 
         $keys = [
             'video_url', 'footer_alamat', 'footer_whatsapp', 'footer_email',
-            'sosmed_facebook', 'sosmed_twitter', 'sosmed_linkedin', 'sosmed_instagram'
+            'sosmed_facebook', 'sosmed_twitter', 'sosmed_linkedin', 'sosmed_instagram', 'sosmed_tiktok'
         ];
 
         foreach ($keys as $key) {

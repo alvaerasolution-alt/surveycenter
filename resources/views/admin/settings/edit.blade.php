@@ -72,6 +72,12 @@
                                 class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
                                 placeholder="URL Profile Instagram">
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">TikTok URL</label>
+                            <input type="text" name="sosmed_tiktok" value="{{ $settings['sosmed_tiktok'] ?? '' }}"
+                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                                placeholder="URL Profile TikTok">
+                        </div>
                     </div>
                 </div>
 

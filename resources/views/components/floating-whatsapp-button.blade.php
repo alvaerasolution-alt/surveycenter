@@ -1,3 +1,9 @@
+@php
+  $settings = \App\Models\Setting::whereIn('key', [
+      'sosmed_instagram',
+      'sosmed_tiktok'
+  ])->pluck('value', 'key');
+@endphp
 <!-- Floating Social Buttons - Right Side -->
 <div class="fixed top-1/2 right-0 z-50 transform -translate-y-1/2 flex flex-col items-end gap-2">
 
@@ -11,7 +17,8 @@
   </button>
 
   <!-- Instagram Button -->
-  <a href="https://www.instagram.com/surveycenterindonesia/" target="_blank"
+  @if(!empty($settings['sosmed_instagram']))
+  <a href="{{ $settings['sosmed_instagram'] }}" target="_blank"
      aria-label="Follow on Instagram" class="group flex items-center justify-end">
     <div class="w-10 h-10 rounded-l-xl rounded-r-none flex items-center justify-center shadow-lg
                 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400
@@ -21,9 +28,11 @@
       </svg>
     </div>
   </a>
+  @endif
 
   <!-- TikTok Button -->
-  <a href="https://www.tiktok.com/@surveycenter.indonesia" target="_blank"
+  @if(!empty($settings['sosmed_tiktok']))
+  <a href="{{ $settings['sosmed_tiktok'] }}" target="_blank"
      aria-label="Follow on TikTok" class="group flex items-center justify-end">
     <div class="w-10 h-10 rounded-l-xl rounded-r-none flex items-center justify-center shadow-lg
                 bg-gray-900
@@ -33,6 +42,7 @@
       </svg>
     </div>
   </a>
+  @endif
 
 </div>
 

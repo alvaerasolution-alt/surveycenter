@@ -6,7 +6,8 @@
       'sosmed_facebook',
       'sosmed_twitter',
       'sosmed_linkedin',
-      'sosmed_instagram'
+      'sosmed_instagram',
+      'sosmed_tiktok'
   ])->pluck('value', 'key');
 @endphp
 {{-- Footer --}}
@@ -98,6 +99,14 @@
              <form style="display:none"></form>
             <svg fill="currentColor" class="w-4 h-4 text-white" viewBox="0 0 24 24">
               <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+          </a>
+          @endif
+          @if(!empty($settings['sosmed_tiktok']))
+          <a href="{{ $settings['sosmed_tiktok'] }}" target="_blank"
+             class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/40 transition">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.74a4.85 4.85 0 01-1.01-.05z"/>
             </svg>
           </a>
           @endif

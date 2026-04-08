@@ -19,7 +19,7 @@ LANGKAH-LANGKAH:
 ATURAN PENTING & PENYESUAIAN COMMAND:
 - Ganti `USERNAME_CPANEL` dengan username cPanel Anda.
 - Ganti `/public_html/survey/artisan` dengan alamat (path) sejati folder aplikasi laravel Anda berada.
-- Jika `/usr/local/bin/php` tidak bekerja (versi terlalu rendah di cpanel), ganti path php-nya ke executable PHP 8.3, contohnya:
+- Jika `/usrhttps://surveycenter.co.id/assets/survey1.mp4/local/bin/php` tidak bekerja (versi terlalu rendah di cpanel), ganti path php-nya ke executable PHP 8.3, contohnya:
   `/opt/cpanel/ea-php83/root/usr/bin/php /home/USERNAME/public_html/survey/artisan schedule:run >> /dev/null 2>&1`
 
 5. Klik tombol "Add New Cron Job".
