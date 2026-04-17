@@ -39,6 +39,7 @@
                     ['route' => 'admin.layanan.create', 'icon' => 'briefcase', 'label' => 'Layanan Baru', 'color' => 'emerald', 'gradient' => 'from-emerald-500 to-emerald-600'],
                     ['route' => 'admin.transactions.index', 'icon' => 'credit-card', 'label' => 'Lihat Transaksi', 'color' => 'amber', 'gradient' => 'from-amber-500 to-amber-600'],
                     ['route' => 'crm.dashboard', 'icon' => 'bar-chart-3', 'label' => 'Buka CRM', 'color' => 'blue', 'gradient' => 'from-blue-500 to-cyan-600'],
+                    ['route' => 'admin.surveys.manage', 'icon' => 'link-2', 'label' => 'Cek URL Form', 'color' => 'rose', 'gradient' => 'from-rose-500 to-pink-600'],
                 ];
             @endphp
 
@@ -63,6 +64,7 @@
             @php
                 $menuCards = [
                     ['route' => 'settings.edit', 'icon' => 'settings', 'label' => 'Pengaturan', 'desc' => 'Konfigurasi website'],
+                    ['route' => 'admin.surveys.manage', 'icon' => 'link-2', 'label' => 'URL Form Survey', 'desc' => 'Cek link form user'],
                     ['route' => 'tabs.index', 'icon' => 'layers', 'label' => 'Kelola Tabs', 'desc' => 'Tab halaman utama'],
                     ['route' => 'admin.discount-banners.index', 'icon' => 'image', 'label' => 'Banners', 'desc' => 'Banner promosi'],
                     ['route' => 'partner-logos.index', 'icon' => 'award', 'label' => 'Partner Logos', 'desc' => 'Logo klien & partner'],
