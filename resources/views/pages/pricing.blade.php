@@ -184,7 +184,6 @@
           <div id="aiAnalyzerCard" class="hidden mt-3 rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
               <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">AI Form Analyzer</p>
-                <span id="aiAcceptedBadge" class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"></span>
               </div>
 
               <div class="space-y-1">
@@ -493,7 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const loading = document.getElementById('analyzeFormLoading');
         const card = document.getElementById('aiAnalyzerCard');
         const err = document.getElementById('aiAnalyzerError');
-        const badge = document.getElementById('aiAcceptedBadge');
         const detectedTitle = document.getElementById('aiDetectedTitle');
         const titlePercent = document.getElementById('aiTitlePercent');
         const titleStatus = document.getElementById('aiTitleStatus');
@@ -644,8 +642,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 debugLoadData.textContent = debug.has_load_data ? 'Ya' : 'Tidak';
                 debugQuestionTitleCount.textContent = String(debug.question_titles_count ?? 0);
                 debugEntryIds.textContent = Array.isArray(debug.entry_ids) && debug.entry_ids.length ? debug.entry_ids.join(', ') : '-';
-                badge.textContent = data.accepted ? 'DITERIMA' : 'DITOLAK';
-                badge.className = `inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${data.accepted ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`;
             } catch (e) {
                 if (e.name !== 'AbortError') {
                     resetView();
