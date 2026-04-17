@@ -94,7 +94,7 @@ class FaspayTestTransactionController extends Controller
 
         // Check if expired
         if ($testTransaction->isExpired()) {
-            $testTransaction->update(['status' => 'expired']);
+            $testTransaction->update(['status' => FaspayTestTransaction::STATUS_EXPIRED]);
             return redirect()->route('faspay.test-transaction.index')
                 ->with('error', 'This transaction has expired.');
         }
@@ -139,7 +139,7 @@ class FaspayTestTransactionController extends Controller
                 // Save transaction reference
                 $testTransaction->update([
                     'trx_id' => $response['trx_id'] ?? null,
-                    'status' => 'processing',
+                    'status' => FaspayTestTransaction::STATUS_PROCESSING,
                 ]);
 
                 // Redirect to Faspay payment page
@@ -222,4 +222,3 @@ class FaspayTestTransactionController extends Controller
         }
     }
 }
-

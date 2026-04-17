@@ -161,13 +161,17 @@
 
         {{-- Google Form Link --}}
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Link Google Form / External</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Link Form Survey <span class="text-red-500">*</span></label>
           <div class="relative">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
             <input type="text" id="googleFormLink" name="google_form_link"
               class="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition"
               placeholder="https://forms.gle/...">
           </div>
+          <p class="text-xs text-gray-500 mt-1.5">
+            Link wajib diisi. Sistem memvalidasi URL form dan mengecek kecocokan judul.
+            Platform didukung: Google Forms, Microsoft Forms, Typeform, Jotform, Tally, Formstack.
+          </p>
         </div>
 
         {{-- User Type --}}
@@ -391,6 +395,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('orderForm').addEventListener('submit', e => {
         const p = parseInt(document.getElementById('postTotalCost').value) || 0;
         if (p < MIN) { e.preventDefault(); alert('Total biaya minimal Rp 50.000'); return false; }
+        const link = (document.getElementById('googleFormLink').value || '').trim();
+        if (!link) { e.preventDefault(); alert('Link form wajib diisi'); return false; }
         if (!document.getElementById('agreeTerms').checked) { e.preventDefault(); alert('Setujui Syarat & Ketentuan terlebih dahulu'); return false; }
     });
 });

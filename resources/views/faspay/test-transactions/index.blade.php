@@ -100,19 +100,19 @@
                             IDR {{ number_format($transaction->amount, 0, ',', '.') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if ($transaction->status === 'paid')
+                            @if ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_PAID)
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                     ✓ Paid
                                 </span>
-                            @elseif ($transaction->status === 'processing')
+                            @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_PROCESSING)
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                     ⟳ Processing
                                 </span>
-                            @elseif ($transaction->status === 'expired')
+                            @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_EXPIRED)
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
                                     ✕ Expired
                                 </span>
-                            @elseif ($transaction->status === 'failed')
+                            @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_FAILED)
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                     ✗ Failed
                                 </span>

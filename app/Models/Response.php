@@ -13,6 +13,7 @@ class Response extends Model
     protected $fillable = [
         'survey_id',
         'user_id',
+        'input_by_admin_id',
         'respond_count',
         'google_form_link',
     ];
@@ -25,5 +26,10 @@ class Response extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function inputByAdmin()
+    {
+        return $this->belongsTo(User::class, 'input_by_admin_id');
     }
 }

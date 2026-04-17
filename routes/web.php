@@ -25,6 +25,7 @@ use App\Http\Controllers\User\TransactionController as UserTransactionController
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
 use App\Http\Controllers\Admin\TransactionProgressController as AdminTransactionProgressController;
 use App\Http\Controllers\Admin\ResponseController;
+use App\Http\Controllers\Admin\SurveyManagementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentProofController;
 use App\Http\Controllers\OrderController;
@@ -50,13 +51,6 @@ Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name
 Route::post('/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('password.otp.resend');
 Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
-
-// Email Verification (OTP) - DISABLED
-// use App\Http\Controllers\Auth\EmailVerificationController;
-// Route::get('/verify-email', [EmailVerificationController::class, 'showVerifyForm'])->name('verification.notice');
-// Route::post('/verify-email', [EmailVerificationController::class, 'verifyOtp'])->name('verification.verify');
-// Route::post('/verify-email/send', [EmailVerificationController::class, 'sendOtp'])->name('verification.send');
-// Route::post('/verify-email/resend', [EmailVerificationController::class, 'resendOtp'])->name('verification.resend');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -172,6 +166,7 @@ Route::get('/set-sitemap', function () {
 
 
 Route::post('/crm/customers/store', [HomeController::class, 'storeCustomer'])->name('crm.customers.store.user');
+Route::post('/whatsapp/lead', [HomeController::class, 'storeCustomer'])->name('whatsapp.lead.store');
 Route::post('/crm/customers', [CustomerController::class, 'store'])->name('crm.customers.store');
 Route::get('/customer-form', [CustomerController::class, 'create'])->name('customers.create');
 Route::post('/customer-form', [CustomerController::class, 'store'])->name('customers.store');
@@ -329,6 +324,15 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     // Aksi update progress
     Route::put('/transactions/{transaction}/progress', [AdminTransactionProgressController::class, 'update'])
         ->name('admin.transactions.progress.update');
+
+    Route::get('/surveys/manage', [SurveyManagementController::class, 'index'])
+        ->name('admin.surveys.manage');
+
+    Route::post('/surveys/{survey}/respondents', [SurveyManagementController::class, 'storeRespondent'])
+        ->name('admin.surveys.respondents.store');
+
+    Route::put('/surveys/{survey}/respondents/{response}', [SurveyManagementController::class, 'updateRespondent'])
+        ->name('admin.surveys.respondents.update');
 
     Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::resource('responses', ResponseController::class);

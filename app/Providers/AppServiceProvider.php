@@ -79,7 +79,7 @@ class AppServiceProvider extends ServiceProvider
             if (Auth::check()) {
                 /** @var \App\Models\User $user */
                 $user = Auth::user();
-                $cartItemCount = $user->transactions()->where('status', 'pending')->count();
+                $cartItemCount = $user->transactions()->where('status', Transaction::STATUS_PENDING)->count();
             }
 
             $view->with(compact('jenis', 'tambahan', 'cartItemCount'));

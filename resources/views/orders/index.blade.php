@@ -61,7 +61,7 @@
                                     <p class="text-xs text-gray-500 italic">
                                         Termasuk
                                         {{ $transaction->survey->question_count ?? 0 }} pertanyaan & 
-                                        {{ $transaction->survey->responses->first()->respond_count ?? 0 }} responden
+                                        {{ $transaction->survey->respondent_count ?? ($transaction->survey->responses->first()->respond_count ?? 0) }} responden
                                     </p>
                                 </div>
 

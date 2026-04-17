@@ -23,37 +23,37 @@
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-semibold text-gray-900">Payment Status</h2>
                     <span class="px-4 py-2 rounded-full text-sm font-semibold
-                        @if ($transaction->status === 'paid')
+                        @if ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_PAID)
                             bg-green-100 text-green-800
-                        @elseif ($transaction->status === 'processing')
+                        @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_PROCESSING)
                             bg-blue-100 text-blue-800
-                        @elseif ($transaction->status === 'failed')
+                        @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_FAILED)
                             bg-red-100 text-red-800
-                        @elseif ($transaction->status === 'expired')
+                        @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_EXPIRED)
                             bg-gray-100 text-gray-800
                         @else
                             bg-yellow-100 text-yellow-800
                         @endif">
-                        {{ ucfirst($transaction->status) }}
+                        {{ $transaction->statusLabel() }}
                     </span>
                 </div>
 
-                @if ($transaction->status === 'paid')
+                @if ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_PAID)
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                         <p class="text-green-800 font-semibold">✓ Payment Confirmed</p>
                         <p class="text-sm text-green-700">Payment was successfully received and processed.</p>
                     </div>
-                @elseif ($transaction->status === 'processing')
+                @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_PROCESSING)
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                         <p class="text-blue-800 font-semibold">⟳ Processing</p>
                         <p class="text-sm text-blue-700">Waiting for payment confirmation from the payment gateway.</p>
                     </div>
-                @elseif ($transaction->status === 'failed')
+                @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_FAILED)
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                         <p class="text-red-800 font-semibold">✗ Payment Failed</p>
                         <p class="text-sm text-red-700">{{ $transaction->notes ?? 'Payment processing encountered an error.' }}</p>
                     </div>
-                @elseif ($transaction->status === 'expired')
+                @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_EXPIRED)
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
                         <p class="text-gray-800 font-semibold">⊗ Expired</p>
                         <p class="text-sm text-gray-700">This transaction has expired and can no longer be paid.</p>

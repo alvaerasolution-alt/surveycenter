@@ -9,11 +9,16 @@ class Survey extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'title', 'question_count', 'respondent_count', 'description'];
+    protected $fillable = ['user_id', 'title', 'question_count', 'respondent_count', 'form_link', 'description'];
 
     public function responses()
     {
         return $this->hasMany(Response::class);
+    }
+
+    public function adminResponses()
+    {
+        return $this->hasMany(Response::class)->whereNotNull('input_by_admin_id');
     }
 
     public function transactions()

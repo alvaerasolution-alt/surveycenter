@@ -45,14 +45,14 @@
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Status</p>
                     <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full 
-                        @if ($transaction->status === 'paid')
+                        @if ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_PAID)
                             bg-green-100 text-green-800
-                        @elseif ($transaction->status === 'processing')
+                        @elseif ($transaction->status === \App\Models\FaspayTestTransaction::STATUS_PROCESSING)
                             bg-blue-100 text-blue-800
                         @else
                             bg-gray-100 text-gray-800
                         @endif">
-                        {{ ucfirst($transaction->status) }}
+                        {{ $transaction->statusLabel() }}
                     </span>
                 </div>
 

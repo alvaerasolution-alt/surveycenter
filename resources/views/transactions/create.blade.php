@@ -19,13 +19,20 @@
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Detail Survey</h3>
             <p><strong>Judul:</strong> {{ $survey->title }}</p>
             <p><strong>Jumlah Pertanyaan:</strong> {{ $survey->question_count }}</p>
-            <p><strong>Jumlah Responden:</strong> {{ $survey->responses->first()->respond_count ?? 0 }}</p>
+            <p><strong>Jumlah Responden:</strong> {{ $survey->respondent_count ?? ($survey->responses->first()->respond_count ?? 0) }}</p>
+            <p><strong>Link Survey:</strong>
+                @if(!empty($survey->form_link))
+                    <a href="{{ $survey->form_link }}" target="_blank" rel="noopener noreferrer">{{ $survey->form_link }}</a>
+                @else
+                    -
+                @endif
+            </p>
         </div>
 
         <!-- Ringkasan Biaya -->
         @php
             $price = 1000; // misalnya Rp 1000 per pertanyaan
-            $respond = $survey->responses->first()->respond_count ?? 0;
+            $respond = $survey->respondent_count ?? ($survey->responses->first()->respond_count ?? 0);
             $total = $survey->question_count * $price * $respond;
         @endphp
 

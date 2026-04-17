@@ -10,7 +10,7 @@
             <p><strong>Status:</strong>
                 <span
                     class="px-2 py-1 text-xs font-bold rounded
-                {{ $transaction->status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                {{ $transaction->status === \App\Models\Transaction::STATUS_PAID ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                     {{ strtoupper($transaction->status) }}
                 </span>
             </p>

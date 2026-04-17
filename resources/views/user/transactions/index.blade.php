@@ -24,7 +24,8 @@
                     <label class="block text-xs font-medium text-gray-700 mb-2">Status</label>
                     <select name="status" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                         <option value="all" {{ request('status') === 'all' ? 'selected' : '' }}>Semua Status</option>
-                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu Pembayaran</option>
+                        <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>Verifikasi</option>
                         <option value="paid" {{ request('status') === 'paid' ? 'selected' : '' }}>Dibayar</option>
                         <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>Gagal</option>
                     </select>
@@ -82,6 +83,11 @@
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @foreach($transactions as $transaction)
+                            @php
+                                $progress = $transaction->safeProgress();
+                                $tahap1Selesai = $transaction->isStage1Completed();
+                                $tahap2Selesai = $transaction->isStage2Completed();
+                            @endphp
                             <tr class="hover:bg-gray-50 transition">
                                 {{-- Survey Name --}}
                                 <td class="px-5 py-4">
@@ -107,22 +113,8 @@
 
                                 {{-- Status --}}
                                 <td class="px-5 py-4 text-center">
-                                    @php
-                                        $statusClass = match($transaction->status) {
-                                            'paid' => 'bg-emerald-100 text-emerald-700',
-                                            'pending' => 'bg-amber-100 text-amber-700',
-                                            'failed' => 'bg-red-100 text-red-700',
-                                            default => 'bg-gray-100 text-gray-700'
-                                        };
-                                        $statusLabel = match($transaction->status) {
-                                            'paid' => 'Dibayar',
-                                            'pending' => 'Pending',
-                                            'failed' => 'Gagal',
-                                            default => ucfirst($transaction->status)
-                                        };
-                                    @endphp
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
-                                        {{ $statusLabel }}
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $transaction->statusBadgeClass() }}">
+                                        {{ $transaction->statusLabel() }}
                                     </span>
                                 </td>
 
@@ -131,13 +123,17 @@
                                     <div class="flex items-center justify-center gap-2">
                                         <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
                                             <div class="h-full rounded-full transition-all
-                                                @if($transaction->progress >= 100) bg-emerald-500
-                                                @elseif($transaction->progress > 0) bg-blue-500
+                                                @if($progress >= 100) bg-emerald-500
+                                                @elseif($progress > 0) bg-blue-500
                                                 @else bg-gray-300
                                                 @endif"
-                                                style="width: {{ $transaction->progress }}%"></div>
+                                                data-progress-width="{{ $progress }}"></div>
                                         </div>
-                                        <span class="text-xs font-medium text-gray-600 w-8 text-right">{{ $transaction->progress }}%</span>
+                                        <span class="text-xs font-medium text-gray-600 w-10 text-right">{{ $progress }}%</span>
+                                    </div>
+                                    <div class="mt-1.5 text-center">
+                                        <p class="text-[11px] {{ $tahap1Selesai ? 'text-emerald-600' : 'text-amber-600' }}">Tahap 1: {{ $tahap1Selesai ? 'Selesai' : 'Menunggu Pembayaran' }}</p>
+                                        <p class="text-[11px] {{ $tahap2Selesai ? 'text-emerald-600' : 'text-gray-500' }}">Tahap 2: {{ $tahap2Selesai ? 'Selesai' : 'Proses' }}</p>
                                     </div>
                                 </td>
 
@@ -184,13 +180,14 @@
 
     {{-- Summary Card --}}
     @if($transactions->count() > 0)
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             @php
                 $stats = \App\Models\Transaction::where('user_id', auth()->id())
                     ->selectRaw('
                         SUM(amount) as total_spent,
                         SUM(CASE WHEN status = "paid" THEN amount ELSE 0 END) as paid_amount,
-                        SUM(CASE WHEN status = "pending" THEN amount ELSE 0 END) as pending_amount
+                        SUM(CASE WHEN status = "pending" THEN amount ELSE 0 END) as pending_amount,
+                        SUM(CASE WHEN status = "processing" THEN amount ELSE 0 END) as processing_amount
                     ')
                     ->first();
             @endphp
@@ -212,13 +209,27 @@
             <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-amber-600 uppercase">Pending</p>
+                        <p class="text-xs font-medium text-amber-600 uppercase">Menunggu Pembayaran</p>
                         <p class="text-lg font-bold text-amber-900 mt-2">
                             Rp {{ number_format($stats->pending_amount ?? 0, 0, ',', '.') }}
                         </p>
                     </div>
                     <div class="w-12 h-12 rounded-lg bg-amber-200 flex items-center justify-center">
                         <i data-lucide="clock" class="w-6 h-6 text-amber-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-5 border border-indigo-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-indigo-600 uppercase">Verifikasi</p>
+                        <p class="text-lg font-bold text-indigo-900 mt-2">
+                            Rp {{ number_format($stats->processing_amount ?? 0, 0, ',', '.') }}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-indigo-200 flex items-center justify-center">
+                        <i data-lucide="loader" class="w-6 h-6 text-indigo-600"></i>
                     </div>
                 </div>
             </div>
@@ -245,6 +256,12 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[data-progress-width]').forEach(function(el) {
+            const value = parseInt(el.dataset.progressWidth || '0', 10);
+            const safeValue = Math.min(Math.max(value, 0), 100);
+            el.style.width = safeValue + '%';
+        });
+
         if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 </script>

@@ -31,8 +31,12 @@
         </div>
 
         <div class="mb-4">
-            <label class="block font-semibold mb-1">Google Form Link (Opsional)</label>
-            <input type="url" name="google_form_link" class="w-full border p-2 rounded">
+            <label class="block font-semibold mb-1">Google Form Link <span class="text-red-500">*</span></label>
+            <input type="url" name="google_form_link" class="w-full border p-2 rounded" required>
+            <p class="mt-1 text-xs text-gray-500">
+                Wajib diisi. Sistem memvalidasi URL form dan judul form harus sama dengan judul survey.
+                Platform didukung: Google Forms, Microsoft Forms, Typeform, Jotform, Tally, Formstack.
+            </p>
         </div>
 
         <div class="flex justify-end gap-3">

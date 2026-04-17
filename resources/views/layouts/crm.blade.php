@@ -151,8 +151,7 @@
                 @php
                     $crmLinks = [
                         ['route' => 'crm.dashboard', 'is' => 'crm.dashboard', 'icon' => 'layout-dashboard', 'label' => 'Dashboard CRM'],
-                        ['route' => 'admin.responses.index', 'is' => 'admin.responses.*', 'icon' => 'bar-chart-3', 'label' => 'Respons'],
-                        ['route' => 'admin.transactions.progress.index', 'is' => 'admin.transactions.progress.*', 'icon' => 'trending-up', 'label' => 'Progres'],
+                        ['route' => 'admin.surveys.manage', 'is' => 'admin.surveys.*', 'icon' => 'clipboard-list', 'label' => 'Kelola Survey', 'extra' => 'admin.responses.*,admin.transactions.progress.*'],
                         ['route' => 'pilih-client', 'is' => 'pilih-client', 'icon' => 'users', 'label' => 'Klien', 'extra' => 'followups.*,crm.customer-already'],
                     ];
                 @endphp

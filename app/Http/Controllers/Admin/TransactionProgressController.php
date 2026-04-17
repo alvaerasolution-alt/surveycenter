@@ -14,7 +14,7 @@ class TransactionProgressController extends Controller
     public function index()
     {
         $transactions = Transaction::with(['survey', 'user'])
-            ->where('status', 'paid')
+            ->where('status', Transaction::STATUS_PAID)
             ->orderByDesc('updated_at')
             ->paginate(10);
 
@@ -27,7 +27,7 @@ class TransactionProgressController extends Controller
      */
     public function edit(Transaction $transaction)
     {
-        if ($transaction->status !== 'paid') {
+        if ($transaction->status !== Transaction::STATUS_PAID) {
             return redirect()->route('admin.transactions.progress.index')
                 ->with('error', 'Hanya transaksi yang sudah dibayar yang bisa diupdate progress.');
         }
@@ -45,7 +45,7 @@ class TransactionProgressController extends Controller
             'progress' => 'required|integer|min:0|max:100',
         ]);
 
-        if ($transaction->status !== 'paid') {
+        if ($transaction->status !== Transaction::STATUS_PAID) {
             return redirect()->route('admin.transactions.progress.index')
                 ->with('error', 'Hanya transaksi yang sudah dibayar yang bisa diupdate progress.');
         }

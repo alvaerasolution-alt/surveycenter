@@ -33,8 +33,8 @@
                 <select name="status" class="px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                     <option value="all" {{ request('status') === 'all' ? 'selected' : '' }}>Semua Status</option>
                     <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
-                    <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>Dalam Proses</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>Tahap 1/2 Proses</option>
+                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu Pembayaran</option>
                 </select>
                 <button type="submit" class="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
                     Filter
@@ -52,7 +52,8 @@
                         <tr class="bg-gray-50 border-b border-gray-100">
                             <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Survey</th>
                             <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Pertanyaan</th>
-                            <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Responden</th>
+                            <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Target Responden</th>
+                            <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Responden Diperoleh</th>
                             <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Progress</th>
                             <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -62,7 +63,7 @@
                         @foreach($surveys as $survey)
                             @php
                                 $latestTransaction = $survey->transactions->first();
-                                $progress = $latestTransaction->progress ?? 0;
+                                $progress = $latestTransaction?->safeProgress() ?? 0;
                                 $status = $latestTransaction->status ?? 'pending';
                             @endphp
                             <tr class="hover:bg-gray-50 transition">
@@ -85,6 +86,9 @@
                                 <td class="px-5 py-4 text-center">
                                     <span class="text-sm font-medium text-gray-900">{{ $survey->respondent_count }}</span>
                                 </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="text-sm font-medium text-gray-900">{{ $survey->admin_responses_sum_respond_count ?? 0 }}</span>
+                                </td>
                                 <td class="px-5 py-4">
                                     <div class="flex items-center justify-center gap-2">
                                         <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -93,21 +97,14 @@
                                                 @elseif($progress > 0) bg-blue-500
                                                 @else bg-gray-300
                                                 @endif"
-                                                style="width: {{ $progress }}%"></div>
+                                                data-progress-width="{{ $progress }}"></div>
                                         </div>
                                         <span class="text-xs font-medium text-gray-600">{{ $progress }}%</span>
                                     </div>
                                 </td>
                                 <td class="px-5 py-4 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-                                        @if($status === 'paid') bg-emerald-100 text-emerald-700
-                                        @elseif($status === 'pending') bg-amber-100 text-amber-700
-                                        @else bg-red-100 text-red-700
-                                        @endif">
-                                        @if($status === 'paid') Dibayar
-                                        @elseif($status === 'pending') Pending
-                                        @else {{ ucfirst($status) }}
-                                        @endif
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $latestTransaction?->statusBadgeClass() ?? \App\Models\Transaction::getStatusBadgeClass($status) }}">
+                                        {{ $latestTransaction?->statusLabel() ?? \App\Models\Transaction::getStatusLabel($status) }}
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-right">
@@ -115,7 +112,7 @@
                                         <a href="{{ route('user.surveys.show', $survey) }}" class="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition" title="Lihat Detail">
                                             <i data-lucide="eye" class="w-4 h-4"></i>
                                         </a>
-                                        @if($status === 'pending')
+                                        @if($status === \App\Models\Transaction::STATUS_PENDING)
                                             <form method="POST" action="{{ route('user.surveys.destroy', $survey) }}" onsubmit="return confirm('Yakin ingin menghapus survey ini?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -159,6 +156,12 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[data-progress-width]').forEach(function(el) {
+            const value = parseInt(el.dataset.progressWidth || '0', 10);
+            const safeValue = Math.min(Math.max(value, 0), 100);
+            el.style.width = safeValue + '%';
+        });
+
         if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 </script>

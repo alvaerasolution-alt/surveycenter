@@ -119,6 +119,11 @@
             font-size: 12px;
             font-weight: bold;
         }
+        .progress-0 { width: 0%; }
+        .progress-25 { width: 25%; }
+        .progress-50 { width: 50%; }
+        .progress-75 { width: 75%; }
+        .progress-100 { width: 100%; }
         .footer {
             margin-top: 40px;
             padding-top: 20px;
@@ -201,20 +206,24 @@
                                 'processing' => 'badge-warning',
                                 default => 'badge-pending'
                             };
-                            $statusLabel = match($transaction->status) {
-                                'paid' => 'Dibayar',
-                                'pending' => 'Pending',
-                                'processing' => 'Diproses',
-                                'failed' => 'Gagal',
-                                default => ucfirst($transaction->status)
-                            };
+                            $statusLabel = \App\Models\Transaction::getStatusLabel($transaction->status);
                         @endphp
                         <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
                     </td>
                     <td>
+                        @php
+                            $progress = (int) $transaction->progress;
+                            $progressClass = match(true) {
+                                $progress >= 100 => 'progress-100',
+                                $progress >= 75 => 'progress-75',
+                                $progress >= 50 => 'progress-50',
+                                $progress >= 25 => 'progress-25',
+                                default => 'progress-0',
+                            };
+                        @endphp
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: {{ $transaction->progress }}%;">
-                                {{ $transaction->progress }}%
+                            <div class="progress-fill {{ $progressClass }}">
+                                {{ $progress }}%
                             </div>
                         </div>
                     </td>
@@ -231,8 +240,12 @@
         <h2 class="section-title">Ringkasan</h2>
         <div class="info-grid">
             <div class="info-row">
-                <div class="info-label">Total Respons</div>
-                <div class="info-value">{{ $responses->sum('respond_count') }}</div>
+                <div class="info-label">Target Responden</div>
+                <div class="info-value">{{ $survey->respondent_count }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Responden Diperoleh</div>
+                <div class="info-value">{{ $adminResponses->sum('respond_count') }}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Total Transaksi</div>

@@ -8,7 +8,7 @@
 <div class="space-y-6">
     
     {{-- Key Metrics --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {{-- Total Surveys --}}
         <div class="bg-white rounded-xl border border-gray-200/80 p-5">
             <div class="flex items-center justify-between mb-4">
@@ -21,16 +21,40 @@
             <p class="text-xs text-gray-500 mt-1">Survey dibuat</p>
         </div>
 
-        {{-- Total Responses --}}
+        {{-- Total Target Responses --}}
         <div class="bg-white rounded-xl border border-gray-200/80 p-5">
             <div class="flex items-center justify-between mb-4">
                 <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
                     <i data-lucide="users" class="w-5 h-5 text-emerald-600"></i>
                 </div>
-                <span class="text-xs font-medium text-gray-400">RESPONSES</span>
+                <span class="text-xs font-medium text-gray-400">TARGET</span>
             </div>
-            <p class="text-2xl font-bold text-gray-900">{{ $totalResponses }}</p>
-            <p class="text-xs text-gray-500 mt-1">Total responden</p>
+            <p class="text-2xl font-bold text-gray-900">{{ $totalTargetResponses }}</p>
+            <p class="text-xs text-gray-500 mt-1">Target responden</p>
+        </div>
+
+        {{-- Total Obtained Responses --}}
+        <div class="bg-white rounded-xl border border-gray-200/80 p-5">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 rounded-lg bg-cyan-100 flex items-center justify-center">
+                    <i data-lucide="user-check" class="w-5 h-5 text-cyan-700"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-400">DIPEROLEH</span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">{{ $totalObtainedResponses }}</p>
+            <p class="text-xs text-gray-500 mt-1">Responden diperoleh</p>
+        </div>
+
+        {{-- Achievement Rate --}}
+        <div class="bg-white rounded-xl border border-gray-200/80 p-5">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                    <i data-lucide="target" class="w-5 h-5 text-orange-600"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-400">CAPAIAN</span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">{{ $responseAchievementRate }}%</p>
+            <p class="text-xs text-gray-500 mt-1">Pencapaian target</p>
         </div>
     </div>
 
@@ -38,35 +62,45 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="bg-white rounded-xl border border-gray-200/80 p-6">
             <h3 class="text-sm font-semibold text-gray-900 mb-5 flex items-center gap-2">
-                <i data-lucide="pie-chart" class="w-4 h-4 text-orange-600"></i>
-                Status Survey
+                <i data-lucide="git-branch" class="w-4 h-4 text-orange-600"></i>
+                Progress Tahapan
             </h3>
             <div class="space-y-4">
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm text-gray-600">Selesai</span>
+                        <span class="text-sm text-gray-600">Tahap 1 - Create Pembayaran</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $stage1CompletedSurveys }}</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500" data-progress-width="{{ $totalSurveys > 0 ? ($stage1CompletedSurveys / $totalSurveys * 100) : 0 }}"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600">Tahap 2 - Hasil</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $stage2CompletedSurveys }}</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500" data-progress-width="{{ $totalSurveys > 0 ? ($stage2CompletedSurveys / $totalSurveys * 100) : 0 }}"></div>
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-gray-100"></div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600">Verifikasi Pembayaran</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $verificationSurveys }}</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-indigo-500" data-progress-width="{{ $totalSurveys > 0 ? ($verificationSurveys / $totalSurveys * 100) : 0 }}"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600">Survey selesai 100%</span>
                         <span class="text-sm font-bold text-gray-900">{{ $completedSurveys }}</span>
                     </div>
                     <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-emerald-500" style="width: {{ $totalSurveys > 0 ? ($completedSurveys / $totalSurveys * 100) : 0 }}%"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm text-gray-600">Dalam Proses</span>
-                        <span class="text-sm font-bold text-gray-900">{{ $inProgressSurveys }}</span>
-                    </div>
-                    <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-500" style="width: {{ $totalSurveys > 0 ? ($inProgressSurveys / $totalSurveys * 100) : 0 }}%"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm text-gray-600">Pending</span>
-                        <span class="text-sm font-bold text-gray-900">{{ $pendingSurveys }}</span>
-                    </div>
-                    <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-amber-500" style="width: {{ $totalSurveys > 0 ? ($pendingSurveys / $totalSurveys * 100) : 0 }}%"></div>
+                        <div class="h-full bg-amber-500" data-progress-width="{{ $totalSurveys > 0 ? ($completedSurveys / $totalSurveys * 100) : 0 }}"></div>
                     </div>
                 </div>
             </div>
@@ -84,14 +118,9 @@
                         <div>
                             <p class="text-sm font-medium text-gray-900">
                                 @php
-                                    $labels = [
-                                        'paid' => 'Dibayar',
-                                        'pending' => 'Pending',
-                                        'processing' => 'Diproses',
-                                        'failed' => 'Gagal'
-                                    ];
+                                    $label = \App\Models\Transaction::getStatusLabel($status);
                                 @endphp
-                                {{ $labels[$status] ?? ucfirst($status) }}
+                                {{ $label }}
                             </p>
                             <p class="text-xs text-gray-500">{{ $stat->count }} transaksi</p>
                         </div>
@@ -111,16 +140,20 @@
             </h3>
             <div class="space-y-3">
                 <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-100">
-                    <span class="text-sm text-gray-600">Rata-rata respons per survey</span>
-                    <span class="text-sm font-bold text-gray-900">{{ $totalSurveys > 0 ? round($totalResponses / $totalSurveys) : 0 }}</span>
+                    <span class="text-sm text-gray-600">Rata-rata target per survey</span>
+                    <span class="text-sm font-bold text-gray-900">{{ $totalSurveys > 0 ? round($totalTargetResponses / $totalSurveys) : 0 }}</span>
                 </div>
                 <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <span class="text-sm text-gray-600">Rata-rata diperoleh per survey</span>
+                    <span class="text-sm font-bold text-gray-900">{{ $totalSurveys > 0 ? round($totalObtainedResponses / $totalSurveys) : 0 }}</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-indigo-50 rounded-lg border border-indigo-100">
                     <span class="text-sm text-gray-600">Biaya rata-rata per survey</span>
                     <span class="text-sm font-bold text-gray-900">Rp {{ $totalSurveys > 0 ? number_format($totalSpending / $totalSurveys, 0, ',', '.') : 0 }}</span>
                 </div>
                 <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
-                    <span class="text-sm text-gray-600">Tingkat penyelesaian</span>
-                    <span class="text-sm font-bold text-gray-900">{{ $totalSurveys > 0 ? round($completedSurveys / $totalSurveys * 100) : 0 }}%</span>
+                    <span class="text-sm text-gray-600">Tingkat pencapaian target</span>
+                    <span class="text-sm font-bold text-gray-900">{{ $responseAchievementRate }}%</span>
                 </div>
             </div>
         </div>
@@ -143,10 +176,14 @@
                     <p class="text-sm font-medium text-gray-900 truncate">{{ $item['survey']->title }}</p>
                     <p class="text-xs text-gray-500 mt-1">
                         <i data-lucide="users" class="w-3 h-3 inline mr-1"></i>
-                        {{ $item['responses'] }} responden
+                        Target {{ $item['target_responses'] }} • Diperoleh {{ $item['obtained_responses'] }}
                         @if($item['transaction'])
                             • Rp {{ number_format($item['transaction']->amount, 0, ',', '.') }}
                         @endif
+                    </p>
+                    <p class="text-[11px] mt-1 text-gray-500">
+                        Tahap 1: {{ $item['stage1_done'] ? 'Selesai' : 'Menunggu Pembayaran' }} •
+                        Tahap 2: {{ $item['stage2_done'] ? 'Selesai' : 'Proses' }}
                     </p>
                 </div>
                 <i data-lucide="arrow-right" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
@@ -161,7 +198,7 @@
     <div class="bg-white rounded-xl border border-gray-200/80 p-6">
         <h3 class="text-sm font-semibold text-gray-900 mb-5 flex items-center gap-2">
             <i data-lucide="activity" class="w-4 h-4 text-green-600"></i>
-            Tren Respons (30 Hari Terakhir)
+            Tren Responden Diperoleh (30 Hari Terakhir)
         </h3>
         <div class="space-y-4">
             @php $maxResponses = $responseTrends->pluck('count')->max(); @endphp
@@ -169,10 +206,10 @@
             <div>
                 <div class="flex items-center justify-between mb-1">
                     <span class="text-xs text-gray-600">{{ \Carbon\Carbon::parse($trend->date)->format('d M') }}</span>
-                    <span class="text-xs font-bold text-gray-900">{{ $trend->count }} respons</span>
+                    <span class="text-xs font-bold text-gray-900">{{ $trend->count }} responden</span>
                 </div>
                 <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500" style="width: {{ ($trend->count / $maxResponses * 100) }}%"></div>
+                    <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500" data-progress-width="{{ $maxResponses > 0 ? ($trend->count / $maxResponses * 100) : 0 }}"></div>
                 </div>
             </div>
             @endforeach
@@ -185,6 +222,12 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[data-progress-width]').forEach(function(el) {
+            const value = parseFloat(el.dataset.progressWidth || '0');
+            const safeValue = Math.min(Math.max(value, 0), 100);
+            el.style.width = safeValue + '%';
+        });
+
         if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 </script>

@@ -23,9 +23,9 @@ class CRMController extends Controller
 
         // Get customers with paid transactions
         $customerAlready = User::whereHas('transactions', function ($query) {
-            $query->where('status', 'paid');
+            $query->where('status', Transaction::STATUS_PAID);
         })->with(['transactions' => function ($query) {
-            $query->where('status', 'paid');
+            $query->where('status', Transaction::STATUS_PAID);
         }])->latest()->get();
 
         // Pipeline data from customers table
@@ -37,8 +37,8 @@ class CRMController extends Controller
 
         // Transaction status counts
         $transactionStats = [
-            'pending' => Transaction::where('status', 'pending')->count(),
-            'paid'    => Transaction::where('status', 'paid')->count(),
+            'pending' => Transaction::where('status', Transaction::STATUS_PENDING)->count(),
+            'paid'    => Transaction::where('status', Transaction::STATUS_PAID)->count(),
         ];
 
         // Monthly revenue for the last 6 months
@@ -47,7 +47,7 @@ class CRMController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $monthLabels[] = $date->translatedFormat('M Y');
-            $monthlyRevenue[] = Transaction::where('status', 'paid')
+            $monthlyRevenue[] = Transaction::where('status', Transaction::STATUS_PAID)
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->sum('amount');
@@ -87,9 +87,9 @@ class CRMController extends Controller
 
             // Get users with paid transactions
             $customerAlready = User::whereHas('transactions', function ($query) {
-                $query->where('status', 'paid');
+                $query->where('status', Transaction::STATUS_PAID);
             })->with(['transactions' => function ($query) {
-                $query->where('status', 'paid');
+                $query->where('status', Transaction::STATUS_PAID);
             }])->latest()->take(5)->get();
 
             return view('admin.crm', compact('followUps', 'customerAlready'));
@@ -106,9 +106,9 @@ class CRMController extends Controller
     {
         // Get users with paid transactions
         $users = User::whereHas('transactions', function ($query) {
-            $query->where('status', 'paid');
+            $query->where('status', Transaction::STATUS_PAID);
         })->with(['transactions' => function ($query) {
-            $query->where('status', 'paid');
+            $query->where('status', Transaction::STATUS_PAID);
         }])->paginate(10);
 
         return view('admin.crm.customer-already', compact('users'));

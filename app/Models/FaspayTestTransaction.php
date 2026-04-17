@@ -8,6 +8,13 @@ use Carbon\Carbon;
 
 class FaspayTestTransaction extends Model
 {
+    public const STATUS_UNPAID = 'unpaid';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_EXPIRED = 'expired';
+    public const STATUS_CANCELLED = 'cancelled';
+
     protected $fillable = [
         'user_id',
         'bill_no',
@@ -61,7 +68,7 @@ class FaspayTestTransaction extends Model
      */
     public function isPaid(): bool
     {
-        return $this->status === 'paid';
+        return $this->status === self::STATUS_PAID;
     }
 
     /**
@@ -70,7 +77,7 @@ class FaspayTestTransaction extends Model
     public function markAsPaid(array $paymentData = []): void
     {
         $this->update([
-            'status' => 'paid',
+            'status' => self::STATUS_PAID,
             'payment_date' => now(),
             'payment_response' => json_encode($paymentData),
             'trx_id' => $paymentData['trx_id'] ?? $this->trx_id,
@@ -85,9 +92,44 @@ class FaspayTestTransaction extends Model
     public function markAsFailed(string $reason = ''): void
     {
         $this->update([
-            'status' => 'failed',
+            'status' => self::STATUS_FAILED,
             'notes' => $reason,
         ]);
+    }
+
+    public static function getStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            self::STATUS_PAID => 'Paid',
+            self::STATUS_PROCESSING => 'Processing',
+            self::STATUS_UNPAID => 'Unpaid',
+            self::STATUS_FAILED => 'Failed',
+            self::STATUS_EXPIRED => 'Expired',
+            self::STATUS_CANCELLED => 'Cancelled',
+            default => ucfirst((string) $status),
+        };
+    }
+
+    public static function getStatusBadgeClass(?string $status): string
+    {
+        return match ($status) {
+            self::STATUS_PAID => 'bg-green-100 text-green-800',
+            self::STATUS_PROCESSING => 'bg-blue-100 text-blue-800',
+            self::STATUS_FAILED => 'bg-red-100 text-red-800',
+            self::STATUS_EXPIRED => 'bg-gray-100 text-gray-800',
+            self::STATUS_CANCELLED => 'bg-gray-100 text-gray-800',
+            default => 'bg-yellow-100 text-yellow-800',
+        };
+    }
+
+    public function statusLabel(): string
+    {
+        return self::getStatusLabel($this->status);
+    }
+
+    public function statusBadgeClass(): string
+    {
+        return self::getStatusBadgeClass($this->status);
     }
 
     /**
@@ -103,7 +145,7 @@ class FaspayTestTransaction extends Model
      */
     public function scopeUnpaid($query)
     {
-        return $query->where('status', 'unpaid');
+        return $query->where('status', self::STATUS_UNPAID);
     }
 
     /**
@@ -111,7 +153,7 @@ class FaspayTestTransaction extends Model
      */
     public function scopePaid($query)
     {
-        return $query->where('status', 'paid');
+        return $query->where('status', self::STATUS_PAID);
     }
 
     /**
@@ -127,12 +169,11 @@ class FaspayTestTransaction extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('status', '!=', 'paid')
-            ->where('status', '!=', 'expired')
+        return $query->where('status', '!=', self::STATUS_PAID)
+            ->where('status', '!=', self::STATUS_EXPIRED)
             ->where(function ($q) {
                 $q->whereNull('expires_at')
                   ->orWhere('expires_at', '>', now());
             });
     }
 }
-

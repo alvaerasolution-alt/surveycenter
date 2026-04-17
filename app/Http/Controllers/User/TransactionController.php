@@ -18,7 +18,7 @@ class TransactionController extends Controller
         
         $query = Transaction::where('user_id', $user->id)
             ->with(['survey' => function($q) {
-                $q->select('id', 'title', 'question_count');
+                $q->select('id', 'title', 'question_count', 'respondent_count', 'form_link');
             }]);
 
         // Filter by status

@@ -30,21 +30,12 @@
                 </div>
                 <div class="text-right">
                     @php
-                        $statusClass = match($transaction->status) {
-                            'paid' => 'bg-emerald-100 text-emerald-700',
-                            'pending' => 'bg-amber-100 text-amber-700',
-                            'failed' => 'bg-red-100 text-red-700',
-                            default => 'bg-gray-100 text-gray-700'
-                        };
-                        $statusLabel = match($transaction->status) {
-                            'paid' => 'Dibayar',
-                            'pending' => 'Pending',
-                            'failed' => 'Gagal',
-                            default => ucfirst($transaction->status)
-                        };
+                        $progress = $transaction->safeProgress();
+                        $createPaymentCompleted = $transaction->isStage1Completed();
+                        $hasilCompleted = $transaction->isStage2Completed();
                     @endphp
-                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold {{ $statusClass }}">
-                        {{ $statusLabel }}
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold {{ $transaction->statusBadgeClass() }}">
+                        {{ $transaction->statusLabel() }}
                     </span>
                 </div>
             </div>
@@ -87,25 +78,44 @@
                 </div>
             </div>
 
+            {{-- Main Stages --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="rounded-lg border px-4 py-3 {{ $createPaymentCompleted ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200' }}">
+                    <p class="text-xs font-semibold uppercase {{ $createPaymentCompleted ? 'text-emerald-700' : 'text-amber-700' }}">Tahap 1</p>
+                    <p class="text-sm font-semibold text-gray-900 mt-1">Create Pembayaran</p>
+                    <p class="text-xs mt-1 {{ $createPaymentCompleted ? 'text-emerald-700' : 'text-amber-700' }}">
+                        {{ $createPaymentCompleted ? 'Selesai' : 'Menunggu Pembayaran' }}
+                    </p>
+                </div>
+
+                <div class="rounded-lg border px-4 py-3 {{ $hasilCompleted ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200' }}">
+                    <p class="text-xs font-semibold uppercase {{ $hasilCompleted ? 'text-emerald-700' : 'text-gray-600' }}">Tahap 2</p>
+                    <p class="text-sm font-semibold text-gray-900 mt-1">Hasil</p>
+                    <p class="text-xs mt-1 {{ $hasilCompleted ? 'text-emerald-700' : 'text-gray-600' }}">
+                        {{ $hasilCompleted ? 'Selesai' : 'Dalam proses pengerjaan' }}
+                    </p>
+                </div>
+            </div>
+
             {{-- Progress Section --}}
             <div class="border-t border-gray-100 pt-6">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-xs font-medium text-gray-500 uppercase">Progress Pengerjaan</p>
-                    <p class="text-sm font-bold text-gray-900">{{ $transaction->progress }}%</p>
+                    <p class="text-sm font-bold text-gray-900">{{ $progress }}%</p>
                 </div>
                 <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all
-                        @if($transaction->progress >= 100) bg-emerald-500
-                        @elseif($transaction->progress > 0) bg-blue-500
+                        @if($progress >= 100) bg-emerald-500
+                        @elseif($progress > 0) bg-blue-500
                         @else bg-gray-300
                         @endif"
-                        style="width: {{ $transaction->progress }}%"></div>
+                        data-progress-width="{{ $progress }}"></div>
                 </div>
                 <p class="text-xs text-gray-500 mt-3">
-                    @if($transaction->progress >= 100)
+                    @if($progress >= 100)
                         <i data-lucide="check-circle" class="w-4 h-4 inline mr-1 text-emerald-600"></i>
                         Pengerjaan survey telah selesai
-                    @elseif($transaction->progress > 0)
+                    @elseif($progress > 0)
                         <i data-lucide="loader" class="w-4 h-4 inline mr-1 text-blue-600"></i>
                         Survey sedang dikerjakan
                     @else
@@ -154,7 +164,7 @@
             <i data-lucide="eye" class="w-4 h-4 inline mr-2"></i>
             Lihat Survey
         </a>
-        @if($transaction->status === 'pending')
+        @if($transaction->status === \App\Models\Transaction::STATUS_PENDING)
             <a href="{{ route('user.payments.show', $transaction) }}" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition">
                 <i data-lucide="credit-card" class="w-4 h-4 inline mr-2"></i>
                 Bayar Sekarang
@@ -163,49 +173,18 @@
     </div>
 
     {{-- Status Info Card --}}
-    @if($transaction->status === 'pending')
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
-            <div class="flex gap-3">
-                <div class="flex-shrink-0">
-                    <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600"></i>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-amber-900">Pembayaran Tertunda</h4>
-                    <p class="text-sm text-amber-700 mt-1">
-                        Transaksi ini masih menunggu pembayaran. Silakan lakukan pembayaran untuk memulai proses survey.
-                    </p>
-                </div>
+    @php($statusInfo = $transaction->statusInfoCard())
+    <div class="{{ $statusInfo['containerClass'] }} rounded-xl p-5">
+        <div class="flex gap-3">
+            <div class="flex-shrink-0">
+                <i data-lucide="{{ $statusInfo['icon'] }}" class="w-5 h-5 {{ $statusInfo['iconClass'] }}"></i>
+            </div>
+            <div>
+                <h4 class="text-sm font-medium {{ $statusInfo['titleClass'] }}">{{ $statusInfo['title'] }}</h4>
+                <p class="text-sm mt-1 {{ $statusInfo['descriptionClass'] }}">{{ $statusInfo['description'] }}</p>
             </div>
         </div>
-    @elseif($transaction->status === 'failed')
-        <div class="bg-red-50 border border-red-200 rounded-xl p-5">
-            <div class="flex gap-3">
-                <div class="flex-shrink-0">
-                    <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-red-900">Pembayaran Gagal</h4>
-                    <p class="text-sm text-red-700 mt-1">
-                        Transaksi ini gagal. Silakan hubungi dukungan pelanggan untuk bantuan lebih lanjut.
-                    </p>
-                </div>
-            </div>
-        </div>
-    @elseif($transaction->status === 'paid')
-        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
-            <div class="flex gap-3">
-                <div class="flex-shrink-0">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-emerald-900">Pembayaran Berhasil</h4>
-                    <p class="text-sm text-emerald-700 mt-1">
-                        Pembayaran telah dikonfirmasi. Survey sedang diproses oleh tim kami.
-                    </p>
-                </div>
-            </div>
-        </div>
-    @endif
+    </div>
 
 </div>
 @endsection
@@ -213,6 +192,12 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[data-progress-width]').forEach(function(el) {
+            const value = parseInt(el.dataset.progressWidth || '0', 10);
+            const safeValue = Math.min(Math.max(value, 0), 100);
+            el.style.width = safeValue + '%';
+        });
+
         if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 </script>

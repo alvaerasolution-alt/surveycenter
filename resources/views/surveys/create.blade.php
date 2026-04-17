@@ -134,12 +134,15 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Link Google Form <span
-                                    class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Link Form Survey <span class="text-red-500">*</span></label>
                             <input type="url" name="google_form_link" x-model="google_form_link"
                                 value="{{ old('google_form_link') }}"
                                 class="w-full rounded-lg border-gray-300 focus:border-yellow-500 focus:ring-yellow-500 text-sm px-3 py-2 shadow-sm"
                                 placeholder="https://docs.google.com/forms/..." required>
+                            <p class="mt-1 text-xs text-gray-500">
+                                Link wajib diisi. Sistem memvalidasi domain form dan mengecek kecocokan judul.
+                                Platform didukung: Google Forms, Microsoft Forms, Typeform, Jotform, Tally, Formstack.
+                            </p>
                         </div>
                     </div>
 

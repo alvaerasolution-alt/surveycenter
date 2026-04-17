@@ -9,7 +9,7 @@ class AdminTransactionProgressController extends Controller
 {
     public function edit(Transaction $transaction)
     {
-        if ($transaction->status != 'paid') {
+        if ($transaction->status !== Transaction::STATUS_PAID) {
             return redirect()->back()->with('error', 'Hanya transaksi yang sudah dibayar yang bisa diupdate progress.');
         }
 
@@ -22,7 +22,7 @@ class AdminTransactionProgressController extends Controller
             'progress' => 'required|integer|min:0|max:100',
         ]);
 
-        if ($transaction->status != 'paid') {
+        if ($transaction->status !== Transaction::STATUS_PAID) {
             return redirect()->back()->with('error', 'Hanya transaksi yang sudah dibayar yang bisa diupdate progress.');
         }
 

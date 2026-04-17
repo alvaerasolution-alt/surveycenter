@@ -3,6 +3,21 @@
 
 @section('content')
 
+@php
+  $contactSettings = \App\Models\Setting::whereIn('key', [
+    'footer_whatsapp',
+    'footer_alamat',
+    'sosmed_instagram',
+    'sosmed_tiktok',
+  ])->pluck('value', 'key');
+
+  $contactWhatsapp = $contactSettings['footer_whatsapp'] ?? '';
+  $contactWhatsappDigits = preg_replace('/[^0-9]/', '', $contactWhatsapp ?? '');
+  $contactAddress = $contactSettings['footer_alamat'] ?? "Scientia Residences Tower C, Lantai II\nJl. Scientia Square Utara, Kel. Curug Sangereng,\nKec. Kelapa Dua, Kab. Tangerang, Banten, 15810";
+  $contactInstagram = $contactSettings['sosmed_instagram'] ?? '';
+  $contactTiktok = $contactSettings['sosmed_tiktok'] ?? '';
+@endphp
+
 {{-- ═══ HERO ═══ --}}
 <section class="bg-orange-500 py-16 px-4">
   <div class="max-w-2xl mx-auto text-center">
@@ -43,20 +58,22 @@
       <div class="space-y-4">
 
         {{-- WhatsApp --}}
-        <a href="https://wa.me/6285198887963" target="_blank"
-           class="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-5 hover:border-orange-300 hover:shadow-md transition group">
-          <div class="w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition">
-            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 32 32">
-              <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732.737 5.291 2.022 7.491l-2.147 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h.006c8.209-.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507v0zM16.062 28.228h-.005c-2.319 0-4.489-.64-6.342-1.753l-.451-.267-4.675 1.227 1.247-4.559-.294-.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353v0z"/>
-            </svg>
-          </div>
-          <div>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">WhatsApp</p>
-            <p class="text-sm font-bold text-gray-900 group-hover:text-green-600 transition">+62 851-9888-7963</p>
-            <p class="text-xs text-gray-400">Klik untuk chat langsung</p>
-          </div>
-          <svg class="w-4 h-4 text-gray-300 ml-auto group-hover:text-orange-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </a>
+        @if(!empty($contactWhatsappDigits))
+          <a href="https://wa.me/{{ $contactWhatsappDigits }}" target="_blank"
+             class="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-5 hover:border-orange-300 hover:shadow-md transition group">
+            <div class="w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition">
+              <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 32 32">
+                <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732.737 5.291 2.022 7.491l-2.147 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h.006c8.209-.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507v0zM16.062 28.228h-.005c-2.319 0-4.489-.64-6.342-1.753l-.451-.267-4.675 1.227 1.247-4.559-.294-.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353v0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">WhatsApp</p>
+              <p class="text-sm font-bold text-gray-900 group-hover:text-green-600 transition">{{ $contactWhatsapp }}</p>
+              <p class="text-xs text-gray-400">Klik untuk chat langsung</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-300 ml-auto group-hover:text-orange-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        @endif
 
         {{-- Alamat --}}
         <div class="flex items-start gap-4 bg-white border border-gray-200 rounded-xl p-5">
@@ -65,36 +82,41 @@
           </div>
           <div>
             <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">Alamat</p>
-            <p class="text-sm font-semibold text-gray-900 leading-snug">Scientia Residences Tower C, Lantai II</p>
-            <p class="text-xs text-gray-500 leading-relaxed mt-0.5">Jl. Scientia Square Utara, Kel. Curug Sangereng,<br>Kec. Kelapa Dua, Kab. Tangerang, Banten, 15810</p>
+            <p class="text-sm text-gray-900 leading-relaxed whitespace-pre-line">{{ $contactAddress }}</p>
           </div>
         </div>
 
         {{-- Email / Instagram --}}
         <div class="grid grid-cols-2 gap-4">
-          <a href="https://www.instagram.com/surveycenterindonesia/" target="_blank"
-             class="flex flex-col items-center gap-2 bg-white border border-gray-200 rounded-xl p-4 hover:border-pink-300 hover:shadow-sm transition group text-center">
-            <div class="w-9 h-9 rounded-xl bg-pink-100 flex items-center justify-center group-hover:bg-pink-200 transition">
-              <svg class="w-4 h-4 text-pink-600" fill="currentColor" viewBox="0 0 24 24"><path d="M7.75 2C4.7 2 2 4.7 2 7.75v8.5C2 19.3 4.7 22 7.75 22h8.5c3.05 0 5.75-2.7 5.75-5.75v-8.5C22 4.7 19.3 2 16.25 2h-8.5zM12 7a5 5 0 110 10A5 5 0 0112 7zm0 1.8a3.2 3.2 0 100 6.4 3.2 3.2 0 000-6.4zm4.95-.7a1.05 1.05 0 110 2.1 1.05 1.05 0 010-2.1z"/></svg>
-            </div>
-            <p class="text-xs font-semibold text-gray-700">@surveycenterindonesia</p>
-          </a>
-          <a href="https://www.tiktok.com/@surveycenter.indonesia" target="_blank"
-             class="flex flex-col items-center gap-2 bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-400 hover:shadow-sm transition group text-center">
-            <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition">
-              <svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.74a4.85 4.85 0 01-1.01-.05z"/></svg>
-            </div>
-            <p class="text-xs font-semibold text-gray-700">@surveycenter.indonesia</p>
-          </a>
+          @if(!empty($contactInstagram))
+            <a href="{{ $contactInstagram }}" target="_blank"
+               class="flex flex-col items-center gap-2 bg-white border border-gray-200 rounded-xl p-4 hover:border-pink-300 hover:shadow-sm transition group text-center">
+              <div class="w-9 h-9 rounded-xl bg-pink-100 flex items-center justify-center group-hover:bg-pink-200 transition">
+                <svg class="w-4 h-4 text-pink-600" fill="currentColor" viewBox="0 0 24 24"><path d="M7.75 2C4.7 2 2 4.7 2 7.75v8.5C2 19.3 4.7 22 7.75 22h8.5c3.05 0 5.75-2.7 5.75-5.75v-8.5C22 4.7 19.3 2 16.25 2h-8.5zM12 7a5 5 0 110 10A5 5 0 0112 7zm0 1.8a3.2 3.2 0 100 6.4 3.2 3.2 0 000-6.4zm4.95-.7a1.05 1.05 0 110 2.1 1.05 1.05 0 010-2.1z"/></svg>
+              </div>
+              <p class="text-xs font-semibold text-gray-700">Instagram</p>
+            </a>
+          @endif
+          @if(!empty($contactTiktok))
+            <a href="{{ $contactTiktok }}" target="_blank"
+               class="flex flex-col items-center gap-2 bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-400 hover:shadow-sm transition group text-center">
+              <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition">
+                <svg class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.74a4.85 4.85 0 01-1.01-.05z"/></svg>
+              </div>
+              <p class="text-xs font-semibold text-gray-700">TikTok</p>
+            </a>
+          @endif
         </div>
       </div>
 
       {{-- CTA WA --}}
-      <a href="https://wa.me/6285198887963?text=Halo%2C%20saya%20ingin%20konsultasi%20gratis%20tentang%20layanan%20survey." target="_blank"
-         class="flex items-center justify-center gap-3 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-orange-500/30 transition text-sm">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 32 32"><path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732.737 5.291 2.022 7.491l-2.147 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h.006c8.209-.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507v0z"/></svg>
-        Konsultasi Gratis via WhatsApp
-      </a>
+      @if(!empty($contactWhatsappDigits))
+        <a href="https://wa.me/{{ $contactWhatsappDigits }}?text=Halo%2C%20saya%20ingin%20konsultasi%20gratis%20tentang%20layanan%20survey." target="_blank"
+           class="flex items-center justify-center gap-3 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-orange-500/30 transition text-sm">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 32 32"><path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732.737 5.291 2.022 7.491l-2.147 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h.006c8.209-.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507v0z"/></svg>
+          Konsultasi Gratis via WhatsApp
+        </a>
+      @endif
     </div>
 
     {{-- RIGHT: Contact Form --}}

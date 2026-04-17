@@ -35,7 +35,12 @@ class TransactionController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'amount' => 'required|integer',
-            'status' => 'required|string',
+            'status' => 'required|in:' . implode(',', [
+                Transaction::STATUS_PENDING,
+                Transaction::STATUS_PROCESSING,
+                Transaction::STATUS_PAID,
+                Transaction::STATUS_FAILED,
+            ]),
             'survey_id' => 'nullable|exists:surveys,id',
             'survey_title' => 'nullable|string|max:255',
         ]);
@@ -80,7 +85,12 @@ class TransactionController extends Controller
             'user_id' => 'nullable|exists:users,id',
             'amount' => 'required|integer|min:0',
             'payment_method' => 'nullable|string|max:50',
-            'status' => 'required|string',
+            'status' => 'required|in:' . implode(',', [
+                Transaction::STATUS_PENDING,
+                Transaction::STATUS_PROCESSING,
+                Transaction::STATUS_PAID,
+                Transaction::STATUS_FAILED,
+            ]),
             'singapay_ref' => 'nullable|string',
         ]);
 

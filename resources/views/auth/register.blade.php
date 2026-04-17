@@ -54,7 +54,7 @@
                     <input type="email" id="email" name="email" value="{{ old('email') }}" 
                            class="w-full px-4 py-3 bg-white border border-[#e2e8f0] rounded text-[14px] text-[#071D49] font-medium focus:ring-1 focus:ring-[#ea580c] focus:border-[#ea580c] transition-all outline-none shadow-sm" 
                            placeholder="nama@email.com" required>
-                    <p class="text-[10.5px] text-slate-400 mt-2 font-medium">Kami akan mengirimkan email verifikasi lewat email ini.</p>
+                    <p class="text-[10.5px] text-slate-400 mt-2 font-medium">Gunakan email aktif untuk notifikasi penting akun Anda.</p>
                 </div>
 
                 <div class="mb-5">
@@ -62,7 +62,7 @@
                     <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" 
                            class="w-full px-4 py-3 bg-white border border-[#e2e8f0] rounded text-[14px] text-[#071D49] font-medium focus:ring-1 focus:ring-[#ea580c] focus:border-[#ea580c] transition-all outline-none shadow-sm" 
                            placeholder="08xxxxxxxxxx" required>
-                    <p class="text-[10.5px] text-slate-400 mt-2 font-medium">Digunakan untuk verifikasi OTP dan notifikasi via WhatsApp.</p>
+                    <p class="text-[10.5px] text-slate-400 mt-2 font-medium">Digunakan untuk notifikasi via WhatsApp jika dibutuhkan.</p>
                 </div>
                 
                 <div class="mb-5">

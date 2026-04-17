@@ -156,8 +156,8 @@ class SingaPayService
 
         $status = data_get($payload, 'data.transaction.status');
 
-        if ($status === 'paid') {
-            $order->status = 'paid';
+        if ($status === Transaction::STATUS_PAID) {
+            $order->status = Transaction::STATUS_PAID;
             $order->payment_method = data_get($payload, 'data.payment.method');
             $order->save();
         }

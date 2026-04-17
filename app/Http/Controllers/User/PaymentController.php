@@ -32,7 +32,7 @@ class PaymentController extends Controller
         }
 
         // Don't allow payment if already paid
-        if ($transaction->status === 'paid') {
+        if ($transaction->status === Transaction::STATUS_PAID) {
             return redirect()->route('user.transactions.show', $transaction)
                 ->with('info', 'Transaksi ini sudah dibayar.');
         }
@@ -56,7 +56,7 @@ class PaymentController extends Controller
         ]);
 
         // Don't process if already paid
-        if ($transaction->status === 'paid') {
+        if ($transaction->status === Transaction::STATUS_PAID) {
             return back()->with('warning', 'Transaksi ini sudah dibayar.');
         }
 
@@ -86,7 +86,7 @@ class PaymentController extends Controller
             $transaction->update([
                 'payment_method' => $request->payment_method,
                 'singapay_ref' => $invoice['reff_no'] ?? null,
-                'status' => 'processing',
+                'status' => Transaction::STATUS_PROCESSING,
             ]);
 
             Log::info('Payment Processing Started', [
@@ -150,8 +150,8 @@ class PaymentController extends Controller
         $oldStatus = $transaction->status;
         
         // Update transaction status
-        if ($status === 'paid') {
-            $transaction->update(['status' => 'paid']);
+        if ($status === Transaction::STATUS_PAID) {
+            $transaction->update(['status' => Transaction::STATUS_PAID]);
             
             Log::info('Payment Confirmed via Webhook', [
                 'transaction_id' => $transaction->id,
@@ -171,8 +171,8 @@ class PaymentController extends Controller
             }
             
             return true;
-        } elseif ($status === 'failed' || $status === 'expired' || $status === 'cancelled') {
-            $transaction->update(['status' => 'failed']);
+        } elseif ($status === Transaction::STATUS_FAILED || $status === 'expired' || $status === 'cancelled') {
+            $transaction->update(['status' => Transaction::STATUS_FAILED]);
             
             Log::info('Payment Failed via Webhook', [
                 'transaction_id' => $transaction->id,

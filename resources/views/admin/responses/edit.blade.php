@@ -60,10 +60,14 @@
 
         {{-- Google Form Link --}}
         <div>
-            <label for="google_form_link" class="block font-semibold mb-1 text-gray-700">Google Form Link</label>
+            <label for="google_form_link" class="block font-semibold mb-1 text-gray-700">Google Form Link <span class="text-red-500">*</span></label>
             <input type="url" name="google_form_link" id="google_form_link" 
                    value="{{ $response->google_form_link }}" 
-                   class="w-full border rounded p-2 focus:ring-2 focus:ring-orange-400" placeholder="https://...">
+                   class="w-full border rounded p-2 focus:ring-2 focus:ring-orange-400" placeholder="https://..." required>
+            <p class="mt-1 text-xs text-gray-500">
+                Wajib diisi. URL form akan divalidasi dan judul form harus sama dengan judul survey.
+                Platform didukung: Google Forms, Microsoft Forms, Typeform, Jotform, Tally, Formstack.
+            </p>
         </div>
 
         {{-- Buttons --}}

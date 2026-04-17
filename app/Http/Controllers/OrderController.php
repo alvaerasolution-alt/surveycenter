@@ -13,7 +13,7 @@ class OrderController extends Controller
         // Ambil transaksi user yang sudah paid
         $transactions = Transaction::with('survey')
             ->where('user_id', auth::id())
-            ->where('status', 'paid') // Hanya transaksi yang sudah dibayar
+            ->where('status', Transaction::STATUS_PAID) // Hanya transaksi yang sudah dibayar
             ->latest()
             ->get();
 

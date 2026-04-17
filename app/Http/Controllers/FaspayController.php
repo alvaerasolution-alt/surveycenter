@@ -84,18 +84,18 @@ class FaspayController extends Controller
                     break;
 
                 case '7': // Payment Expired
-                    $transaction->update(['status' => 'expired']);
+                    $transaction->update(['status' => FaspayTestTransaction::STATUS_EXPIRED]);
                     Log::info('Transaction expired', ['bill_no' => $notification['bill_no']]);
                     break;
 
                 case '8': // Payment Cancelled
-                    $transaction->update(['status' => 'cancelled']);
+                    $transaction->update(['status' => FaspayTestTransaction::STATUS_CANCELLED]);
                     Log::info('Transaction cancelled', ['bill_no' => $notification['bill_no']]);
                     break;
 
                 case '0': // Unprocessed
                 case '1': // In Process
-                    $transaction->update(['status' => 'processing']);
+                    $transaction->update(['status' => FaspayTestTransaction::STATUS_PROCESSING]);
                     break;
 
                 default:
@@ -226,4 +226,3 @@ class FaspayController extends Controller
         return response()->json($transactions);
     }
 }
-

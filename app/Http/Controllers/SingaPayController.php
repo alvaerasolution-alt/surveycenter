@@ -73,8 +73,17 @@ class SingaPayController extends Controller
         $transaction = Transaction::find($data['reference_number'] ?? null);
 
         if ($transaction) {
+            $incomingStatus = $data['status'] ?? 'unknown';
+            $mappedStatus = match ($incomingStatus) {
+                'paid', 'settlement', 'success' => Transaction::STATUS_PAID,
+                'pending', 'unpaid', 'created' => Transaction::STATUS_PENDING,
+                'processing' => Transaction::STATUS_PROCESSING,
+                'failed', 'cancelled', 'expired' => Transaction::STATUS_FAILED,
+                default => $incomingStatus,
+            };
+
             $transaction->update([
-                'status'       => $data['status'] ?? 'unknown',
+                'status'       => $mappedStatus,
                 'singapay_ref' => $data['transaction_id'] ?? null,
             ]);
         }

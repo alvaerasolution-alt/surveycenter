@@ -23,7 +23,7 @@
     </div>
 
     {{-- Statistics Cards --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         {{-- Total Survey --}}
         <div class="bg-white rounded-xl border border-gray-200/80 p-5 hover:shadow-md transition">
             <div class="flex items-center justify-between mb-3">
@@ -48,7 +48,7 @@
             <p class="text-xs text-gray-500 mt-1">Pertanyaan</p>
         </div>
 
-        {{-- Total Responden --}}
+        {{-- Target Responden --}}
         <div class="bg-white rounded-xl border border-gray-200/80 p-5 hover:shadow-md transition">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
@@ -56,8 +56,27 @@
                 </div>
                 <span class="text-xs font-medium text-gray-400">Total</span>
             </div>
-            <p class="text-2xl font-bold text-gray-900">{{ $totalResponden }}</p>
-            <p class="text-xs text-gray-500 mt-1">Responden</p>
+            <p class="text-2xl font-bold text-gray-900">{{ $totalTargetResponden }}</p>
+            <p class="text-xs text-gray-500 mt-1">Target responden</p>
+        </div>
+
+        {{-- Responden Diperoleh --}}
+        <div class="bg-white rounded-xl border border-gray-200/80 p-5 hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-10 h-10 rounded-lg bg-cyan-100 flex items-center justify-center">
+                    <i data-lucide="user-check" class="w-5 h-5 text-cyan-700"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-400">Admin</span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">{{ $totalRespondenDiperoleh }}</p>
+            <p class="text-xs text-gray-500 mt-1">Responden diperoleh</p>
+            <p class="text-[11px] text-gray-400 mt-1.5">
+                @if($adminTerakhirInput && $adminTerakhirInput->inputByAdmin)
+                    Input terakhir: {{ $adminTerakhirInput->inputByAdmin->name }} ({{ $adminTerakhirInput->updated_at->format('d M Y H:i') }})
+                @else
+                    Input terakhir: Belum ada
+                @endif
+            </p>
         </div>
 
         {{-- Total Pengeluaran --}}
@@ -90,13 +109,17 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-gray-900 truncate">{{ $survey->title }}</p>
-                            <p class="text-xs text-gray-500">{{ $survey->question_count }} pertanyaan &bull; {{ $survey->respondent_count }} responden</p>
+                            <p class="text-xs text-gray-500">{{ $survey->question_count }} pertanyaan &bull; Target {{ $survey->respondent_count }} &bull; Diperoleh {{ $survey->admin_responses_sum_respond_count ?? 0 }}</p>
                         </div>
                         @php
                             $latestTransaction = $survey->transactions->first();
-                            $progress = $latestTransaction->progress ?? 0;
                         @endphp
                         <div class="text-right flex-shrink-0">
+                            @php
+                                $progress = $latestTransaction?->safeProgress() ?? 0;
+                                $tahap1Selesai = $latestTransaction?->isStage1Completed() ?? false;
+                                $tahap2Selesai = $latestTransaction?->isStage2Completed() ?? false;
+                            @endphp
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
                                 @if($progress >= 100) bg-emerald-100 text-emerald-700
                                 @elseif($progress > 0) bg-blue-100 text-blue-700
@@ -104,6 +127,21 @@
                                 @endif">
                                 {{ $progress }}%
                             </span>
+                            <div class="mt-1.5 h-1.5 w-28 bg-gray-200 rounded-full overflow-hidden ml-auto">
+                                <div
+                                    @class([
+                                        'h-full rounded-full',
+                                        'bg-emerald-500' => $progress >= 100,
+                                        'bg-blue-500' => $progress > 0 && $progress < 100,
+                                        'bg-gray-300' => $progress <= 0,
+                                    ])
+                                    data-progress-width="{{ $progress }}"
+                                ></div>
+                            </div>
+                            @if($latestTransaction)
+                                <p class="text-[11px] mt-1 {{ $tahap1Selesai ? 'text-emerald-600' : 'text-amber-600' }}">Tahap 1: {{ $tahap1Selesai ? 'Selesai' : 'Menunggu Pembayaran' }}</p>
+                                <p class="text-[11px] mt-0.5 {{ $tahap2Selesai ? 'text-emerald-600' : 'text-gray-500' }}">Tahap 2: {{ $tahap2Selesai ? 'Selesai' : 'Proses' }}</p>
+                            @endif
                         </div>
                     </a>
                 @empty
@@ -129,17 +167,14 @@
             </div>
             <div class="divide-y divide-gray-50">
                 @forelse($recentTransactions as $transaction)
+                    @php
+                        $trxProgress = $transaction->safeProgress();
+                        $trxTahap1 = $transaction->isStage1Completed();
+                        $trxTahap2 = $transaction->isStage2Completed();
+                    @endphp
                     <div class="flex items-center gap-4 px-5 py-4">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
-                            @if($transaction->status === 'paid') bg-emerald-100
-                            @elseif($transaction->status === 'pending') bg-amber-100
-                            @else bg-red-100
-                            @endif">
-                            <i data-lucide="receipt" class="w-5 h-5 
-                                @if($transaction->status === 'paid') text-emerald-600
-                                @elseif($transaction->status === 'pending') text-amber-600
-                                @else text-red-600
-                                @endif"></i>
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 {{ $transaction->statusIconBackgroundClass() }}">
+                            <i data-lucide="receipt" class="w-5 h-5 {{ $transaction->statusIconColorClass() }}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-gray-900 truncate">{{ $transaction->survey->title ?? 'Survey' }}</p>
@@ -147,13 +182,22 @@
                         </div>
                         <div class="text-right flex-shrink-0">
                             <p class="text-sm font-semibold text-gray-900">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</p>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                @if($transaction->status === 'paid') bg-emerald-100 text-emerald-700
-                                @elseif($transaction->status === 'pending') bg-amber-100 text-amber-700
-                                @else bg-red-100 text-red-700
-                                @endif">
-                                {{ ucfirst($transaction->status) }}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $transaction->statusBadgeClass() }}">
+                                {{ $transaction->statusLabel() }}
                             </span>
+                            <div class="mt-1.5 h-1.5 w-28 bg-gray-200 rounded-full overflow-hidden ml-auto">
+                                <div
+                                    @class([
+                                        'h-full rounded-full',
+                                        'bg-emerald-500' => $trxProgress >= 100,
+                                        'bg-blue-500' => $trxProgress > 0 && $trxProgress < 100,
+                                        'bg-gray-300' => $trxProgress <= 0,
+                                    ])
+                                    data-progress-width="{{ $trxProgress }}"
+                                ></div>
+                            </div>
+                            <p class="text-[11px] mt-1 {{ $trxTahap1 ? 'text-emerald-600' : 'text-amber-600' }}">Tahap 1: {{ $trxTahap1 ? 'Selesai' : 'Menunggu Pembayaran' }}</p>
+                            <p class="text-[11px] mt-0.5 {{ $trxTahap2 ? 'text-emerald-600' : 'text-gray-500' }}">Tahap 2: {{ $trxTahap2 ? 'Selesai' : 'Proses' }}</p>
                         </div>
                     </div>
                 @empty
@@ -169,14 +213,14 @@
 
     </div>
 
-    {{-- Pending Payment Alert --}}
+    {{-- Menunggu Pembayaran Alert --}}
     @if($pendingPayments > 0)
         <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
                 <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600"></i>
             </div>
             <div class="flex-1">
-                <p class="text-sm font-medium text-amber-800">Anda memiliki pembayaran pending</p>
+                <p class="text-sm font-medium text-amber-800">Anda memiliki pembayaran yang menunggu</p>
                 <p class="text-xs text-amber-600">Total: Rp {{ number_format($pendingPayments, 0, ',', '.') }}</p>
             </div>
             <a href="{{ route('user.transactions.index') }}" class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition">
@@ -192,6 +236,12 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        document.querySelectorAll('[data-progress-width]').forEach(function(el) {
+            const value = parseInt(el.dataset.progressWidth || '0', 10);
+            const width = Math.max(0, Math.min(100, value));
+            el.style.width = width + '%';
+        });
     });
 </script>
 @endpush

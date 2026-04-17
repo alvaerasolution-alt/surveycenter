@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\OtpVerificationMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -36,21 +33,14 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Generate 6 digit OTP
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $user->forceFill([
+            'email_verified_at' => now(),
+        ])->save();
 
-        // Store OTP in cache for 5 minutes
-        Cache::put('email_otp_' . $user->email, $otp, now()->addMinutes(5));
-        Cache::put('email_otp_attempts_' . $user->email, 0, now()->addMinutes(5));
-        Cache::put('email_otp_cooldown_' . $user->email, true, now()->addSeconds(60));
+        Auth::login($user);
+        $request->session()->regenerate();
 
-        // Send OTP via email (Mailtrap)
-        Mail::to($user->email)->send(new OtpVerificationMail($otp, $user->name));
-
-        // Store email in session for verification page
-        session(['verify_email' => $user->email]);
-
-        return redirect()->route('verification.notice', ['email' => $user->email])
-            ->with('status', 'Registrasi berhasil! Kode OTP telah dikirim ke email Anda.');
+        return redirect()->route('user.dashboard')
+            ->with('success', 'Registrasi berhasil! Selamat datang di SurveyCenter.');
     }
 }

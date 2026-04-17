@@ -144,7 +144,7 @@
                 </tr>
                 <tr>
                     <th>Jumlah Responden</th>
-                    <td>{{ $transaction->survey->responses->first()->respond_count ?? 0 }} Orang</td>
+                    <td>{{ $transaction->survey->respondent_count ?? ($transaction->survey->responses->first()->respond_count ?? 0) }} Orang</td>
                 </tr>
                 <tr>
                     <th>Link Form</th>

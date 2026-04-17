@@ -84,6 +84,23 @@
                 </div>
             </div>
 
+            {{-- Survey Link --}}
+            <div>
+                <label for="form_link" class="block text-sm font-medium text-gray-700 mb-2">
+                    Link Survey <span class="text-red-500">*</span>
+                </label>
+                <input type="url" name="form_link" id="form_link" value="{{ old('form_link') }}" required
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition @error('form_link') border-red-500 @enderror"
+                    placeholder="https://docs.google.com/forms/...">
+                <p class="mt-1.5 text-xs text-gray-500">
+                    Link wajib diisi. Sistem memvalidasi URL form dan memastikan judul form sama dengan judul survey.
+                    Platform didukung: Google Forms, Microsoft Forms, Typeform, Jotform, Tally, Formstack.
+                </p>
+                @error('form_link')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             {{-- Cost Estimation --}}
             <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border border-orange-100">
                 <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">

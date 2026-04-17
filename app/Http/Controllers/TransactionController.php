@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\SingaPayService;
+use App\Services\FormLinkValidationService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -14,14 +15,17 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\SingaPayController;
 use Illuminate\Support\Facades\Log;
 use App\Models\Response;
+use Illuminate\Validation\ValidationException;
 
 class TransactionController extends Controller
 {
     private SingaPayService $singaPay;
+    private FormLinkValidationService $formLinkValidationService;
 
-    public function __construct(SingaPayService $singaPay)
+    public function __construct(SingaPayService $singaPay, FormLinkValidationService $formLinkValidationService)
     {
         $this->singaPay = $singaPay;
+        $this->formLinkValidationService = $formLinkValidationService;
     }
 
     public function create(Survey $survey)
@@ -32,23 +36,32 @@ class TransactionController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'question_count' => 'required|integer|min:1',
             'respondent_count' => 'required|integer|min:1',
             'items' => 'required|string',
-            'link' => 'required|url',
+            'link' => 'required|url|max:2048',
             'user_type' => 'required|in:mahasiswa,perusahaan,umum'
         ]);
 
+        $formLinkError = $this->formLinkValidationService->validate(
+            $validated['link'] ?? null,
+            $validated['title']
+        );
+
+        if ($formLinkError !== null) {
+            throw ValidationException::withMessages(['link' => $formLinkError]);
+        }
+
         $pricePerQuestion = 1000;
-        $baseTotal = $request->question_count * $request->respondent_count * $pricePerQuestion;
+        $baseTotal = $validated['question_count'] * $validated['respondent_count'] * $pricePerQuestion;
 
         $discount = 0;
 
-        if ($request->user_type === 'mahasiswa') {
+        if ($validated['user_type'] === 'mahasiswa') {
             $discount = $baseTotal * 0.5;
-        } elseif ($request->user_type === 'perusahaan') {
+        } elseif ($validated['user_type'] === 'perusahaan') {
             $discount = $baseTotal * 0.3;
         }
 
@@ -59,19 +72,21 @@ class TransactionController extends Controller
         }
 
         $survey = Survey::create([
-            'title' => $request->title,
-            'question_count' => $request->question_count,
+            'title' => $validated['title'],
+            'question_count' => $validated['question_count'],
+            'respondent_count' => $validated['respondent_count'],
+            'form_link' => $validated['link'] ?? null,
             'user_id' => Auth::id(),
         ]);
 
         Response::create([
             'survey_id' => $survey->id,
             'user_id' => Auth::id(),
-            'respond_count' => $request->respondent_count,
-            'google_form_link' => $request->link,
+            'respond_count' => $validated['respondent_count'],
+            'google_form_link' => $validated['link'] ?? null,
         ]);
 
-        $items = json_decode($request->items, true);
+        $items = json_decode($validated['items'], true);
 
         $invoice = $this->singaPay->createInvoice($finalPrice, $items);
 
@@ -84,7 +99,7 @@ class TransactionController extends Controller
             'survey_id' => $survey->id,
             'user_id' => Auth::id(),
             'amount' => $finalPrice,
-            'status' => 'pending',
+            'status' => Transaction::STATUS_PENDING,
             'singapay_ref' => $invoice['reff_no']
         ]);
 

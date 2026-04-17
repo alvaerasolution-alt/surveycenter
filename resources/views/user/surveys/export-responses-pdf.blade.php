@@ -128,7 +128,8 @@
     <table class="table" style="margin-bottom: 25px;">
         <thead>
             <tr>
-                <th>Total Respons</th>
+                <th>Target Responden</th>
+                <th>Responden Diperoleh</th>
                 <th>Survey ID</th>
                 <th>Jumlah Pertanyaan</th>
                 <th>Tanggal Pembuatan Survey</th>
@@ -136,6 +137,7 @@
         </thead>
         <tbody>
             <tr>
+                <td>{{ $survey->respondent_count }}</td>
                 <td>{{ $responses->sum('respond_count') }}</td>
                 <td>#{{ $survey->id }}</td>
                 <td>{{ $survey->question_count }}</td>

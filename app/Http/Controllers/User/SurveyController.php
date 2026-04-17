@@ -5,12 +5,18 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Survey;
 use App\Models\Transaction;
+use App\Services\FormLinkValidationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class SurveyController extends Controller
 {
+    public function __construct(private FormLinkValidationService $formLinkValidationService)
+    {
+    }
+
     /**
      * Display a listing of user's surveys.
      */
@@ -19,25 +25,29 @@ class SurveyController extends Controller
         $user = Auth::user();
         
         $query = Survey::where('user_id', $user->id)
-            ->withSum('responses', 'respond_count')
+            ->withSum('adminResponses', 'respond_count')
             ->with(['transactions' => function($q) {
                 $q->latest()->limit(1);
             }]);
 
         // Filter by status
         if ($request->has('status') && $request->status !== 'all') {
-            // Filter based on progress from transactions
+            // Filter based on main stage progress and payment status
             if ($request->status === 'completed') {
                 $query->whereHas('transactions', function($q) {
-                    $q->where('progress', 100);
+                    $q->where('progress', '>=', 100);
                 });
             } elseif ($request->status === 'in_progress') {
                 $query->whereHas('transactions', function($q) {
-                    $q->where('progress', '>', 0)->where('progress', '<', 100);
+                    $q->whereIn('status', [Transaction::STATUS_PROCESSING, Transaction::STATUS_PAID])
+                      ->where('progress', '<', 100);
                 });
             } elseif ($request->status === 'pending') {
-                $query->whereHas('transactions', function($q) {
-                    $q->where('progress', 0)->orWhereNull('progress');
+                $query->where(function($subQuery) {
+                    $subQuery->whereDoesntHave('transactions')
+                        ->orWhereHas('transactions', function($q) {
+                            $q->where('status', Transaction::STATUS_PENDING);
+                        });
                 });
             }
         }
@@ -65,26 +75,37 @@ class SurveyController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'question_count' => 'required|integer|min:1|max:100',
             'respondent_count' => 'required|integer|min:1|max:10000',
+            'form_link' => 'required|url|max:2048',
             'description' => 'nullable|string|max:1000',
         ]);
+
+        $formLinkError = $this->formLinkValidationService->validate(
+            $validated['form_link'] ?? null,
+            $validated['title']
+        );
+
+        if ($formLinkError !== null) {
+            throw ValidationException::withMessages(['form_link' => $formLinkError]);
+        }
 
         $user = Auth::user();
 
         // Calculate cost
-        $questionCost = $request->question_count * 1000;
-        $respondentCost = $request->respondent_count * 1000;
+        $questionCost = $validated['question_count'] * 1000;
+        $respondentCost = $validated['respondent_count'] * 1000;
         $totalCost = $questionCost + $respondentCost;
 
         // Create survey
         $survey = Survey::create([
             'user_id' => $user->id,
-            'title' => $request->title,
-            'question_count' => $request->question_count,
-            'respondent_count' => $request->respondent_count,
+            'title' => $validated['title'],
+            'question_count' => $validated['question_count'],
+            'respondent_count' => $validated['respondent_count'],
+            'form_link' => $validated['form_link'] ?? null,
         ]);
 
         // Create transaction
@@ -92,7 +113,7 @@ class SurveyController extends Controller
             'survey_id' => $survey->id,
             'user_id' => $user->id,
             'amount' => $totalCost,
-            'status' => 'pending',
+            'status' => Transaction::STATUS_PENDING,
             'progress' => 0,
         ]);
 
@@ -110,7 +131,7 @@ class SurveyController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $survey->load(['responses', 'transactions' => function($q) {
+        $survey->load(['responses', 'adminResponses', 'transactions' => function($q) {
             $q->latest();
         }]);
 
@@ -162,7 +183,7 @@ class SurveyController extends Controller
         }
 
         // Only allow delete if no transactions or all transactions are pending
-        $hasPaidTransactions = $survey->transactions()->where('status', 'paid')->exists();
+        $hasPaidTransactions = $survey->transactions()->where('status', Transaction::STATUS_PAID)->exists();
         
         if ($hasPaidTransactions) {
             return back()->with('error', 'Tidak dapat menghapus survey yang sudah dibayar.');
@@ -186,7 +207,7 @@ class SurveyController extends Controller
         }
 
         // Load relationships
-        $survey->load(['responses', 'transactions' => function($q) {
+        $survey->load(['responses', 'adminResponses', 'transactions' => function($q) {
             $q->latest();
         }]);
 
@@ -195,6 +216,7 @@ class SurveyController extends Controller
             'survey' => $survey,
             'transactions' => $survey->transactions,
             'responses' => $survey->responses,
+            'adminResponses' => $survey->adminResponses,
             'user' => Auth::user(),
             'generatedAt' => now(),
         ])
