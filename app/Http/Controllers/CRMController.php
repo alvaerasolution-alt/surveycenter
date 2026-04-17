@@ -26,6 +26,7 @@ class CRMController extends Controller
             $query->where('status', Transaction::STATUS_PAID);
         })->with(['transactions' => function ($query) {
             $query->where('status', Transaction::STATUS_PAID);
+            $query->with('survey:id,title,form_link');
         }])->latest()->get();
 
         // Pipeline data from customers table
@@ -90,6 +91,7 @@ class CRMController extends Controller
                 $query->where('status', Transaction::STATUS_PAID);
             })->with(['transactions' => function ($query) {
                 $query->where('status', Transaction::STATUS_PAID);
+                $query->with('survey:id,title,form_link');
             }])->latest()->take(5)->get();
 
             return view('admin.crm', compact('followUps', 'customerAlready'));
@@ -109,6 +111,7 @@ class CRMController extends Controller
             $query->where('status', Transaction::STATUS_PAID);
         })->with(['transactions' => function ($query) {
             $query->where('status', Transaction::STATUS_PAID);
+            $query->with('survey:id,title,form_link');
         }])->paginate(10);
 
         return view('admin.crm.customer-already', compact('users'));

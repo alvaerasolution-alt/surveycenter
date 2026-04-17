@@ -83,6 +83,7 @@
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Transaksi</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Terakhir</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Link Form</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -101,13 +102,25 @@
                             <td class="px-4 py-3.5 text-gray-500 text-xs">
                                 @php
                                     $latestTransaction = $user->transactions->sortByDesc('created_at')->first();
+                                    $latestSurveyLink = $latestTransaction?->survey?->form_link;
                                 @endphp
                                 {{ $latestTransaction ? \Carbon\Carbon::parse($latestTransaction->created_at)->format('d M Y') : '-' }}
+                            </td>
+                            <td class="px-4 py-3.5">
+                                @if (!empty($latestSurveyLink))
+                                    <a href="{{ $latestSurveyLink }}" target="_blank" rel="noopener noreferrer"
+                                       class="inline-flex items-center gap-1 rounded-lg border border-orange-200 bg-orange-50 px-2.5 py-1.5 text-xs font-medium text-orange-700 hover:bg-orange-100 transition">
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                        Lihat URL
+                                    </a>
+                                @else
+                                    <span class="text-xs text-gray-400">-</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-10">
+                            <td colspan="6" class="text-center py-10">
                                 <i data-lucide="inbox" class="w-8 h-8 text-gray-300 mx-auto mb-2"></i>
                                 <p class="text-sm text-gray-500">Belum ada customer yang melakukan pembayaran</p>
                             </td>
