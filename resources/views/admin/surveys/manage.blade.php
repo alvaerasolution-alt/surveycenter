@@ -75,6 +75,7 @@
                             <th class="w-[20%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pemesan</th>
                             <th class="w-[14%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="w-[14%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Progress</th>
+                            <th class="w-[16%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">URL Form</th>
                             <th class="w-[16%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
@@ -82,6 +83,7 @@
                         @forelse($surveys as $survey)
                             @php
                                 $latestPaidTransaction = $survey->transactions->first();
+                                $latestAdminResponseLink = optional($survey->adminResponses->first())->google_form_link;
                                 $targetRespondent = (int) ($survey->respondent_count ?? 0);
                                 $obtainedRespondent = (int) ($survey->admin_responses_sum_respond_count ?? 0);
                                 $remainingRespondent = max($targetRespondent - $obtainedRespondent, 0);
@@ -137,6 +139,30 @@
                                     </div>
                                 </td>
 
+                                <td class="px-4 py-3.5 align-top">
+                                    <div class="flex flex-col gap-2">
+                                        @if(!empty($survey->form_link))
+                                            <a href="{{ $survey->form_link }}" target="_blank" rel="noopener noreferrer"
+                                               class="inline-flex w-fit items-center gap-1 rounded-lg border border-orange-200 bg-orange-50 px-2.5 py-1.5 text-xs font-medium text-orange-700 hover:bg-orange-100 transition">
+                                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                                URL User
+                                            </a>
+                                        @endif
+
+                                        @if(!empty($latestAdminResponseLink))
+                                            <a href="{{ $latestAdminResponseLink }}" target="_blank" rel="noopener noreferrer"
+                                               class="inline-flex w-fit items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition">
+                                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                                URL Admin
+                                            </a>
+                                        @endif
+
+                                        @if(empty($survey->form_link) && empty($latestAdminResponseLink))
+                                            <span class="text-xs text-gray-400">Belum ada link</span>
+                                        @endif
+                                    </div>
+                                </td>
+
                                 <td class="px-4 py-3.5">
                                     <div class="flex flex-wrap gap-2">
                                         <button
@@ -146,6 +172,8 @@
                                                 title: @js($survey->title),
                                                 created_at: @js(optional($survey->created_at)->format('d M Y H:i')),
                                                 question_count: {{ (int) ($survey->question_count ?? 0) }},
+                                                form_link: @js($survey->form_link),
+                                                latest_admin_form_link: @js($latestAdminResponseLink),
                                                 user_name: @js(optional($survey->user)->name),
                                                 user_email: @js(optional($survey->user)->email),
                                                 target_respondent: {{ $targetRespondent }},
@@ -224,7 +252,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-12 text-center">
+                                <td colspan="7" class="px-4 py-12 text-center">
                                     <i data-lucide="inbox" class="w-10 h-10 text-gray-300 mx-auto mb-3"></i>
                                     <p class="text-sm text-gray-500">Tidak ada survey yang cocok dengan filter saat ini.</p>
                                 </td>
@@ -299,6 +327,37 @@
                         <p class="text-sm font-semibold text-gray-900" x-text="detailData.user_name || '-' "></p>
                         <p class="text-xs text-gray-500 mt-1" x-text="detailData.user_email || '-' "></p>
                         <p class="text-xs text-gray-500 mt-2">Dibuat: <span class="font-medium text-gray-700" x-text="detailData.created_at || '-' "></span></p>
+                    </div>
+
+                    <div class="rounded-lg border border-gray-200 p-3">
+                        <p class="text-xs font-semibold text-gray-700 mb-2">URL Form</p>
+                        <div class="space-y-2">
+                            <div>
+                                <p class="text-[11px] text-gray-500">URL dari user</p>
+                                <template x-if="detailData.form_link">
+                                    <a :href="detailData.form_link" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-orange-600 hover:text-orange-700 break-all">
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                        <span x-text="detailData.form_link"></span>
+                                    </a>
+                                </template>
+                                <template x-if="!detailData.form_link">
+                                    <p class="text-xs text-gray-400">Belum ada</p>
+                                </template>
+                            </div>
+
+                            <div>
+                                <p class="text-[11px] text-gray-500">URL terbaru input admin</p>
+                                <template x-if="detailData.latest_admin_form_link">
+                                    <a :href="detailData.latest_admin_form_link" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 break-all">
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                        <span x-text="detailData.latest_admin_form_link"></span>
+                                    </a>
+                                </template>
+                                <template x-if="!detailData.latest_admin_form_link">
+                                    <p class="text-xs text-gray-400">Belum ada</p>
+                                </template>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2">
