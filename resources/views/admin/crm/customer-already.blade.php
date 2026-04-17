@@ -48,7 +48,9 @@
                                 <td class="px-4 py-3.5 text-gray-500 text-xs">
                                     @php
                                         $latestTransaction = $user->transactions->sortByDesc('created_at')->first();
-                                        $latestSurveyLink = $latestTransaction?->survey?->form_link;
+                                        $latestSurvey = $latestTransaction?->survey;
+                                        $legacyUserResponse = $latestSurvey?->responses?->firstWhere('input_by_admin_id', null);
+                                        $latestSurveyLink = $latestSurvey?->form_link ?: $legacyUserResponse?->google_form_link;
                                     @endphp
                                     {{ $latestTransaction ? \Carbon\Carbon::parse($latestTransaction->created_at)->format('d M Y') : '-' }}
                                 </td>

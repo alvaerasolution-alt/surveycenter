@@ -105,7 +105,6 @@ class SurveyController extends Controller
             'title' => $validated['title'],
             'question_count' => $validated['question_count'],
             'respondent_count' => $validated['respondent_count'],
-            'form_link' => $validated['form_link'] ?? null,
         ]);
 
         // Create transaction

@@ -57,7 +57,6 @@ class SurveyController extends Controller
             'title'          => $validated['title'],
             'question_count' => $validated['question_count'],
             'respondent_count' => $validated['respond_count'],
-            'form_link'      => $validated['google_form_link'] ?? null,
             'user_id'        => Auth::id(),
         ]);
 

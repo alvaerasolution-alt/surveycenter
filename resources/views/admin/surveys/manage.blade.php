@@ -84,6 +84,8 @@
                             @php
                                 $latestPaidTransaction = $survey->transactions->first();
                                 $latestAdminResponseLink = optional($survey->adminResponses->first())->google_form_link;
+                                $latestUserResponseLink = optional($survey->responses->first())->google_form_link;
+                                $effectiveUserFormLink = $survey->form_link ?: $latestUserResponseLink;
                                 $targetRespondent = (int) ($survey->respondent_count ?? 0);
                                 $obtainedRespondent = (int) ($survey->admin_responses_sum_respond_count ?? 0);
                                 $remainingRespondent = max($targetRespondent - $obtainedRespondent, 0);
@@ -141,8 +143,8 @@
 
                                 <td class="px-4 py-3.5 align-top">
                                     <div class="flex flex-col gap-2">
-                                        @if(!empty($survey->form_link))
-                                            <a href="{{ $survey->form_link }}" target="_blank" rel="noopener noreferrer"
+                                        @if(!empty($effectiveUserFormLink))
+                                            <a href="{{ $effectiveUserFormLink }}" target="_blank" rel="noopener noreferrer"
                                                class="inline-flex w-fit items-center gap-1 rounded-lg border border-orange-200 bg-orange-50 px-2.5 py-1.5 text-xs font-medium text-orange-700 hover:bg-orange-100 transition">
                                                 <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                                                 URL User
@@ -157,7 +159,7 @@
                                             </a>
                                         @endif
 
-                                        @if(empty($survey->form_link) && empty($latestAdminResponseLink))
+                                        @if(empty($effectiveUserFormLink) && empty($latestAdminResponseLink))
                                             <span class="text-xs text-gray-400">Belum ada link</span>
                                         @endif
                                     </div>
@@ -172,7 +174,7 @@
                                                 title: @js($survey->title),
                                                 created_at: @js(optional($survey->created_at)->format('d M Y H:i')),
                                                 question_count: {{ (int) ($survey->question_count ?? 0) }},
-                                                form_link: @js($survey->form_link),
+                                                form_link: @js($effectiveUserFormLink),
                                                 latest_admin_form_link: @js($latestAdminResponseLink),
                                                 user_name: @js(optional($survey->user)->name),
                                                 user_email: @js(optional($survey->user)->email),

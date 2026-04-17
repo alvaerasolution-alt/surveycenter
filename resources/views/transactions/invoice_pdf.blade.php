@@ -151,6 +151,8 @@
                     <td>
                         @if (!empty($transaction->survey->form_link))
                             <a href="{{ $transaction->survey->form_link }}" target="_blank">Klik di sini</a>
+                        @elseif(!empty(optional($transaction->survey->responses->first())->google_form_link))
+                            <a href="{{ $transaction->survey->responses->first()->google_form_link }}" target="_blank">Klik di sini</a>
                         @else
                             -
                         @endif

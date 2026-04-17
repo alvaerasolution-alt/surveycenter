@@ -75,7 +75,6 @@ class TransactionController extends Controller
             'title' => $validated['title'],
             'question_count' => $validated['question_count'],
             'respondent_count' => $validated['respondent_count'],
-            'form_link' => $validated['link'] ?? null,
             'user_id' => Auth::id(),
         ]);
 

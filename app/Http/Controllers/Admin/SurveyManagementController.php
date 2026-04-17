@@ -38,6 +38,10 @@ class SurveyManagementController extends Controller
                     $responseQuery->whereNotNull('input_by_admin_id')
                         ->latest('updated_at');
                 },
+                'responses' => function ($responseQuery) {
+                    $responseQuery->whereNull('input_by_admin_id')
+                        ->latest('updated_at');
+                },
                 'adminResponses.inputByAdmin',
             ])
             ->whereHas('transactions', function ($transactionQuery) {

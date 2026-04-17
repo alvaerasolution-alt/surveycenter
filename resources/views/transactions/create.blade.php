@@ -23,6 +23,8 @@
             <p><strong>Link Survey:</strong>
                 @if(!empty($survey->form_link))
                     <a href="{{ $survey->form_link }}" target="_blank" rel="noopener noreferrer">{{ $survey->form_link }}</a>
+                @elseif(!empty(optional($survey->responses->first())->google_form_link))
+                    <a href="{{ $survey->responses->first()->google_form_link }}" target="_blank" rel="noopener noreferrer">{{ $survey->responses->first()->google_form_link }}</a>
                 @else
                     -
                 @endif

@@ -26,7 +26,16 @@ class CRMController extends Controller
             $query->where('status', Transaction::STATUS_PAID);
         })->with(['transactions' => function ($query) {
             $query->where('status', Transaction::STATUS_PAID);
-            $query->with('survey:id,title,form_link');
+            $query->with([
+                'survey' => function ($surveyQuery) {
+                    $surveyQuery->select('id', 'title', 'form_link')
+                        ->with(['responses' => function ($responseQuery) {
+                            $responseQuery->select('id', 'survey_id', 'google_form_link', 'input_by_admin_id', 'updated_at')
+                                ->whereNull('input_by_admin_id')
+                                ->latest('updated_at');
+                        }]);
+                }
+            ]);
         }])->latest()->get();
 
         // Pipeline data from customers table
@@ -91,7 +100,16 @@ class CRMController extends Controller
                 $query->where('status', Transaction::STATUS_PAID);
             })->with(['transactions' => function ($query) {
                 $query->where('status', Transaction::STATUS_PAID);
-                $query->with('survey:id,title,form_link');
+                $query->with([
+                    'survey' => function ($surveyQuery) {
+                        $surveyQuery->select('id', 'title', 'form_link')
+                            ->with(['responses' => function ($responseQuery) {
+                                $responseQuery->select('id', 'survey_id', 'google_form_link', 'input_by_admin_id', 'updated_at')
+                                    ->whereNull('input_by_admin_id')
+                                    ->latest('updated_at');
+                            }]);
+                    }
+                ]);
             }])->latest()->take(5)->get();
 
             return view('admin.crm', compact('followUps', 'customerAlready'));
@@ -111,7 +129,16 @@ class CRMController extends Controller
             $query->where('status', Transaction::STATUS_PAID);
         })->with(['transactions' => function ($query) {
             $query->where('status', Transaction::STATUS_PAID);
-            $query->with('survey:id,title,form_link');
+            $query->with([
+                'survey' => function ($surveyQuery) {
+                    $surveyQuery->select('id', 'title', 'form_link')
+                        ->with(['responses' => function ($responseQuery) {
+                            $responseQuery->select('id', 'survey_id', 'google_form_link', 'input_by_admin_id', 'updated_at')
+                                ->whereNull('input_by_admin_id')
+                                ->latest('updated_at');
+                        }]);
+                }
+            ]);
         }])->paginate(10);
 
         return view('admin.crm.customer-already', compact('users'));
