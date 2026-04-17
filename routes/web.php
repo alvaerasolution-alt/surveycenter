@@ -31,6 +31,7 @@ use App\Http\Controllers\PaymentProofController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FaspayTestTransactionController;
 use App\Http\Controllers\FaspayController;
+use App\Http\Controllers\FormAnalyzerController;
 use Spatie\Sitemap\SitemapGenerator;
 use Spatie\Sitemap\Tags\Url;
 
@@ -108,6 +109,10 @@ Route::get('/pricing', function () {
     return view('pages.pricing', compact('terms'));
 })->name('pricing');
 
+Route::get('/price', function () {
+    return redirect()->route('pricing');
+})->name('price');
+
 Route::get('/contact', [App\Http\Controllers\ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');
 
@@ -170,6 +175,8 @@ Route::post('/whatsapp/lead', [HomeController::class, 'storeCustomer'])->name('w
 Route::post('/crm/customers', [CustomerController::class, 'store'])->name('crm.customers.store');
 Route::get('/customer-form', [CustomerController::class, 'create'])->name('customers.create');
 Route::post('/customer-form', [CustomerController::class, 'store'])->name('customers.store');
+Route::post('/form-analyzer/preview', [FormAnalyzerController::class, 'preview'])
+    ->name('form-analyzer.preview');
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('customers', CustomerController::class)->except(['create', 'store']);
@@ -219,7 +226,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('payment-proofs.store');
 
     Route::get('/transactions/{transaction}/qris-debug', [SingaPayController::class, 'generateQrisDebug']);
-
 
     Route::get('singapay/pay/{transaction}', [SingaPayController::class, 'pay'])->name('singapay.pay');
     Route::post('singapay/callback', [SingaPayController::class, 'callback'])->name('singapay.callback');

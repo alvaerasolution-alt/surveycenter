@@ -92,6 +92,38 @@
         </div>
     </div>
 
+    {{-- Info Pricing untuk Create Survey --}}
+    <div class="bg-white rounded-xl border border-gray-200/80 p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div>
+                <h2 class="text-sm font-semibold text-gray-900">Informasi Harga Sebelum Buat Survey</h2>
+                <p class="text-xs text-gray-500 mt-1">Ringkasan dari halaman pricing agar bisa langsung dipakai saat create survey.</p>
+            </div>
+            <a href="{{ route('pricing') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-orange-200 bg-orange-50 text-orange-700 text-xs font-semibold hover:bg-orange-100 transition">
+                <i data-lucide="calculator" class="w-4 h-4"></i>
+                Buka Kalkulator Pricing
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <p class="text-[11px] text-gray-500">Harga Dasar</p>
+                <p class="text-sm font-bold text-orange-600">Rp 1.000</p>
+                <p class="text-[11px] text-gray-500">per pertanyaan / responden</p>
+            </div>
+            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <p class="text-[11px] text-gray-500">Diskon</p>
+                <p class="text-sm font-semibold text-gray-800">Mahasiswa 50% • Perusahaan 30%</p>
+                <p class="text-[11px] text-gray-500">Umum tanpa diskon</p>
+            </div>
+            <div class="rounded-lg border border-red-200 bg-red-50 p-3">
+                <p class="text-[11px] text-red-600">Minimum Order</p>
+                <p class="text-sm font-bold text-red-700">Rp 50.000 / survey</p>
+                <p class="text-[11px] text-red-600">AI analyzer aktif saat judul + link terisi</p>
+            </div>
+        </div>
+    </div>
+
     {{-- Content Grid --}}
     <div class="grid lg:grid-cols-2 gap-6">
 
