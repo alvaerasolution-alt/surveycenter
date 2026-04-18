@@ -101,4 +101,29 @@ class DashboardBannerImageOnlyTest extends TestCase
         $response->assertSee('storage/dashboard-banners/valid.jpg', false);
         $response->assertDontSee('storage/dashboard-banners/inactive.jpg', false);
     }
+
+    public function test_uploaded_banner_image_is_auto_resized_to_standard_size(): void
+    {
+        Storage::fake('public');
+        /** @var User $admin */
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $response = $this->actingAs($admin)->post(route('admin.dashboard-banners.store'), [
+            'order' => 1,
+            'is_active' => 1,
+            'image' => UploadedFile::fake()->image('banner-large.jpg', 2000, 1000),
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard-banners.index'));
+
+        $banner = DashboardBanner::query()->first();
+        $this->assertInstanceOf(DashboardBanner::class, $banner);
+
+        $storedPath = Storage::disk('public')->path($banner->image);
+        $imageSize = getimagesize($storedPath);
+
+        $this->assertNotFalse($imageSize);
+        $this->assertSame(1600, $imageSize[0]);
+        $this->assertSame(600, $imageSize[1]);
+    }
 }

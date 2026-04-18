@@ -109,8 +109,19 @@ class DashboardBannerController extends Controller
 
     private function storeBannerImage(UploadedFile $file): string
     {
+        if (! function_exists('imagecreatefromstring') || ! function_exists('imagecreatetruecolor')) {
+            throw ValidationException::withMessages([
+                'image' => 'Server belum mendukung auto resize gambar (ekstensi GD belum aktif).',
+            ]);
+        }
+
+        return $this->storeWithGd($file);
+    }
+
+    private function storeWithGd(UploadedFile $file): string
+    {
         $rawContent = file_get_contents($file->getRealPath());
-        $sourceImage = $rawContent ? imagecreatefromstring($rawContent) : false;
+        $sourceImage = $rawContent ? \imagecreatefromstring($rawContent) : false;
 
         if (! $sourceImage) {
             throw ValidationException::withMessages([
@@ -118,28 +129,15 @@ class DashboardBannerController extends Controller
             ]);
         }
 
-        $sourceWidth = imagesx($sourceImage);
-        $sourceHeight = imagesy($sourceImage);
-        $targetRatio = 8 / 3;
-        $sourceRatio = $sourceWidth / $sourceHeight;
-
-        if ($sourceRatio > $targetRatio) {
-            $cropHeight = $sourceHeight;
-            $cropWidth = (int) round($cropHeight * $targetRatio);
-            $cropX = (int) floor(($sourceWidth - $cropWidth) / 2);
-            $cropY = 0;
-        } else {
-            $cropWidth = $sourceWidth;
-            $cropHeight = (int) round($cropWidth / $targetRatio);
-            $cropX = 0;
-            $cropY = (int) floor(($sourceHeight - $cropHeight) / 2);
-        }
+        $sourceWidth = \imagesx($sourceImage);
+        $sourceHeight = \imagesy($sourceImage);
+        [$cropX, $cropY, $cropWidth, $cropHeight] = $this->calculateCropArea($sourceWidth, $sourceHeight);
 
         $targetWidth = 1600;
         $targetHeight = 600;
-        $targetImage = imagecreatetruecolor($targetWidth, $targetHeight);
+        $targetImage = \imagecreatetruecolor($targetWidth, $targetHeight);
 
-        imagecopyresampled(
+        \imagecopyresampled(
             $targetImage,
             $sourceImage,
             0,
@@ -153,11 +151,11 @@ class DashboardBannerController extends Controller
         );
 
         ob_start();
-        imagejpeg($targetImage, null, 86);
+        \imagejpeg($targetImage, null, 86);
         $processedImage = ob_get_clean();
 
-        imagedestroy($sourceImage);
-        imagedestroy($targetImage);
+        \imagedestroy($sourceImage);
+        \imagedestroy($targetImage);
 
         if ($processedImage === false) {
             throw ValidationException::withMessages([
@@ -169,5 +167,27 @@ class DashboardBannerController extends Controller
         Storage::disk('public')->put($path, $processedImage);
 
         return $path;
+    }
+
+    private function calculateCropArea(int $sourceWidth, int $sourceHeight): array
+    {
+        $targetRatio = 8 / 3;
+        $sourceRatio = $sourceWidth / $sourceHeight;
+
+        if ($sourceRatio > $targetRatio) {
+            $cropHeight = $sourceHeight;
+            $cropWidth = (int) round($cropHeight * $targetRatio);
+            $cropX = (int) floor(($sourceWidth - $cropWidth) / 2);
+            $cropY = 0;
+
+            return [$cropX, $cropY, $cropWidth, $cropHeight];
+        }
+
+        $cropWidth = $sourceWidth;
+        $cropHeight = (int) round($cropWidth / $targetRatio);
+        $cropX = 0;
+        $cropY = (int) floor(($sourceHeight - $cropHeight) / 2);
+
+        return [$cropX, $cropY, $cropWidth, $cropHeight];
     }
 }
