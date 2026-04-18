@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CustomerStoryController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\LayananController as AdminLayananController;
 use App\Http\Controllers\Admin\DiscountBannerController;
+use App\Http\Controllers\Admin\DashboardBannerController;
 use App\Http\Controllers\Admin\TestimoniController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CRMController;
@@ -32,8 +33,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FaspayTestTransactionController;
 use App\Http\Controllers\FaspayController;
 use App\Http\Controllers\FormAnalyzerController;
-use Spatie\Sitemap\SitemapGenerator;
-use Spatie\Sitemap\Tags\Url;
+use App\Services\SitemapService;
 
 Route::get('/', [HomeController::class, 'index'])->name('landing');
 
@@ -117,55 +117,11 @@ Route::get('/contact', [App\Http\Controllers\ContactController::class, 'index'])
 Route::post('/contact', [App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');
 
 Route::get('/set-sitemap', function () {
-    $urls = [
-        // 'https://surveycenter.co.id/',
-        'https://surveycenter.co.id/about',
-        'https://surveycenter.co.id/layanan/survei-kepuasan-pelanggan',
-        'https://surveycenter.co.id/layanan/survei-potensi-pasar',
-        'https://surveycenter.co.id/layanan/survei-loyalitas-pelanggan',
-        'https://surveycenter.co.id/layanan/survei-pengembangan-produk-jasa',
-        'https://surveycenter.co.id/layanan/survei-pengukuran-indeks-kepusasan-masyarakat',
-        'https://surveycenter.co.id/layanan/survei-brand-awareness',
-        'https://surveycenter.co.id/layanan/survei-segmentasi-dan-positioning',
-        'https://surveycenter.co.id/layanan/mysteri-shopper',
-        'https://surveycenter.co.id/layanan/study-kelayakan-bisnis',
-        'https://surveycenter.co.id/layanan/retail-audit',
-        'https://surveycenter.co.id/pricing',
-        'https://surveycenter.co.id/blog',
-        'https://surveycenter.co.id/contact',
-        'https://surveycenter.co.id/login',
-        'https://surveycenter.co.id/register',
-        'https://surveycenter.co.id/storage/assets/Client%20Brief%20Veycat.pdf',
-        'https://surveycenter.co.id/mengapa-riset-pasar-itu-penting-untuk-bisnis',
-    ];
-    $path = public_path('sitemap.xml');
-    // SitemapGenerator::create('http://localhost:8000')->writeToFile($path);
-    $sitemap = SitemapGenerator::create('https://surveycenter.co.id')->getSitemap();
-    $sitemap->add(
-        Url::create('https://surveycenter.co.id/')
-            ->setLastModificationDate(now())
-            ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_MONTHLY)
-            ->setPriority(1.0)
-    );
-    foreach ($urls as $url) {
-        $sitemap->add(
-            Url::create($url)
-                ->setLastModificationDate(now())
-                ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_MONTHLY)
-                ->setPriority(0.7)
-        );
-    }
-    $articles = \App\Models\Article::all();
-    foreach ($articles as $article) {
-        $sitemap->add(
-            Url::create('https://surveycenter.co.id/' . $article->slug)
-                ->setLastModificationDate($article->updated_at)
-                ->setChangeFrequency(\Spatie\Sitemap\Tags\Url::CHANGE_FREQUENCY_NEVER)
-                ->setPriority(0.8)
-        );
-    }
-    $sitemap->writeToFile($path);
-    // SitemapGenerator::create('https://surveycenter.co.id')->writeToFile($path);
+    app(SitemapService::class)->generate();
+
+    return response()->json([
+        'message' => 'Sitemaps generated successfully.',
+    ]);
 });
 
 
@@ -307,12 +263,17 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
      Route::post('articles', [ArticleController::class, 'store'])->name('admin.articles.store');
      Route::get('articles/{article}/edit', [ArticleController::class, 'edit'])->name('admin.articles.edit');
      Route::put('articles/{article}', [ArticleController::class, 'update'])->name('admin.articles.update');
+     Route::patch('articles/{id}/toggle-publish', [ArticleController::class, 'togglePublish'])->name('admin.articles.toggle-publish');
      Route::delete('articles/{id}', [ArticleController::class, 'destroy'])->name('admin.articles.destroy');
 
     Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::resource('layanan', AdminLayananController::class);
 
         Route::resource('discount-banners', DiscountBannerController::class);
+
+        Route::resource('dashboard-banners', DashboardBannerController::class);
+        Route::post('dashboard-banners/{dashboardBanner}/toggle', [DashboardBannerController::class, 'toggle'])
+            ->name('dashboard-banners.toggle');
     });
 
     Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {

@@ -46,6 +46,20 @@
         @enderror
       </div>
 
+      <div class="mb-4">
+        <label class="inline-flex items-center gap-2 text-sm font-semibold mb-2">
+          <input type="checkbox" name="is_published" value="1" @checked(old('is_published', isset($article) ? $article->is_published : false))>
+          Publish artikel
+        </label>
+        <input type="datetime-local" name="published_at"
+          value="{{ old('published_at', isset($article) && $article->published_at ? $article->published_at->format('Y-m-d\TH:i') : '') }}"
+          class="w-full border px-3 py-2 rounded">
+        <p class="text-xs text-gray-500 mt-1">Biarkan kosong untuk menggunakan waktu saat dipublish.</p>
+        @error('published_at')
+          <p class="text-red-600 text-xs">{{ $message }}</p>
+        @enderror
+      </div>
+
       {{-- Gambar --}}
       <div class="mb-4">
         <label class="block text-sm font-semibold mb-1">Gambar</label>

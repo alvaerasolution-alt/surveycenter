@@ -7,7 +7,29 @@
 @section('content')
 <div class="space-y-6">
 
-    {{-- Welcome Banner --}}
+    {{-- Welcome Slider / Discount Banner --}}
+    @if($banners->isNotEmpty())
+    <section class="relative w-full overflow-hidden rounded-2xl shadow-md">
+        <div class="relative overflow-hidden rounded-2xl">
+            <div id="dashboardSlider" class="flex transition-transform duration-700 ease-in-out">
+                @foreach($banners as $banner)
+                <div class="relative w-full flex-shrink-0">
+                    <img
+                        src="{{ asset('storage/' . $banner->image) }}"
+                        alt="Dashboard banner"
+                        loading="lazy"
+                        class="w-full h-40 sm:h-52 lg:h-64 object-cover">
+                </div>
+                @endforeach
+            </div>
+            {{-- Dots --}}
+            @if($banners->count() > 1)
+            <div id="dashboardBannerDots" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-10"></div>
+            @endif
+        </div>
+    </section>
+    @else
+    {{-- Fallback: Welcome Banner Default --}}
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white p-6 sm:p-8">
         <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-amber-400/20 rounded-full translate-y-1/2 -translate-x-1/4 blur-xl"></div>
@@ -21,6 +43,7 @@
             </a>
         </div>
     </div>
+    @endif
 
     {{-- Statistics Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -274,6 +297,50 @@
             const width = Math.max(0, Math.min(100, value));
             el.style.width = width + '%';
         });
+
+        // Dashboard Banner Slider
+        (function(){
+            const slider = document.getElementById('dashboardSlider');
+            if (!slider) return;
+            const slides = Array.from(slider.children);
+            const total = slides.length;
+            if (total <= 1) return;
+            const dotsEl = document.getElementById('dashboardBannerDots');
+
+            slider.style.width = `${total * 100}%`;
+            slides.forEach(s => { s.style.width = `${100 / total}%`; s.style.flex = '0 0 auto'; });
+
+            if (dotsEl) {
+                slides.forEach((_, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-2.5 h-2.5 rounded-full bg-white/50 transition';
+                    btn.addEventListener('click', () => { show(i); reset(); });
+                    dotsEl.appendChild(btn);
+                });
+            }
+
+            const dots = dotsEl ? Array.from(dotsEl.children) : [];
+            let idx = 0, timer = null;
+
+            function show(i) {
+                idx = (i + total) % total;
+                slider.style.transform = `translateX(-${idx * 100 / total}%)`;
+                if (dots.length > 0) {
+                    dots.forEach((d, j) => {
+                        d.className = 'w-2.5 h-2.5 rounded-full transition ' + (j === idx ? 'bg-white' : 'bg-white/40');
+                    });
+                }
+            }
+
+            function next() { show(idx + 1); }
+            function reset() { clearInterval(timer); timer = setInterval(next, 4500); }
+
+            slider.parentElement.addEventListener('mouseenter', () => clearInterval(timer));
+            slider.parentElement.addEventListener('mouseleave', reset);
+
+            show(0);
+            reset();
+        })();
     });
 </script>
 @endpush

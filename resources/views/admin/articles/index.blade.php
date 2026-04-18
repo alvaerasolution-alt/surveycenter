@@ -42,6 +42,7 @@
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-12">#</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Judul</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Gambar</th>
                             <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
@@ -61,6 +62,13 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3.5">
+                                    @if($article->is_published)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Published</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Draft</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3.5">
                                     @if ($article->image)
                                         <img src="{{ url('storage/' . $article->image) }}" alt="thumb" class="w-14 h-10 object-cover rounded-lg border border-gray-200">
                                     @else
@@ -69,6 +77,15 @@
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <div class="flex items-center justify-end gap-1">
+                                        <form action="{{ route('admin.articles.toggle-publish', $article->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit"
+                                                class="p-1.5 rounded-lg transition {{ $article->is_published ? 'hover:bg-amber-50 text-amber-600' : 'hover:bg-emerald-50 text-emerald-600' }}"
+                                                title="{{ $article->is_published ? 'Set Draft' : 'Publish' }}">
+                                                <i data-lucide="{{ $article->is_published ? 'eye-off' : 'eye' }}" class="w-4 h-4"></i>
+                                            </button>
+                                        </form>
                                         <a href="{{ route('admin.articles.edit', $article->id) }}" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-600 transition" title="Edit">
                                             <i data-lucide="pencil" class="w-4 h-4"></i>
                                         </a>

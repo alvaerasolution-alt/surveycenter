@@ -43,6 +43,11 @@ class AppServiceProvider extends ServiceProvider
             $routeName = Route::currentRouteName() ?? '';
             $slug      = $seoSlugMap[$routeName] ?? '';
 
+            $existingData = $view->getData();
+            $existingTitle = $existingData['seoTitle'] ?? null;
+            $existingDesc = $existingData['seoDesc'] ?? null;
+            $existingKeywords = $existingData['seoKeywords'] ?? null;
+
             $seoTitle    = null;
             $seoDesc     = null;
             $seoKeywords = null;
@@ -59,6 +64,10 @@ class AppServiceProvider extends ServiceProvider
                     // Tetap render view walau DB belum siap/tidak tersedia.
                 }
             }
+
+            $seoTitle = $existingTitle ?: $seoTitle;
+            $seoDesc = $existingDesc ?: $seoDesc;
+            $seoKeywords = $existingKeywords ?: $seoKeywords;
 
             $view->with(compact('seoTitle', 'seoDesc', 'seoKeywords'));
         });

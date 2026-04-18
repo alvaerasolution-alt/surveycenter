@@ -48,3 +48,4 @@ Artisan::command('send-mail {to? : Email tujuan (default: MAIL_FROM_ADDRESS)}', 
 
 use Illuminate\Support\Facades\Schedule;
 Schedule::command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
+Schedule::command('sitemap:generate')->dailyAt('02:00')->withoutOverlapping();

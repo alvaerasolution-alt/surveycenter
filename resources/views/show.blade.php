@@ -92,6 +92,21 @@
                       [&_iframe]:w-full [&_iframe]:max-w-full">
             {!! $article->content !!}
           </div>
+
+          @if(isset($relatedArticles) && $relatedArticles->isNotEmpty())
+            <section class="mt-8 rounded-2xl border border-gray-200 p-5 bg-gray-50">
+              <h2 class="text-lg font-bold text-gray-900 mb-3">Baca Juga</h2>
+              <ul class="space-y-2">
+                @foreach($relatedArticles as $related)
+                  <li>
+                    <a href="{{ route('blog.show', $related->slug) }}" class="text-orange-600 hover:underline font-medium">
+                      {{ $related->title }}
+                    </a>
+                  </li>
+                @endforeach
+              </ul>
+            </section>
+          @endif
         </article>
 
         {{-- Sidebar --}}

@@ -56,10 +56,14 @@ class ImportWordpress extends Command
                 [
                     'title'      => $post->post_title,
                     'slug'       => Str::slug($post->post_title), // WAJIB diset
+                    'is_published' => true,
+                    'published_at' => $post->post_date,
                     'excerpt'    => $post->post_excerpt,
                     'content'    => $post->post_content,
                     'category'   => $category,
                     'image'      => $image_url,
+                    'meta_title' => Str::limit(trim(strip_tags($post->post_title)), 60, ''),
+                    'meta_description' => Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags((string) $post->post_content))), 160, ''),
                     'created_at' => $post->post_date,
                     'updated_at' => $post->post_modified,
                 ]

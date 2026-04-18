@@ -199,6 +199,7 @@
                     $contentLinks = [
                         ['route' => 'tabs.index', 'is' => 'tabs.*', 'icon' => 'layers', 'label' => 'Kelola Tabs', 'check' => 'routeIs'],
                         ['route' => 'admin.discount-banners.index', 'is' => 'admin.discount-banners.*', 'icon' => 'image', 'label' => 'Kelola Banners', 'check' => 'routeIs'],
+                        ['route' => 'admin.dashboard-banners.index', 'is' => 'admin.dashboard-banners.*', 'icon' => 'monitor', 'label' => 'Slider Dashboard', 'check' => 'routeIs'],
                         ['route' => 'partner-logos.index', 'is' => 'partner-logos.*', 'icon' => 'award', 'label' => 'Kelola Logos', 'check' => 'routeIs'],
                         ['route' => 'customer-stories.index', 'is' => 'customer-stories.*', 'icon' => 'message-square-quote', 'label' => 'Customer Stories', 'check' => 'routeIs'],
                         ['route' => 'admin.testimoni.index', 'is' => 'admin.testimoni.*', 'icon' => 'message-circle', 'label' => 'Testimoni', 'check' => 'routeIs'],

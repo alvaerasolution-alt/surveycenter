@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Response;
 use App\Models\Survey;
 use App\Models\Transaction;
+use App\Models\DashboardBanner;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -52,6 +53,13 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Dashboard banners untuk slider (gambar saja)
+        $banners = DashboardBanner::where('is_active', true)
+            ->whereNotNull('image')
+            ->where('image', '!=', '')
+            ->orderBy('order')
+            ->get();
+
         return view('user.dashboard.index', compact(
             'user',
             'totalSurveys',
@@ -63,7 +71,8 @@ class DashboardController extends Controller
             'totalSpent',
             'pendingPayments',
             'recentSurveys',
-            'recentTransactions'
+            'recentTransactions',
+            'banners'
         ));
     }
 }
