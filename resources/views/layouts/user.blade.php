@@ -137,8 +137,8 @@
             {{-- Logo --}}
             <div class="flex items-center h-[64px] px-4 flex-shrink-0">
                 <a href="{{ url('/') }}" class="flex items-center gap-3 min-w-0">
-                    <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <span class="text-white font-extrabold text-xs tracking-tight">SC</span>
+                    <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0 shadow-lg p-1">
+                        <img src="{{ asset('assets/logosc.png') }}" alt="SurveyCenter Logo" class="w-full h-full object-contain">
                     </div>
                     <div x-show="sidebarOpen" x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="min-w-0">
                         <span class="font-bold text-[13px] tracking-wide text-white block">SurveyCenter</span>
