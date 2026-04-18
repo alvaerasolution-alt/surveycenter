@@ -194,6 +194,23 @@
                 @enderror
             </div>
 
+            {{-- User Type --}}
+            <div>
+                <label for="user_type" class="block text-sm font-medium text-gray-700 mb-2">
+                    Jenis Pengguna <span class="text-red-500">*</span>
+                </label>
+                <select name="user_type" id="user_type" required
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition appearance-none bg-white @error('user_type') border-red-500 @enderror">
+                    <option value="">— Pilih jenis pengguna —</option>
+                    <option value="mahasiswa" {{ old('user_type') == 'mahasiswa' ? 'selected' : '' }}>🎓 Mahasiswa (Diskon 50%)</option>
+                    <option value="perusahaan" {{ old('user_type') == 'perusahaan' ? 'selected' : '' }}>🏢 Perusahaan (Diskon 30%)</option>
+                    <option value="umum" {{ old('user_type') == 'umum' ? 'selected' : '' }}>👤 Umum (Tanpa Diskon)</option>
+                </select>
+                @error('user_type')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             {{-- Cost Estimation --}}
             <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border border-orange-100">
                 <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -202,20 +219,21 @@
                 </h3>
                 <div class="space-y-3">
                     <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Biaya pertanyaan</span>
-                        <span class="text-gray-900" id="question-cost">Rp 0</span>
+                        <span class="text-gray-600">Biaya dasar (pertanyaan × responden)</span>
+                        <span class="text-gray-900" id="base-cost">Rp 0</span>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Biaya responden</span>
-                        <span class="text-gray-900" id="respondent-cost">Rp 0</span>
+                    <div class="flex justify-between text-sm" id="discount-row" style="display:none !important">
+                        <span class="text-emerald-600" id="discount-label">Diskon</span>
+                        <span class="text-emerald-600 font-semibold" id="discount-amount">- Rp 0</span>
                     </div>
                     <div class="border-t border-orange-200 pt-3 flex justify-between">
-                        <span class="font-semibold text-gray-900">Total</span>
+                        <span class="font-semibold text-gray-900">Total Setelah Diskon</span>
                         <span class="font-bold text-orange-600 text-lg" id="total-cost">Rp 0</span>
                     </div>
+                    <p id="min-warning" class="hidden text-xs text-red-500 font-medium text-right">⚠ Minimal order Rp 50.000 per survey</p>
                 </div>
                 <p class="text-xs text-gray-500 mt-4">
-                    * Biaya: Rp 1.000/pertanyaan + Rp 1.000/responden
+                    * Harga dasar: Rp 1.000 × jumlah pertanyaan × jumlah responden
                 </p>
             </div>
 
@@ -247,6 +265,34 @@
         </div>
     </div>
 
+    {{-- Price Level Section --}}
+    <div class="mt-6 bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-900">Price Level</h2>
+            <p class="text-sm text-gray-500 mt-1">
+                Level harga berkisar antara 1× hingga 1.5×, tergantung tingkat kesulitan dalam mencapai
+                target responden berdasarkan profil yang ditetapkan.
+            </p>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex items-center justify-center">
+                    <img src="{{ asset('assets/Harga-Survey-Center-1024x606.png') }}"
+                         alt="Price Level Table"
+                         class="rounded-xl border border-gray-100 shadow-sm max-w-full w-full object-contain">
+                </div>
+                <div class="flex items-center justify-center">
+                    <img src="{{ asset('assets/incase-768x247.jpg') }}"
+                         alt="Price Level Formula"
+                         class="rounded-xl border border-gray-100 shadow-sm max-w-full w-full object-contain">
+                </div>
+            </div>
+            <p class="text-xs text-red-500 text-center mt-4 font-medium">
+                * Harga dasar dapat meningkat tergantung tingkat kesulitan survey
+            </p>
+        </div>
+    </div>
+
 </div>
 @endsection
 
@@ -255,34 +301,57 @@
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
-        const questionInput = document.getElementById('question_count');
+        const questionInput   = document.getElementById('question_count');
         const respondentInput = document.getElementById('respondent_count');
-        const questionCostEl = document.getElementById('question-cost');
-        const respondentCostEl = document.getElementById('respondent-cost');
-        const totalCostEl = document.getElementById('total-cost');
-
-        const COST_PER_QUESTION = 1000;
-        const COST_PER_RESPONDENT = 1000;
+        const userTypeSelect  = document.getElementById('user_type');
+        const baseCostEl      = document.getElementById('base-cost');
+        const discountRow     = document.getElementById('discount-row');
+        const discountLabel   = document.getElementById('discount-label');
+        const discountAmount  = document.getElementById('discount-amount');
+        const totalCostEl     = document.getElementById('total-cost');
+        const minWarning      = document.getElementById('min-warning');
+        const MIN_ORDER       = 50000;
 
         function formatCurrency(value) {
             return 'Rp ' + value.toLocaleString('id-ID');
         }
 
         function calculateCost() {
-            const questions = parseInt(questionInput.value) || 0;
+            const questions  = parseInt(questionInput.value) || 0;
             const respondents = parseInt(respondentInput.value) || 0;
+            const userType   = userTypeSelect ? userTypeSelect.value : '';
 
-            const questionCost = questions * COST_PER_QUESTION;
-            const respondentCost = respondents * COST_PER_RESPONDENT;
-            const total = questionCost + respondentCost;
+            // Formula sama dengan halaman pricing: pertanyaan × responden × 1000
+            const base = questions * respondents * 1000;
 
-            questionCostEl.textContent = formatCurrency(questionCost);
-            respondentCostEl.textContent = formatCurrency(respondentCost);
-            totalCostEl.textContent = formatCurrency(total);
+            let discount = 0;
+            let discountText = '';
+            if (userType === 'mahasiswa')  { discount = base * 0.5; discountText = 'Diskon 50% (Mahasiswa)'; }
+            if (userType === 'perusahaan') { discount = base * 0.3; discountText = 'Diskon 30% (Perusahaan)'; }
+
+            const final = base - discount;
+
+            baseCostEl.textContent  = formatCurrency(base);
+            totalCostEl.textContent = formatCurrency(final);
+
+            if (discount > 0) {
+                discountRow.style.removeProperty('display');
+                discountLabel.textContent  = discountText;
+                discountAmount.textContent = '- ' + formatCurrency(discount);
+            } else {
+                discountRow.style.setProperty('display', 'none', 'important');
+            }
+
+            if (questions > 0 && respondents > 0) {
+                minWarning.classList.toggle('hidden', final >= MIN_ORDER);
+            } else {
+                minWarning.classList.add('hidden');
+            }
         }
 
         questionInput.addEventListener('input', calculateCost);
         respondentInput.addEventListener('input', calculateCost);
+        if (userTypeSelect) userTypeSelect.addEventListener('change', calculateCost);
 
         // Initial calculation
         calculateCost();

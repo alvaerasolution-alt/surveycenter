@@ -76,11 +76,12 @@ class SurveyController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'question_count' => 'required|integer|min:1|max:100',
+            'title'            => 'required|string|max:255',
+            'question_count'   => 'required|integer|min:1|max:100',
             'respondent_count' => 'required|integer|min:1|max:10000',
-            'form_link' => 'required|url|max:2048',
-            'description' => 'nullable|string|max:1000',
+            'form_link'        => 'required|url|max:2048',
+            'description'      => 'nullable|string|max:1000',
+            'user_type'        => 'required|in:mahasiswa,perusahaan,umum',
         ]);
 
         $formLinkError = $this->formLinkValidationService->validate(
@@ -94,26 +95,49 @@ class SurveyController extends Controller
 
         $user = Auth::user();
 
-        // Calculate cost
-        $questionCost = $validated['question_count'] * 1000;
-        $respondentCost = $validated['respondent_count'] * 1000;
-        $totalCost = $questionCost + $respondentCost;
+        // Calculate cost — sama persis dengan halaman pricing
+        // Formula: pertanyaan × responden × Rp 1.000
+        $baseTotal = $validated['question_count'] * $validated['respondent_count'] * 1000;
+
+        $discount = 0;
+        if ($validated['user_type'] === 'mahasiswa') {
+            $discount = $baseTotal * 0.5;
+        } elseif ($validated['user_type'] === 'perusahaan') {
+            $discount = $baseTotal * 0.3;
+        }
+
+        $totalCost = $baseTotal - $discount;
+
+        // Enforce minimum order Rp 50.000
+        if ($totalCost < 50000) {
+            throw ValidationException::withMessages([
+                'respondent_count' => 'Total biaya minimal Rp 50.000 per survey. Tambah jumlah pertanyaan atau responden.',
+            ]);
+        }
 
         // Create survey
         $survey = Survey::create([
-            'user_id' => $user->id,
-            'title' => $validated['title'],
-            'question_count' => $validated['question_count'],
+            'user_id'          => $user->id,
+            'title'            => $validated['title'],
+            'question_count'   => $validated['question_count'],
             'respondent_count' => $validated['respondent_count'],
+        ]);
+
+        // Store form link in Response
+        \App\Models\Response::create([
+            'survey_id'        => $survey->id,
+            'user_id'          => $user->id,
+            'respond_count'    => $validated['respondent_count'],
+            'google_form_link' => $validated['form_link'],
         ]);
 
         // Create transaction
         Transaction::create([
             'survey_id' => $survey->id,
-            'user_id' => $user->id,
-            'amount' => $totalCost,
-            'status' => Transaction::STATUS_PENDING,
-            'progress' => 0,
+            'user_id'   => $user->id,
+            'amount'    => $totalCost,
+            'status'    => Transaction::STATUS_PENDING,
+            'progress'  => 0,
         ]);
 
         return redirect()->route('user.surveys.show', $survey)
