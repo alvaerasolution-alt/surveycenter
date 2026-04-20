@@ -44,7 +44,7 @@
             @endphp
 
             @foreach($actions as $action)
-                @if (Route::has($action['route']))
+                @if (app('router')->has($action['route']))
                     <a href="{{ route($action['route']) }}"
                        class="group flex items-center gap-3 bg-white rounded-xl border border-gray-200/80 p-3.5 hover:shadow-md hover:border-{{ $action['color'] }}-200 transition-all duration-200">
                         <div class="w-9 h-9 rounded-lg bg-gradient-to-br {{ $action['gradient'] }} flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition">
@@ -78,7 +78,7 @@
             @endphp
 
             @foreach($menuCards as $card)
-                @if (Route::has($card['route']))
+                @if (app('router')->has($card['route']))
                     <a href="{{ route($card['route']) }}"
                        class="group bg-white rounded-xl border border-gray-200/80 p-4 hover:shadow-md hover:border-orange-200 transition-all duration-200">
                         <div class="w-9 h-9 rounded-lg bg-gray-50 group-hover:bg-orange-50 flex items-center justify-center mb-3 transition">
