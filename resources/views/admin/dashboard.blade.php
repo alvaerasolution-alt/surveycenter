@@ -34,18 +34,30 @@
         </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             @php
+                $router = app('router');
                 $actions = [
-                    ['route' => 'admin.articles.create', 'icon' => 'file-plus', 'label' => 'Artikel Baru', 'color' => 'orange', 'gradient' => 'from-orange-500 to-orange-600'],
-                    ['route' => 'admin.layanan.create', 'icon' => 'briefcase', 'label' => 'Layanan Baru', 'color' => 'emerald', 'gradient' => 'from-emerald-500 to-emerald-600'],
-                    ['route' => 'admin.transactions.index', 'icon' => 'credit-card', 'label' => 'Lihat Transaksi', 'color' => 'amber', 'gradient' => 'from-amber-500 to-amber-600'],
-                    ['route' => 'crm.dashboard', 'icon' => 'bar-chart-3', 'label' => 'Buka CRM', 'color' => 'blue', 'gradient' => 'from-blue-500 to-cyan-600'],
-                    ['route' => 'admin.surveys.manage', 'icon' => 'link-2', 'label' => 'Cek URL Form', 'color' => 'rose', 'gradient' => 'from-rose-500 to-pink-600'],
+                    ['route' => 'admin.articles.create', 'fallbacks' => ['articles.create'], 'icon' => 'file-plus', 'label' => 'Artikel Baru', 'color' => 'orange', 'gradient' => 'from-orange-500 to-orange-600'],
+                    ['route' => 'admin.layanan.create', 'fallbacks' => ['layanan.create'], 'icon' => 'briefcase', 'label' => 'Layanan Baru', 'color' => 'emerald', 'gradient' => 'from-emerald-500 to-emerald-600'],
+                    ['route' => 'admin.transactions.index', 'fallbacks' => ['transactions.index'], 'icon' => 'credit-card', 'label' => 'Lihat Transaksi', 'color' => 'amber', 'gradient' => 'from-amber-500 to-amber-600'],
+                    ['route' => 'crm.dashboard', 'fallbacks' => [], 'icon' => 'bar-chart-3', 'label' => 'Buka CRM', 'color' => 'blue', 'gradient' => 'from-blue-500 to-cyan-600'],
+                    ['route' => 'admin.surveys.manage', 'fallbacks' => ['surveys.manage'], 'icon' => 'link-2', 'label' => 'Cek URL Form', 'color' => 'rose', 'gradient' => 'from-rose-500 to-pink-600'],
                 ];
             @endphp
 
             @foreach($actions as $action)
-                @if (app('router')->has($action['route']))
-                    <a href="{{ route($action['route']) }}"
+                @php
+                    $actionRouteName = $action['route'];
+                    if (! $router->has($actionRouteName)) {
+                        foreach ($action['fallbacks'] as $fallbackRoute) {
+                            if ($router->has($fallbackRoute)) {
+                                $actionRouteName = $fallbackRoute;
+                                break;
+                            }
+                        }
+                    }
+                @endphp
+                @if ($router->has($actionRouteName))
+                    <a href="{{ route($actionRouteName) }}"
                        class="group flex items-center gap-3 bg-white rounded-xl border border-gray-200/80 p-3.5 hover:shadow-md hover:border-{{ $action['color'] }}-200 transition-all duration-200">
                         <div class="w-9 h-9 rounded-lg bg-gradient-to-br {{ $action['gradient'] }} flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition">
                             <i data-lucide="{{ $action['icon'] }}" class="w-4 h-4 text-white"></i>
@@ -65,21 +77,32 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             @php
                 $menuCards = [
-                    ['route' => 'settings.edit', 'icon' => 'settings', 'label' => 'Pengaturan', 'desc' => 'Konfigurasi website'],
-                    ['route' => 'admin.surveys.manage', 'icon' => 'link-2', 'label' => 'URL Form Survey', 'desc' => 'Cek link form user'],
-                    ['route' => 'tabs.index', 'icon' => 'layers', 'label' => 'Kelola Tabs', 'desc' => 'Tab halaman utama'],
-                    ['route' => 'admin.discount-banners.index', 'icon' => 'image', 'label' => 'Banners', 'desc' => 'Banner promosi'],
-                    ['route' => 'partner-logos.index', 'icon' => 'award', 'label' => 'Partner Logos', 'desc' => 'Logo klien & partner'],
-                    ['route' => 'customer-stories.index', 'icon' => 'message-square-quote', 'label' => 'Customer Stories', 'desc' => 'Testimoni pelanggan'],
-                    ['route' => 'admin.articles.index', 'icon' => 'file-text', 'label' => 'Articles', 'desc' => 'Blog & artikel'],
-                    ['route' => 'admin.layanan.index', 'icon' => 'briefcase', 'label' => 'Layanan', 'desc' => 'Daftar layanan'],
-                    ['route' => 'admin.seo.index', 'icon' => 'search', 'label' => 'SEO', 'desc' => 'Optimasi mesin pencari'],
+                    ['route' => 'settings.edit', 'fallbacks' => [], 'icon' => 'settings', 'label' => 'Pengaturan', 'desc' => 'Konfigurasi website'],
+                    ['route' => 'admin.surveys.manage', 'fallbacks' => ['surveys.manage'], 'icon' => 'link-2', 'label' => 'URL Form Survey', 'desc' => 'Cek link form user'],
+                    ['route' => 'tabs.index', 'fallbacks' => [], 'icon' => 'layers', 'label' => 'Kelola Tabs', 'desc' => 'Tab halaman utama'],
+                    ['route' => 'admin.discount-banners.index', 'fallbacks' => ['discount-banners.index'], 'icon' => 'image', 'label' => 'Banners', 'desc' => 'Banner promosi'],
+                    ['route' => 'partner-logos.index', 'fallbacks' => [], 'icon' => 'award', 'label' => 'Partner Logos', 'desc' => 'Logo klien & partner'],
+                    ['route' => 'customer-stories.index', 'fallbacks' => [], 'icon' => 'message-square-quote', 'label' => 'Customer Stories', 'desc' => 'Testimoni pelanggan'],
+                    ['route' => 'admin.articles.index', 'fallbacks' => ['articles.index'], 'icon' => 'file-text', 'label' => 'Articles', 'desc' => 'Blog & artikel'],
+                    ['route' => 'admin.layanan.index', 'fallbacks' => ['layanan.index'], 'icon' => 'briefcase', 'label' => 'Layanan', 'desc' => 'Daftar layanan'],
+                    ['route' => 'admin.seo.index', 'fallbacks' => ['seo.index'], 'icon' => 'search', 'label' => 'SEO', 'desc' => 'Optimasi mesin pencari'],
                 ];
             @endphp
 
             @foreach($menuCards as $card)
-                @if (app('router')->has($card['route']))
-                    <a href="{{ route($card['route']) }}"
+                @php
+                    $menuRouteName = $card['route'];
+                    if (! $router->has($menuRouteName)) {
+                        foreach ($card['fallbacks'] as $fallbackRoute) {
+                            if ($router->has($fallbackRoute)) {
+                                $menuRouteName = $fallbackRoute;
+                                break;
+                            }
+                        }
+                    }
+                @endphp
+                @if ($router->has($menuRouteName))
+                    <a href="{{ route($menuRouteName) }}"
                        class="group bg-white rounded-xl border border-gray-200/80 p-4 hover:shadow-md hover:border-orange-200 transition-all duration-200">
                         <div class="w-9 h-9 rounded-lg bg-gray-50 group-hover:bg-orange-50 flex items-center justify-center mb-3 transition">
                             <i data-lucide="{{ $card['icon'] }}" class="w-[18px] h-[18px] text-gray-400 group-hover:text-orange-600 transition"></i>

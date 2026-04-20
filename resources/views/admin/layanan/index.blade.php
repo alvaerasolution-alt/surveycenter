@@ -12,7 +12,12 @@
                 <h2 class="text-xl font-semibold text-gray-900">Daftar Layanan</h2>
                 <p class="text-sm text-gray-500 mt-1">Kelola semua layanan jasa survey</p>
             </div>
-            <a href="{{ route('admin.layanan.create') }}"
+            @php
+                $layananCreateRoute = app('router')->has('admin.layanan.create')
+                    ? route('admin.layanan.create')
+                    : (app('router')->has('layanan.create') ? route('layanan.create') : url('/admin/layanan/create'));
+            @endphp
+            <a href="{{ $layananCreateRoute }}"
                class="inline-flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition shadow-sm">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 Tambah Layanan
