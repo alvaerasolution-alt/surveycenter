@@ -30,15 +30,15 @@
             </div>
         </a>
 
-        <a href="{{ route('crm.customer-already') }}"
+        <a href="{{ route('crm.manage-users') }}"
            class="group relative overflow-hidden bg-white rounded-xl border border-gray-200 p-6 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-100/50 transition-all duration-300">
             <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-50 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-emerald-100 transition"></div>
             <div class="relative z-10">
                 <div class="w-11 h-11 rounded-xl bg-emerald-50 group-hover:bg-emerald-100 flex items-center justify-center mb-4 transition">
                     <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
                 </div>
-                <h3 class="text-base font-semibold text-gray-900 mb-1">Customer Already</h3>
-                <p class="text-xs text-gray-500">Daftar customer yang sudah bayar</p>
+                <h3 class="text-base font-semibold text-gray-900 mb-1">Manage User</h3>
+                <p class="text-xs text-gray-500">Daftar semua user dan login sebagai user</p>
                 <div class="mt-3 flex items-center gap-1 text-emerald-600 text-sm font-medium group-hover:gap-2 transition-all">
                     <span>Buka</span>
                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -105,14 +105,14 @@
         </div>
     </div>
 
-    {{-- Customer Sudah Bayar --}}
+    {{-- Manage User --}}
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 class="text-base font-semibold text-gray-900 flex items-center gap-2">
                 <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500"></i>
-                Customer Sudah Bayar
+                Manage User
             </h2>
-            <a href="{{ route('crm.customer-already') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1">
+            <a href="{{ route('crm.manage-users') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1">
                 Lihat Semua <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </a>
         </div>

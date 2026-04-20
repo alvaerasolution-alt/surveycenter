@@ -62,14 +62,14 @@
         </div>
     </div>
 
-    {{-- Customer Sudah Bayar --}}
+    {{-- Manage User --}}
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 class="text-base font-semibold text-gray-900 flex items-center gap-2">
                 <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500"></i>
-                Customer Sudah Bayar
+                Manage User
             </h2>
-            <a href="{{ route('crm.customer-already') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1">
+            <a href="{{ route('crm.manage-users') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1">
                 Lihat Semua
                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </a>

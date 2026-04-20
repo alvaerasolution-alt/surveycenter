@@ -321,6 +321,10 @@
                      disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed">
               Tambah Survey Baru →
             </button>
+
+            <p id="autoSubmitNotice" class="hidden mt-2 text-center text-xs text-emerald-700">
+              Login berhasil, pesanan Anda sedang diproses otomatis...
+            </p>
           </form>
         </div>
 
@@ -432,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeholder    = document.getElementById('calcPlaceholder');
     const MIN            = 100000;
     const DRAFT_KEY      = 'pricing_form_draft_v1';
+    const AUTO_SUBMIT_KEY = 'pricing_auto_submit_after_login_v1';
 
     const fmt = n => 'Rp ' + n.toLocaleString('id-ID');
 
@@ -472,12 +477,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             calculate();
-
-            if (isAuthenticated) {
-                sessionStorage.removeItem(DRAFT_KEY);
-            }
         } catch (e) {
             // ignore invalid draft
+        }
+    }
+
+    function autoSubmitAfterLogin() {
+        if (!isAuthenticated) return;
+
+        let shouldAutoSubmit = false;
+        try {
+            shouldAutoSubmit = sessionStorage.getItem(AUTO_SUBMIT_KEY) === '1';
+        } catch (e) {
+            shouldAutoSubmit = false;
+        }
+
+        if (!shouldAutoSubmit) return;
+
+        sessionStorage.removeItem(AUTO_SUBMIT_KEY);
+
+        const submitButton = document.getElementById('submitButton');
+        const orderForm = document.getElementById('orderForm');
+        const autoSubmitNotice = document.getElementById('autoSubmitNotice');
+        if (!submitButton || !orderForm) return;
+
+        calculate();
+        updateSubmitState();
+
+        if (!submitButton.disabled) {
+            if (autoSubmitNotice) autoSubmitNotice.classList.remove('hidden');
+            submitButton.disabled = true;
+            setTimeout(() => orderForm.requestSubmit(), 250);
+        } else {
+            alert('Login berhasil. Form belum bisa dikirim otomatis, silakan cek kembali data wajib lalu klik submit.');
         }
     }
 
@@ -530,12 +562,14 @@ document.addEventListener('DOMContentLoaded', () => {
     userTypeSelect.addEventListener('change', saveDraft);
 
     restoreDraft();
+    autoSubmitAfterLogin();
 
     // Submit guard
     document.getElementById('orderForm').addEventListener('submit', e => {
         if (!isAuthenticated) {
             e.preventDefault();
             saveDraft();
+            sessionStorage.setItem(AUTO_SUBMIT_KEY, '1');
             alert('Silakan login terlebih dahulu untuk membuat survey baru.');
             window.location.href = "{{ route('login') }}?redirect={{ urlencode(route('pricing')) }}";
             return false;
@@ -547,6 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!document.getElementById('agreeTerms').checked) { e.preventDefault(); alert('Setujui Syarat & Ketentuan terlebih dahulu'); return false; }
 
         sessionStorage.removeItem(DRAFT_KEY);
+        sessionStorage.removeItem(AUTO_SUBMIT_KEY);
     });
 
     if (!isAuthenticated) {

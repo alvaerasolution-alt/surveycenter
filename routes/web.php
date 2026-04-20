@@ -206,7 +206,9 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     Route::get('/pilih-client', [CRMController::class, 'clientMenu'])->name('pilih-client');
 
     Route::get('/crm/dashboard', [CRMController::class, 'index'])->name('crm.dashboard');
+    Route::get('/crm/manage-users', [CRMController::class, 'customerAlready'])->name('crm.manage-users');
     Route::get('/crm/customer-already', [CRMController::class, 'customerAlready'])->name('crm.customer-already');
+    Route::get('/crm/manage-users/{user}', [CRMController::class, 'showManageUser'])->name('crm.manage-users.show');
     Route::post('/users/{user}/impersonate', [UserImpersonationController::class, 'impersonate'])->name('admin.users.impersonate');
 
     // Follow Up khusus status closed

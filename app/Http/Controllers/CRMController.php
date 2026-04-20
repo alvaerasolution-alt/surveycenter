@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Models\FollowUp;
+use App\Models\Survey;
 use Illuminate\Support\Facades\Auth;
 
 class CRMController extends Controller
@@ -122,13 +123,18 @@ class CRMController extends Controller
         }
     }
 
-    public function customerAlready()
+    public function customerAlready(Request $request)
     {
-        // Get users with paid transactions
-        $users = User::whereHas('transactions', function ($query) {
-            $query->where('status', Transaction::STATUS_PAID);
-        })->with(['transactions' => function ($query) {
-            $query->where('status', Transaction::STATUS_PAID);
+        $search = trim((string) $request->input('q', ''));
+        $role = $request->input('role', 'all');
+        $perPage = (int) $request->input('per_page', 10);
+        $allowedPerPage = [10, 25, 50];
+
+        if (!in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 10;
+        }
+
+        $query = User::with(['transactions' => function ($query) {
             $query->with([
                 'survey' => function ($surveyQuery) {
                     $surveyQuery->select('id', 'title', 'form_link')
@@ -138,9 +144,60 @@ class CRMController extends Controller
                                 ->latest('updated_at');
                         }]);
                 }
-            ]);
-        }])->paginate(10);
+            ])->latest();
+        }])->latest();
 
-        return view('admin.crm.customer-already', compact('users'));
+        if ($search !== '') {
+            $query->where(function ($builder) use ($search) {
+                $builder->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($role === 'admin') {
+            $query->where('is_admin', true);
+        } elseif ($role === 'user') {
+            $query->where('is_admin', false);
+        }
+
+        $users = $query->paginate($perPage)->withQueryString();
+
+        return view('admin.crm.customer-already', compact('users', 'search', 'role', 'perPage'));
+    }
+
+    public function showManageUser(User $user, Request $request)
+    {
+        $trxStatus = $request->input('trx_status', 'all');
+        $allowedStatus = ['all', Transaction::STATUS_PENDING, Transaction::STATUS_PROCESSING, Transaction::STATUS_PAID, Transaction::STATUS_FAILED];
+
+        if (!in_array($trxStatus, $allowedStatus, true)) {
+            $trxStatus = 'all';
+        }
+
+        $transactionsQuery = Transaction::where('user_id', $user->id)
+            ->with(['survey' => function ($query) {
+                $query->select('id', 'title', 'form_link');
+            }])
+            ->latest();
+
+        if ($trxStatus !== 'all') {
+            $transactionsQuery->where('status', $trxStatus);
+        }
+
+        $transactions = $transactionsQuery->paginate(10)->withQueryString();
+
+        $stats = [
+            'total_surveys' => Survey::where('user_id', $user->id)->count(),
+            'total_transactions' => Transaction::where('user_id', $user->id)->count(),
+            'total_paid_amount' => Transaction::where('user_id', $user->id)
+                ->where('status', Transaction::STATUS_PAID)
+                ->sum('amount'),
+            'total_paid_transactions' => Transaction::where('user_id', $user->id)
+                ->where('status', Transaction::STATUS_PAID)
+                ->count(),
+        ];
+
+        return view('admin.crm.user-detail', compact('user', 'transactions', 'stats', 'trxStatus'));
     }
 }

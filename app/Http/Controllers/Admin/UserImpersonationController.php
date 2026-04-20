@@ -67,7 +67,7 @@ class UserImpersonationController extends Controller
         $request->session()->regenerate();
         $request->session()->forget(['impersonator_admin_id', 'impersonator_admin_name']);
 
-        return redirect()->route('crm.customer-already')
+        return redirect()->route('crm.manage-users')
             ->with('success', 'Kembali ke akun admin berhasil.');
     }
 }
