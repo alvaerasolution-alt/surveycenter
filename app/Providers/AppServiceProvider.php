@@ -33,13 +33,17 @@ class AppServiceProvider extends ServiceProvider
             'about'      => 'about',
             'pricing'    => 'pricing',
             'blog.index' => 'blog',
+            'blog.category' => 'blog',
             'contact'    => 'contact',
             'login'      => 'login',
             'register'   => 'register',
+            'password.request' => 'login',
+            'password.otp.form' => 'login',
+            'password.reset' => 'login',
         ];
 
         // SEO View Composer — only for the main layout
-        View::composer('layouts.app', function ($view) use ($seoSlugMap) {
+        View::composer(['layouts.app', 'layouts.auth'], function ($view) use ($seoSlugMap) {
             $routeName = Route::currentRouteName() ?? '';
             $slug      = $seoSlugMap[$routeName] ?? '';
 

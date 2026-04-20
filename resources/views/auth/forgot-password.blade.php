@@ -1,4 +1,5 @@
 @extends('layouts.auth')
+@section('seo_slug', 'login')
 
 @push('styles')
 <style>

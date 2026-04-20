@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
     <title>{{ $seoTitle ?? 'Jasa Survey Pasar - Jasa Sebar Kuesioner - Survey Brand Awareness | SurveyCenter' }}</title>
 
     {{-- Favicon --}}
@@ -16,6 +17,56 @@
     @if(!empty($seoKeywords))
     <meta name="keywords" content="{{ $seoKeywords }}">
     @endif
+
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SurveyCenter">
+    <meta property="og:title" content="{{ $seoTitle ?? 'Jasa Survey Pasar - Jasa Sebar Kuesioner - Survey Brand Awareness | SurveyCenter' }}">
+    <meta property="og:description" content="{{ $seoDesc ?? 'Jasa Sebar Kuesioner - Jasa Survey Pasar - Market Riset. Temukan solusi profesional untuk pengumpulan data dan analisis pasar dengan layanan jasa yang terpercaya.' }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('assets/logosc.png') }}">
+    <meta property="og:image:alt" content="SurveyCenter">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle ?? 'Jasa Survey Pasar - Jasa Sebar Kuesioner - Survey Brand Awareness | SurveyCenter' }}">
+    <meta name="twitter:description" content="{{ $seoDesc ?? 'Jasa Sebar Kuesioner - Jasa Survey Pasar - Market Riset. Temukan solusi profesional untuk pengumpulan data dan analisis pasar dengan layanan jasa yang terpercaya.' }}">
+    <meta name="twitter:image" content="{{ asset('assets/logosc.png') }}">
+
+    @php
+        $schemaTitle = $seoTitle ?? 'Jasa Survey Pasar - Jasa Sebar Kuesioner - Survey Brand Awareness | SurveyCenter';
+        $schemaDesc = $seoDesc ?? 'Jasa Sebar Kuesioner - Jasa Survey Pasar - Market Riset. Temukan solusi profesional untuk pengumpulan data dan analisis pasar dengan layanan jasa yang terpercaya.';
+        $schemaUrl = url()->current();
+        $schemaLogo = asset('assets/logosc.png');
+        $schemaSearchTarget = route('blog.index') . '?q={search_term_string}';
+    @endphp
+
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => 'SurveyCenter',
+            'url' => config('app.url') ?: url('/'),
+            'logo' => $schemaLogo,
+            'sameAs' => [],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'WebSite',
+            'name' => $schemaTitle,
+            'url' => config('app.url') ?: url('/'),
+            'description' => $schemaDesc,
+            'potentialAction' => [
+                '@type' => 'SearchAction',
+                'target' => $schemaSearchTarget,
+                'query-input' => 'required name=search_term_string',
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+
+    @stack('jsonld')
 
     <link rel="alternate" type="application/rss+xml"
         title="Jasa Survey Pasar - Jasa Sebar Kuesioner - Survey Brand Awarness » Umpan Komentar"

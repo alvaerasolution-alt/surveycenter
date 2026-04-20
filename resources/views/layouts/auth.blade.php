@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow">
     <title>{{ $seoTitle ?? 'SurveyCenter' }}</title>
 
     {{-- Favicon --}}
@@ -13,6 +14,19 @@
 
     {{-- SEO Meta --}}
     <meta name="description" content="{{ $seoDesc ?? 'SurveyCenter - Jasa Survey Pasar & Sebar Kuesioner Terpercaya' }}">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SurveyCenter">
+    <meta property="og:title" content="{{ $seoTitle ?? 'SurveyCenter' }}">
+    <meta property="og:description" content="{{ $seoDesc ?? 'SurveyCenter - Jasa Survey Pasar & Sebar Kuesioner Terpercaya' }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('assets/logosc.png') }}">
+    <meta property="og:image:alt" content="SurveyCenter">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle ?? 'SurveyCenter' }}">
+    <meta name="twitter:description" content="{{ $seoDesc ?? 'SurveyCenter - Jasa Survey Pasar & Sebar Kuesioner Terpercaya' }}">
+    <meta name="twitter:image" content="{{ asset('assets/logosc.png') }}">
 
     {{-- Tailwind CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>

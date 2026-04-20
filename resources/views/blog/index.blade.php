@@ -1,6 +1,68 @@
 @extends('layouts.app')
 @section('seo_slug', 'blog')
 
+@push('jsonld')
+  @php
+    $isCategoryPage = isset($selectedCategory) && $selectedCategory;
+    $collectionTitle = $isCategoryPage ? ('Kategori: ' . $selectedCategory) : 'Blog SurveyCenter';
+    $collectionDescription = $isCategoryPage
+      ? ('Kumpulan artikel kategori ' . $selectedCategory . ' dari SurveyCenter.')
+      : 'Artikel, insight, dan update terbaru seputar riset pasar dan survei dari SurveyCenter.';
+
+    $blogJsonLd = [
+      '@context' => 'https://schema.org',
+      '@type' => 'Blog',
+      'name' => $collectionTitle,
+      'description' => $collectionDescription,
+      'url' => url()->current(),
+      'publisher' => [
+        '@type' => 'Organization',
+        'name' => 'SurveyCenter',
+        'logo' => [
+          '@type' => 'ImageObject',
+          'url' => asset('assets/logosc.png'),
+        ],
+      ],
+    ];
+
+    $breadcrumbs = [
+      [
+        '@type' => 'ListItem',
+        'position' => 1,
+        'name' => 'Beranda',
+        'item' => route('landing'),
+      ],
+      [
+        '@type' => 'ListItem',
+        'position' => 2,
+        'name' => 'Blog',
+        'item' => route('blog.index'),
+      ],
+    ];
+
+    if ($isCategoryPage) {
+      $breadcrumbs[] = [
+        '@type' => 'ListItem',
+        'position' => 3,
+        'name' => $selectedCategory,
+        'item' => url()->current(),
+      ];
+    }
+
+    $breadcrumbsJsonLd = [
+      '@context' => 'https://schema.org',
+      '@type' => 'BreadcrumbList',
+      'itemListElement' => $breadcrumbs,
+    ];
+  @endphp
+  <script type="application/ld+json">
+    {!! json_encode($blogJsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+  </script>
+  <script type="application/ld+json">
+    {!! json_encode($breadcrumbsJsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+  </script>
+@endpush
+
 @section('content')
   <div class="bg-white py-8 md:py-10">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">

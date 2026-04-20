@@ -1,5 +1,72 @@
 @extends('layouts.app')
 
+@push('jsonld')
+  @php
+    $articleBodyText = trim(preg_replace('/\s+/', ' ', strip_tags($article->content ?? '')) ?? '');
+    $articleDescription = $article->meta_description ?: Str::limit($articleBodyText, 160, '');
+    $articleImage = $article->image ? asset('storage/' . $article->image) : asset('assets/logosc.png');
+    $publishedAt = $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String();
+    $modifiedAt = $article->updated_at ? $article->updated_at->toIso8601String() : $publishedAt;
+
+    $articleJsonLd = [
+      '@context' => 'https://schema.org',
+      '@type' => 'Article',
+      'headline' => $article->title,
+      'description' => $articleDescription,
+      'image' => [$articleImage],
+      'datePublished' => $publishedAt,
+      'dateModified' => $modifiedAt,
+      'mainEntityOfPage' => [
+        '@type' => 'WebPage',
+        '@id' => url()->current(),
+      ],
+      'author' => [
+        '@type' => 'Person',
+        'name' => $article->author ?? 'SurveyCenter',
+      ],
+      'publisher' => [
+        '@type' => 'Organization',
+        'name' => 'SurveyCenter',
+        'logo' => [
+          '@type' => 'ImageObject',
+          'url' => asset('assets/logosc.png'),
+        ],
+      ],
+    ];
+
+    $breadcrumbsJsonLd = [
+      '@context' => 'https://schema.org',
+      '@type' => 'BreadcrumbList',
+      'itemListElement' => [
+        [
+          '@type' => 'ListItem',
+          'position' => 1,
+          'name' => 'Beranda',
+          'item' => route('landing'),
+        ],
+        [
+          '@type' => 'ListItem',
+          'position' => 2,
+          'name' => 'Blog',
+          'item' => route('blog.index'),
+        ],
+        [
+          '@type' => 'ListItem',
+          'position' => 3,
+          'name' => $article->title,
+          'item' => url()->current(),
+        ],
+      ],
+    ];
+  @endphp
+  <script type="application/ld+json">
+    {!! json_encode($articleJsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+  </script>
+  <script type="application/ld+json">
+    {!! json_encode($breadcrumbsJsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+  </script>
+@endpush
+
 @section('content')
   <div class="bg-white py-8 md:py-10">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
