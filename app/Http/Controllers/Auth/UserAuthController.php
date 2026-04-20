@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class UserAuthController extends Controller
 {
     // Menampilkan halaman login
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
         $articles = Article::latest()->take(4)->get();
-        return view('auth.login', compact('articles'));
+        $redirect = $request->query('redirect');
+
+        return view('auth.login', compact('articles', 'redirect'));
     }
 
     // Proses login
@@ -22,16 +25,25 @@ class UserAuthController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
+            'redirect' => ['nullable', 'string', 'max:2048'],
         ]);
+
+        $redirect = $credentials['redirect'] ?? null;
+        unset($credentials['redirect']);
 
         if (Auth::attempt(array_merge($credentials, ['is_admin' => 0]))) {
             $request->session()->regenerate();
+
+            if ($redirect && $this->isSafeRedirect($redirect, $request)) {
+                return redirect()->to($redirect);
+            }
+
             return redirect()->intended(route('user.dashboard'));
         }
 
         return back()->withErrors([
             'email' => 'Email atau password salah, atau akun ini bukan akun user biasa.',
-        ])->onlyInput('email');
+        ])->onlyInput('email', 'redirect');
     }
 
     // Proses logout
@@ -43,5 +55,21 @@ class UserAuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/login');
+    }
+
+    private function isSafeRedirect(string $url, Request $request): bool
+    {
+        if (Str::startsWith($url, '/')) {
+            return true;
+        }
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        $targetHost = parse_url($url, PHP_URL_HOST);
+        $currentHost = parse_url($request->root(), PHP_URL_HOST);
+
+        return $targetHost !== null && $currentHost !== null && strcasecmp($targetHost, $currentHost) === 0;
     }
 }

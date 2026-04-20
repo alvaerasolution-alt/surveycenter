@@ -284,6 +284,22 @@
         </div>
     @endif
 
+    {{-- Pembayaran Gagal Alert --}}
+    @if($failedTransactions > 0)
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-medium text-red-800">Ada pembayaran yang belum transaksi berhasil</p>
+                <p class="text-xs text-red-600">Silakan coba bayar lagi. Jika masih gagal, hubungi admin.</p>
+            </div>
+            <a href="{{ route('user.transactions.index', ['status' => 'failed']) }}" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition">
+                Coba Bayar Lagi
+            </a>
+        </div>
+    @endif
+
 </div>
 @endsection
 

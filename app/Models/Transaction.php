@@ -88,7 +88,7 @@ class Transaction extends Model
                 'titleClass' => 'text-red-900',
                 'descriptionClass' => 'text-red-700',
                 'title' => 'Pembayaran Gagal',
-                'description' => 'Transaksi ini gagal. Silakan hubungi dukungan pelanggan untuk bantuan lebih lanjut.',
+                'description' => 'Transaksi ini belum berhasil. Silakan coba bayar lagi. Jika tetap gagal, hubungi admin untuk bantuan lebih lanjut.',
             ],
             self::STATUS_PAID => [
                 'containerClass' => 'bg-emerald-50 border border-emerald-200',

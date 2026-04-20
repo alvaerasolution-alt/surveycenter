@@ -67,6 +67,14 @@
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <div class="flex items-center justify-end gap-1">
+                                        <form action="{{ route('admin.users.impersonate', $user) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" title="Login sebagai user"
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-100 transition">
+                                                <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                                                Login User
+                                            </button>
+                                        </form>
                                         <a href="https://wa.me/{{ $user->phone }}" target="_blank" title="Chat WhatsApp"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-lg hover:bg-emerald-100 transition">
                                             <i class="fab fa-whatsapp"></i>

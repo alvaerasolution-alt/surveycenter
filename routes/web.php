@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\TransactionController as AdminTransactionControll
 use App\Http\Controllers\Admin\TransactionProgressController as AdminTransactionProgressController;
 use App\Http\Controllers\Admin\ResponseController;
 use App\Http\Controllers\Admin\SurveyManagementController;
+use App\Http\Controllers\Admin\UserImpersonationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentProofController;
 use App\Http\Controllers\OrderController;
@@ -98,6 +99,9 @@ Route::middleware(['auth'])->group(function () {
     // User Notifications
     Route::post('/notifications/read-all', [\App\Http\Controllers\User\NotificationController::class, 'markAllAsRead'])->name('user.notifications.readAll');
     Route::get('/notifications/{id}/read', [\App\Http\Controllers\User\NotificationController::class, 'markAsRead'])->name('user.notifications.read');
+
+    // Stop admin impersonation and return to admin account
+    Route::post('/impersonation/stop', [UserImpersonationController::class, 'stop'])->name('admin.impersonation.stop');
 });
 
 Route::get('/about', function () {
@@ -203,6 +207,7 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
 
     Route::get('/crm/dashboard', [CRMController::class, 'index'])->name('crm.dashboard');
     Route::get('/crm/customer-already', [CRMController::class, 'customerAlready'])->name('crm.customer-already');
+    Route::post('/users/{user}/impersonate', [UserImpersonationController::class, 'impersonate'])->name('admin.users.impersonate');
 
     // Follow Up khusus status closed
     Route::get('/followups/closed', [FollowUpController::class, 'closed'])->name('followups.closed');

@@ -67,7 +67,7 @@
         <p class="text-sm text-gray-500 mb-4">per pertanyaan / per responden</p>
         <div class="bg-red-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 border border-red-200">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          Minimal order Rp 50.000 per survey
+          Minimal order Rp 100.000 per survey
         </div>
       </div>
 
@@ -280,7 +280,7 @@
                 <span class="text-sm font-bold text-gray-900">Total Setelah Diskon</span>
                 <span id="totalCost" class="text-2xl font-extrabold text-orange-500">Rp 0</span>
               </div>
-              <p id="minWarning" class="hidden text-xs text-red-500 font-medium text-right">⚠ Minimal Rp 50.000</p>
+              <p id="minWarning" class="hidden text-xs text-red-500 font-medium text-right">⚠ Minimal Rp 100.000</p>
             </div>
           </div>
 
@@ -294,6 +294,13 @@
             <input type="hidden" name="total_cost" id="postTotalCost">
             <input type="hidden" name="link" id="postLink">
             <input type="hidden" name="user_type" id="postUserType">
+
+            @guest
+            <div class="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800">
+              Anda harus login terlebih dahulu untuk membuat survey baru.
+              <a href="{{ route('login') }}?redirect={{ urlencode(route('pricing')) }}" class="font-semibold underline hover:text-blue-900">Login sekarang</a>
+            </div>
+            @endguest
 
             {{-- Checkbox S&K --}}
             <div class="flex items-start gap-2.5 mb-4">
@@ -390,7 +397,7 @@ function updateSubmitState() {
     const agreeTerms     = document.getElementById('agreeTerms');
     const submitButton   = document.getElementById('submitButton');
     if (!submitButton) return;
-    const MIN = 50000;
+    const MIN = 100000;
     const price = parseInt(totalCostInput ? totalCostInput.value : 0) || 0;
     submitButton.disabled = !(price >= MIN && agreeTerms && agreeTerms.checked);
 }
@@ -419,11 +426,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionInput  = document.getElementById('questions');
     const respondentInput= document.getElementById('respondents');
     const userTypeSelect = document.getElementById('userType');
+    const titleInput     = document.getElementById('title');
+    const formLinkInput  = document.getElementById('googleFormLink');
     const resultBox      = document.getElementById('resultBox');
     const placeholder    = document.getElementById('calcPlaceholder');
-    const MIN            = 50000;
+    const MIN            = 100000;
+    const DRAFT_KEY      = 'pricing_form_draft_v1';
 
     const fmt = n => 'Rp ' + n.toLocaleString('id-ID');
+
+    function saveDraft() {
+        try {
+            const agreeTerms = document.getElementById('agreeTerms');
+            const payload = {
+                title: titleInput.value || '',
+                questions: questionInput.value || '',
+                respondents: respondentInput.value || '',
+                link: formLinkInput.value || '',
+                userType: userTypeSelect.value || '',
+                agreeTerms: !!(agreeTerms && agreeTerms.checked),
+            };
+            sessionStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+        } catch (e) {
+            // ignore storage errors
+        }
+    }
+
+    function restoreDraft() {
+        try {
+            const raw = sessionStorage.getItem(DRAFT_KEY);
+            if (!raw) return;
+
+            const data = JSON.parse(raw);
+            if (!data || typeof data !== 'object') return;
+
+            if (typeof data.title === 'string') titleInput.value = data.title;
+            if (typeof data.questions === 'string') questionInput.value = data.questions;
+            if (typeof data.respondents === 'string') respondentInput.value = data.respondents;
+            if (typeof data.link === 'string') formLinkInput.value = data.link;
+            if (typeof data.userType === 'string') userTypeSelect.value = data.userType;
+
+            const agreeTerms = document.getElementById('agreeTerms');
+            if (agreeTerms && typeof data.agreeTerms === 'boolean') {
+                agreeTerms.checked = data.agreeTerms;
+            }
+
+            calculate();
+
+            if (isAuthenticated) {
+                sessionStorage.removeItem(DRAFT_KEY);
+            }
+        } catch (e) {
+            // ignore invalid draft
+        }
+    }
 
     function calculate() {
         const q = parseInt(questionInput.value) || 0;
@@ -444,10 +500,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('minWarning').classList.toggle('hidden', final >= MIN);
 
             // fill hidden fields
-            document.getElementById('postTitle').value      = document.getElementById('title').value;
+            document.getElementById('postTitle').value      = titleInput.value;
             document.getElementById('postQuestions').value  = q;
             document.getElementById('postRespondents').value= r;
-            document.getElementById('postLink').value       = document.getElementById('googleFormLink').value;
+            document.getElementById('postLink').value       = formLinkInput.value;
             document.getElementById('postTotalCost').value  = final;
             document.getElementById('postUserType').value   = t;
             document.getElementById('postItems').value      = JSON.stringify([
@@ -467,19 +523,30 @@ document.addEventListener('DOMContentLoaded', () => {
     questionInput.addEventListener('input', calculate);
     respondentInput.addEventListener('input', calculate);
     userTypeSelect.addEventListener('change', calculate);
+    titleInput.addEventListener('input', saveDraft);
+    formLinkInput.addEventListener('input', saveDraft);
+    questionInput.addEventListener('input', saveDraft);
+    respondentInput.addEventListener('input', saveDraft);
+    userTypeSelect.addEventListener('change', saveDraft);
+
+    restoreDraft();
 
     // Submit guard
     document.getElementById('orderForm').addEventListener('submit', e => {
         if (!isAuthenticated) {
             e.preventDefault();
+            saveDraft();
+            alert('Silakan login terlebih dahulu untuk membuat survey baru.');
             window.location.href = "{{ route('login') }}?redirect={{ urlencode(route('pricing')) }}";
             return false;
         }
         const p = parseInt(document.getElementById('postTotalCost').value) || 0;
-        if (p < MIN) { e.preventDefault(); alert('Total biaya minimal Rp 50.000'); return false; }
+        if (p < MIN) { e.preventDefault(); alert('Total biaya minimal Rp 100.000'); return false; }
         const link = (document.getElementById('googleFormLink').value || '').trim();
         if (!link) { e.preventDefault(); alert('Link form wajib diisi'); return false; }
         if (!document.getElementById('agreeTerms').checked) { e.preventDefault(); alert('Setujui Syarat & Ketentuan terlebih dahulu'); return false; }
+
+        sessionStorage.removeItem(DRAFT_KEY);
     });
 
     if (!isAuthenticated) {
@@ -515,8 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let inFlightController = null;
         const detectedPreviewLimit = 8;
 
-        const titleInput = document.getElementById('title');
-        const formLinkInput = document.getElementById('googleFormLink');
         const questionCountInput = document.getElementById('questions');
 
         function resetView() {

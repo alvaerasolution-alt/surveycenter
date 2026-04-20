@@ -407,6 +407,29 @@
                         </div>
                     @endif
 
+                    @if(session()->has('impersonator_admin_id'))
+                        <div class="mb-6 flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 border border-blue-200/60 text-blue-800 text-[13px]">
+                            <div class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
+                                    <i data-lucide="shield-alert" class="w-3 h-3 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold">Mode Admin: Login sebagai user aktif</p>
+                                    <p class="text-blue-700 text-xs mt-0.5">Anda masuk sebagai {{ auth()->user()->name }} dari akun admin {{ session('impersonator_admin_name', 'Admin') }}.</p>
+                                </div>
+                            </div>
+                            <div class="sm:ml-auto">
+                                <form method="POST" action="{{ route('admin.impersonation.stop') }}">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition">
+                                        <i data-lucide="undo-2" class="w-3.5 h-3.5"></i>
+                                        Kembali ke Admin
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endif
+
                     @yield('content')
                 </div>
             </main>

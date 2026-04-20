@@ -35,6 +35,7 @@ class DashboardController extends Controller
         $totalTransactions = Transaction::where('user_id', $user->id)->count();
         $totalSpent = Transaction::where('user_id', $user->id)->where('status', Transaction::STATUS_PAID)->sum('amount');
         $pendingPayments = Transaction::where('user_id', $user->id)->where('status', Transaction::STATUS_PENDING)->sum('amount');
+        $failedTransactions = Transaction::where('user_id', $user->id)->where('status', Transaction::STATUS_FAILED)->count();
 
         // Survey terbaru milik user
         $recentSurveys = Survey::where('user_id', $user->id)
@@ -70,6 +71,7 @@ class DashboardController extends Controller
             'totalTransactions',
             'totalSpent',
             'pendingPayments',
+            'failedTransactions',
             'recentSurveys',
             'recentTransactions',
             'banners'

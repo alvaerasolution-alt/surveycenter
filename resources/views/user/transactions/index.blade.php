@@ -150,6 +150,11 @@
                                     <a href="{{ route('user.transactions.show', $transaction) }}" class="inline-flex items-center justify-center p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition" title="Lihat Detail">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>
+                                    @if(in_array($transaction->status, [\App\Models\Transaction::STATUS_PENDING, \App\Models\Transaction::STATUS_FAILED], true))
+                                        <a href="{{ route('user.payments.show', $transaction) }}" class="inline-flex items-center justify-center p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="{{ $transaction->status === \App\Models\Transaction::STATUS_FAILED ? 'Coba Bayar Lagi' : 'Bayar Sekarang' }}">
+                                            <i data-lucide="credit-card" class="w-4 h-4"></i>
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

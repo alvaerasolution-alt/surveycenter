@@ -15,10 +15,19 @@
                 </div>
             </div>
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Pembayaran Gagal</h2>
-            <p class="text-gray-600">Transaksi pembayaran Anda tidak dapat diproses</p>
+            <p class="text-gray-600">Transaksi pembayaran Anda belum berhasil diproses</p>
         </div>
 
         <div class="p-6 space-y-6">
+            {{-- Verification Warning --}}
+            <div class="border-l-4 border-amber-500 bg-amber-50 p-4 rounded">
+                <h3 class="font-semibold text-amber-900 mb-1">Status Verifikasi Pembayaran</h3>
+                <p class="text-sm text-amber-800">
+                    Pembayaran Anda belum berhasil, sehingga transaksi masih belum terverifikasi. Silakan coba bayar lagi.
+                    Jika status tetap gagal setelah dicoba, segera hubungi admin.
+                </p>
+            </div>
+
             {{-- Error Details --}}
             <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded">
                 <h3 class="font-semibold text-red-900 mb-2">Penyebab Kemungkinan</h3>
@@ -105,7 +114,7 @@
         <div class="px-6 py-6 bg-gray-50 border-t border-gray-100 flex gap-3 flex-col sm:flex-row">
             <a href="{{ route('user.payments.show', $transaction) }}" class="flex-1 px-4 py-3 bg-orange-600 text-white rounded-lg font-medium text-sm hover:bg-orange-700 transition text-center flex items-center justify-center gap-2">
                 <i data-lucide="credit-card" class="w-4 h-4"></i>
-                Coba Lagi
+                Coba Bayar Lagi
             </a>
             <a href="{{ route('user.transactions.show', $transaction) }}" class="flex-1 px-4 py-3 bg-gray-200 text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-300 transition text-center flex items-center justify-center gap-2">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>

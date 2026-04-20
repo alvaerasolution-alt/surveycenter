@@ -93,6 +93,7 @@
 
             <form action="{{ route('login.submit') }}" method="POST">
                 @csrf
+                <input type="hidden" name="redirect" value="{{ old('redirect', $redirect ?? request('redirect')) }}">
                 <div class="mb-5">
                     <label class="block text-[10.5px] font-extrabold text-[#071D49] mb-2.5 tracking-widest uppercase" for="email">Email Address</label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}" 
