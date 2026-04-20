@@ -13,7 +13,7 @@ class UserAuthController extends Controller
     // Menampilkan halaman login
     public function showLoginForm(Request $request)
     {
-        $articles = Article::latest()->take(4)->get();
+        $articles = Article::published()->latest()->take(4)->get();
         $redirect = $request->query('redirect');
 
         return view('auth.login', compact('articles', 'redirect'));

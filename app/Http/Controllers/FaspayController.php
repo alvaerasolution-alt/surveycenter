@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\FaspayTestTransaction;
+use App\Models\Transaction;
 use App\Services\FaspayService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 
@@ -52,50 +54,101 @@ class FaspayController extends Controller
             // Find transaction by bill_no
             $transaction = FaspayTestTransaction::where('bill_no', $notification['bill_no'])->first();
 
+            $mainTransaction = Transaction::where('singapay_ref', $notification['bill_no'])->first();
+
             if (!$transaction) {
-                Log::warning('Faspay transaction not found', ['bill_no' => $notification['bill_no']]);
-                return response()->json([
-                    'response' => 'Payment Notification',
-                    'trx_id' => $notification['trx_id'],
-                    'merchant_id' => config('faspay.merchant_id'),
-                    'bill_no' => $notification['bill_no'],
-                    'response_code' => '05',
-                    'response_desc' => 'Transaction not found',
-                    'response_date' => now()->format('Y-m-d H:i:s'),
-                ]);
+                if (!$mainTransaction) {
+                    Log::warning('Faspay transaction not found', ['bill_no' => $notification['bill_no']]);
+
+                    return response()->json([
+                        'response' => 'Payment Notification',
+                        'trx_id' => $notification['trx_id'],
+                        'merchant_id' => config('faspay.merchant_id'),
+                        'bill_no' => $notification['bill_no'],
+                        'response_code' => '05',
+                        'response_desc' => 'Transaction not found',
+                        'response_date' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
             }
 
             // Handle different payment status codes
             switch ($notification['payment_status_code']) {
                 case '2': // Payment Success
-                    $transaction->markAsPaid([
-                        'trx_id' => $notification['trx_id'],
-                        'payment_channel' => $notification['payment_channel'],
-                        'bank_user_name' => $data['bank_user_name'] ?? null,
-                        'payment_status_code' => $notification['payment_status_code'],
-                        'payment_date' => $notification['payment_date'],
-                    ]);
+                    if ($transaction) {
+                        $transaction->markAsPaid([
+                            'trx_id' => $notification['trx_id'],
+                            'payment_channel' => $notification['payment_channel'],
+                            'bank_user_name' => $data['bank_user_name'] ?? null,
+                            'payment_status_code' => $notification['payment_status_code'],
+                            'payment_date' => $notification['payment_date'],
+                        ]);
+                    }
+
+                    if ($mainTransaction) {
+                        $mainTransaction->update([
+                            'status' => Transaction::STATUS_PAID,
+                            'payment_method' => strtolower((string) ($notification['payment_channel'] ?? $mainTransaction->payment_method)),
+                        ]);
+                    }
+
                     Log::info('Transaction marked as paid', ['bill_no' => $notification['bill_no'], 'trx_id' => $notification['trx_id']]);
                     break;
 
                 case '3': // Payment Failed
-                    $transaction->markAsFailed('Payment failed from Faspay');
+                    if ($transaction) {
+                        $transaction->markAsFailed('Payment failed from Faspay');
+                    }
+
+                    if ($mainTransaction) {
+                        $mainTransaction->update([
+                            'status' => Transaction::STATUS_FAILED,
+                        ]);
+                    }
+
                     Log::warning('Transaction marked as failed', ['bill_no' => $notification['bill_no']]);
                     break;
 
                 case '7': // Payment Expired
-                    $transaction->update(['status' => FaspayTestTransaction::STATUS_EXPIRED]);
+                    if ($transaction) {
+                        $transaction->update(['status' => FaspayTestTransaction::STATUS_EXPIRED]);
+                    }
+
+                    if ($mainTransaction) {
+                        $mainTransaction->update([
+                            'status' => Transaction::STATUS_FAILED,
+                        ]);
+                    }
+
                     Log::info('Transaction expired', ['bill_no' => $notification['bill_no']]);
                     break;
 
                 case '8': // Payment Cancelled
-                    $transaction->update(['status' => FaspayTestTransaction::STATUS_CANCELLED]);
+                    if ($transaction) {
+                        $transaction->update(['status' => FaspayTestTransaction::STATUS_CANCELLED]);
+                    }
+
+                    if ($mainTransaction) {
+                        $mainTransaction->update([
+                            'status' => Transaction::STATUS_FAILED,
+                        ]);
+                    }
+
                     Log::info('Transaction cancelled', ['bill_no' => $notification['bill_no']]);
                     break;
 
                 case '0': // Unprocessed
                 case '1': // In Process
-                    $transaction->update(['status' => FaspayTestTransaction::STATUS_PROCESSING]);
+                    if ($transaction) {
+                        $transaction->update(['status' => FaspayTestTransaction::STATUS_PROCESSING]);
+                    }
+
+                    if ($mainTransaction) {
+                        $mainTransaction->update([
+                            'status' => Transaction::STATUS_PROCESSING,
+                        ]);
+                    }
+
                     break;
 
                 default:
@@ -103,13 +156,15 @@ class FaspayController extends Controller
             }
 
             // Store full payment response
-            $transaction->update([
-                'payment_response' => json_encode($data),
-                'trx_id' => $notification['trx_id'] ?? $transaction->trx_id,
-                'payment_channel' => $notification['payment_channel'] ?? $transaction->payment_channel,
-                'bank_user_name' => $data['bank_user_name'] ?? $transaction->bank_user_name,
-                'payment_date' => $notification['payment_date'] ? \Carbon\Carbon::parse($notification['payment_date']) : $transaction->payment_date,
-            ]);
+            if ($transaction) {
+                $transaction->update([
+                    'payment_response' => json_encode($data),
+                    'trx_id' => $notification['trx_id'] ?? $transaction->trx_id,
+                    'payment_channel' => $notification['payment_channel'] ?? $transaction->payment_channel,
+                    'bank_user_name' => $data['bank_user_name'] ?? $transaction->bank_user_name,
+                    'payment_date' => $notification['payment_date'] ? \Carbon\Carbon::parse($notification['payment_date']) : $transaction->payment_date,
+                ]);
+            }
 
             // Return success response to Faspay
             return response()->json([
@@ -214,7 +269,7 @@ class FaspayController extends Controller
      */
     public function listTransactions()
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 

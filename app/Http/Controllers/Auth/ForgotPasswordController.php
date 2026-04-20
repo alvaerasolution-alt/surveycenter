@@ -18,7 +18,7 @@ class ForgotPasswordController extends Controller
      */
     public function showForgotForm()
     {
-        $articles = Article::latest()->take(4)->get();
+        $articles = Article::published()->latest()->take(4)->get();
         return view('auth.forgot-password', compact('articles'));
     }
 
@@ -64,7 +64,7 @@ class ForgotPasswordController extends Controller
             return redirect()->route('password.request');
         }
 
-        $articles = Article::latest()->take(4)->get();
+        $articles = Article::published()->latest()->take(4)->get();
         return view('auth.verify-otp', [
             'phone' => null,
             'email' => $email,
@@ -132,7 +132,7 @@ class ForgotPasswordController extends Controller
                 ->withErrors(['email' => 'Sesi reset password tidak valid. Silakan ulangi.']);
         }
 
-        $articles = Article::latest()->take(4)->get();
+        $articles = Article::published()->latest()->take(4)->get();
         return view('auth.reset-password', [
             'email' => $email,
             'token' => $token,

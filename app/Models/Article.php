@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class Article extends Model
 {
+    private static ?bool $hasIsPublishedColumn = null;
+
     protected $fillable = [
         'title',
         'slug',
@@ -28,6 +31,10 @@ class Article extends Model
 
     public function scopePublished($query)
     {
+        if (!self::hasIsPublishedColumn()) {
+            return $query;
+        }
+
         return $query->where('is_published', true);
     }
 
@@ -35,5 +42,20 @@ class Article extends Model
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+
+    private static function hasIsPublishedColumn(): bool
+    {
+        if (self::$hasIsPublishedColumn !== null) {
+            return self::$hasIsPublishedColumn;
+        }
+
+        try {
+            self::$hasIsPublishedColumn = Schema::hasColumn((new static())->getTable(), 'is_published');
+        } catch (\Throwable $e) {
+            self::$hasIsPublishedColumn = false;
+        }
+
+        return self::$hasIsPublishedColumn;
     }
 }

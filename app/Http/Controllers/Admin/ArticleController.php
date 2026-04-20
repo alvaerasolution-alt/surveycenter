@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Services\SitemapService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -205,6 +206,9 @@ class ArticleController extends Controller
     private function regenerateSitemap(): void
     {
         try {
+            Cache::forget('home_articles');
+            Cache::increment('blog_cache_version');
+
             app(SitemapService::class)->generate();
         } catch (\Throwable $e) {
             report($e);

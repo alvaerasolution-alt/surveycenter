@@ -28,7 +28,7 @@ class HomeController extends Controller
         
         $customerStories = Cache::remember('home_customer_stories', now()->addMinutes(30), fn() => CustomerStory::latest()->get());
         
-        $articles = Cache::remember('home_articles', now()->addMinutes(30), fn() => Article::latest()->take(6)->get());
+        $articles = Cache::remember('home_articles', now()->addMinutes(30), fn() => Article::published()->latest()->take(6)->get());
         
         $jenis = Cache::remember('home_layanan_jenis', now()->addMinutes(30), fn() => Layanan::where('category', 'jenis')->get());
         

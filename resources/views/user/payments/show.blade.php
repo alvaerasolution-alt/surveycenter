@@ -49,6 +49,81 @@
         <form action="{{ route('user.payments.process', $transaction) }}" method="POST" class="p-6">
             @csrf
 
+            @php
+                $selectedGateway = old('payment_gateway', $defaultGateway ?? 'singapay');
+                $gatewayMeta = [
+                    'singapay' => [
+                        'description' => 'Gateway utama dengan proses cepat untuk QRIS dan VA.',
+                        'badgeClass' => 'bg-orange-100 text-orange-700',
+                        'badgeText' => 'Rekomendasi',
+                    ],
+                    'faspay' => [
+                        'description' => 'Gateway alternatif untuk QRIS, VA, dan e-wallet.',
+                        'badgeClass' => 'bg-blue-100 text-blue-700',
+                        'badgeText' => 'Alternatif',
+                    ],
+                ];
+            @endphp
+
+            <div class="mb-6">
+                <p class="text-sm font-semibold text-gray-900 mb-3">Pilih Payment Gateway</p>
+                <div class="space-y-3">
+                    @foreach (($gatewayOptions ?? []) as $gatewayKey => $gateway)
+                        @php
+                            $isEnabled = (bool) ($gateway['enabled'] ?? false);
+                            $isConfigured = (bool) ($gateway['configured'] ?? false);
+                            $isAvailable = $isEnabled && $isConfigured;
+                            $label = $gateway['label'] ?? strtoupper($gatewayKey);
+                            $meta = $gatewayMeta[$gatewayKey] ?? [
+                                'description' => 'Gateway pembayaran.',
+                                'badgeClass' => 'bg-gray-100 text-gray-700',
+                                'badgeText' => 'Gateway',
+                            ];
+                        @endphp
+
+                        <label class="group relative block {{ $isAvailable ? '' : 'opacity-70' }}">
+                            <input
+                                type="radio"
+                                name="payment_gateway"
+                                value="{{ $gatewayKey }}"
+                                class="sr-only"
+                                {{ $selectedGateway === $gatewayKey ? 'checked' : '' }}
+                                {{ $isAvailable ? '' : 'disabled' }}
+                            >
+                            <div class="relative border-2 border-gray-200 rounded-lg p-4 transition {{ $isAvailable ? 'cursor-pointer group-has-[:checked]:border-orange-600 group-has-[:checked]:bg-orange-50' : 'cursor-not-allowed' }}">
+                                <div class="flex items-start gap-4">
+                                    <div class="mt-1">
+                                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 {{ $isAvailable ? 'group-has-[:checked]:border-orange-600 group-has-[:checked]:bg-orange-600' : 'bg-gray-200 border-gray-300' }} flex items-center justify-center flex-shrink-0">
+                                            @if($isAvailable)
+                                                <i class="w-3 h-3 text-white hidden group-has-[:checked]:block">
+                                                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                                </i>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between gap-3">
+                                            <h4 class="font-semibold text-gray-900">{{ $label }}</h4>
+                                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium {{ $meta['badgeClass'] }}">{{ $meta['badgeText'] }}</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mt-1">{{ $meta['description'] }}</p>
+                                        @if(!$isEnabled)
+                                            <p class="text-xs text-red-600 mt-2">Gateway ini sedang dinonaktifkan.</p>
+                                        @elseif(!$isConfigured)
+                                            <p class="text-xs text-red-600 mt-2">Gateway belum dikonfigurasi, silakan pilih gateway lain.</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+
+                @error('payment_gateway')
+                    <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                @enderror
+            </div>
+
             <div class="space-y-3 mb-6">
                 {{-- QRIS Payment --}}
                 <label class="group relative block">

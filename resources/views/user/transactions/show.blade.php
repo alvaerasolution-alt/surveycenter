@@ -127,19 +127,50 @@
 
             {{-- Additional Info --}}
             <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                @php
+                    $rawMethod = (string) ($transaction->payment_method ?? '');
+                    $normalizedMethod = strtolower($rawMethod);
+
+                    $methodLabelMap = [
+                        'qris' => 'QRIS',
+                        'virtual_account' => 'Virtual Account',
+                        'e_wallet' => 'E-Wallet',
+                        'gopay' => 'GoPay',
+                        'transfer' => 'Transfer Bank',
+                        'bank_transfer' => 'Transfer Bank',
+                    ];
+
+                    if (str_starts_with($normalizedMethod, 'va_')) {
+                        $paymentMethodLabel = 'Virtual Account (' . strtoupper(substr($normalizedMethod, 3)) . ')';
+                    } else {
+                        $paymentMethodLabel = $methodLabelMap[$normalizedMethod] ?? ($rawMethod !== '' ? strtoupper($rawMethod) : 'Belum ditentukan');
+                    }
+
+                    $gatewayReference = $transaction->payment_ref ?: $transaction->singapay_ref;
+                    $reference = strtolower((string) ($transaction->singapay_ref ?? ''));
+
+                    if ($reference === '') {
+                        $paymentGatewayLabel = 'Belum ditentukan';
+                    } elseif (str_starts_with($reference, 'trx-')) {
+                        $paymentGatewayLabel = 'Faspay';
+                    } else {
+                        $paymentGatewayLabel = 'SingaPay';
+                    }
+                @endphp
+
                 <h4 class="text-sm font-semibold text-gray-900">Informasi Transaksi</h4>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
+                        <p class="text-xs text-gray-500 mb-1">Payment Gateway</p>
+                        <p class="font-medium text-gray-900">{{ $paymentGatewayLabel }}</p>
+                    </div>
+                    <div>
                         <p class="text-xs text-gray-500 mb-1">Metode Pembayaran</p>
-                        <p class="font-medium text-gray-900">
-                            {{ $transaction->payment_method ? ucfirst($transaction->payment_method) : 'Belum ditentukan' }}
-                        </p>
+                        <p class="font-medium text-gray-900">{{ $paymentMethodLabel }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 mb-1">Referensi Pembayaran</p>
-                        <p class="font-medium text-gray-900">
-                            {{ $transaction->payment_ref ?? '-' }}
-                        </p>
+                        <p class="font-medium text-gray-900">{{ $gatewayReference ?: '-' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 mb-1">Nomor Bill</p>
