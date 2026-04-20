@@ -268,24 +268,44 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
      Route::get('articles', [ArticleController::class, 'index'])->name('admin.articles.index');
      Route::get('articles/create', [ArticleController::class, 'create'])->name('admin.articles.create');
      Route::post('articles', [ArticleController::class, 'store'])->name('admin.articles.store');
+     Route::post('articles/bulk-publish', [ArticleController::class, 'bulkPublish'])->name('admin.articles.bulk-publish');
      Route::get('articles/{article}/edit', [ArticleController::class, 'edit'])->name('admin.articles.edit');
      Route::put('articles/{article}', [ArticleController::class, 'update'])->name('admin.articles.update');
      Route::patch('articles/{id}/toggle-publish', [ArticleController::class, 'togglePublish'])->name('admin.articles.toggle-publish');
      Route::delete('articles/{id}', [ArticleController::class, 'destroy'])->name('admin.articles.destroy');
 
-    Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
-        Route::resource('layanan', AdminLayananController::class);
+    Route::resource('layanan', AdminLayananController::class)->name('index', 'admin.layanan.index');
+    Route::resource('discount-banners', DiscountBannerController::class)->names([
+        'index' => 'admin.discount-banners.index',
+        'create' => 'admin.discount-banners.create',
+        'store' => 'admin.discount-banners.store',
+        'show' => 'admin.discount-banners.show',
+        'edit' => 'admin.discount-banners.edit',
+        'update' => 'admin.discount-banners.update',
+        'destroy' => 'admin.discount-banners.destroy',
+    ]);
 
-        Route::resource('discount-banners', DiscountBannerController::class);
+    Route::resource('dashboard-banners', DashboardBannerController::class)->names([
+        'index' => 'admin.dashboard-banners.index',
+        'create' => 'admin.dashboard-banners.create',
+        'store' => 'admin.dashboard-banners.store',
+        'show' => 'admin.dashboard-banners.show',
+        'edit' => 'admin.dashboard-banners.edit',
+        'update' => 'admin.dashboard-banners.update',
+        'destroy' => 'admin.dashboard-banners.destroy',
+    ]);
+    Route::post('dashboard-banners/{dashboardBanner}/toggle', [DashboardBannerController::class, 'toggle'])
+        ->name('admin.dashboard-banners.toggle');
 
-        Route::resource('dashboard-banners', DashboardBannerController::class);
-        Route::post('dashboard-banners/{dashboardBanner}/toggle', [DashboardBannerController::class, 'toggle'])
-            ->name('dashboard-banners.toggle');
-    });
-
-    Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
-        Route::resource('transactions', AdminTransactionController::class);
-    });
+    Route::resource('transactions', AdminTransactionController::class)->names([
+        'index' => 'admin.transactions.index',
+        'create' => 'admin.transactions.create',
+        'store' => 'admin.transactions.store',
+        'show' => 'admin.transactions.show',
+        'edit' => 'admin.transactions.edit',
+        'update' => 'admin.transactions.update',
+        'destroy' => 'admin.transactions.destroy',
+    ]);
 
     // Halaman daftar transaksi paid
     Route::get('/transactions/progress', [AdminTransactionProgressController::class, 'index'])
@@ -308,13 +328,17 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     Route::put('/surveys/{survey}/respondents/{response}', [SurveyManagementController::class, 'updateRespondent'])
         ->name('admin.surveys.respondents.update');
 
-    Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
-        Route::resource('responses', ResponseController::class);
-    });
+    Route::resource('responses', ResponseController::class)->names([
+        'index' => 'admin.responses.index',
+        'create' => 'admin.responses.create',
+        'store' => 'admin.responses.store',
+        'show' => 'admin.responses.show',
+        'edit' => 'admin.responses.edit',
+        'update' => 'admin.responses.update',
+        'destroy' => 'admin.responses.destroy',
+    ]);
 
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('payment-proofs', [\App\Http\Controllers\Admin\PaymentProofController::class, 'index'])->name('payment-proofs.index');
-    });
+    Route::get('payment-proofs', [\App\Http\Controllers\Admin\PaymentProofController::class, 'index'])->name('admin.payment-proofs.index');
 });
 
 // ===== FASPAY XPRESS INTEGRATION ROUTES =====

@@ -75,7 +75,12 @@
                   {{-- Thumbnail --}}
                   @if ($article->image)
                     <a href="{{ route('blog.show', $article->slug) }}" class="block h-48 overflow-hidden relative">
-                      <img src="{{ url('storage/' . $article->image) }}" alt="{{ $article->title }}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" loading="lazy" style="max-width: 600px !important;">
+                      <img src="{{ url('storage/' . $article->image) }}" 
+                           alt="{{ $article->title }}" 
+                           width="600" 
+                           height="400"
+                           class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" 
+                           loading="lazy">
                     </a>
                   @endif
     

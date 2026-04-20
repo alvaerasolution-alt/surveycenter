@@ -34,11 +34,31 @@
         </div>
 
         {{-- Table Card --}}
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <form id="bulkPublishForm" action="{{ route('admin.articles.bulk-publish') }}" method="POST" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            @csrf
+
+            @if($errors->has('article_ids') || $errors->has('article_ids.*'))
+                <div class="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    Pilih minimal 1 artikel sebelum publish massal.
+                </div>
+            @endif
+
+            <div class="px-4 py-3 border-b border-gray-200 bg-gray-50/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p class="text-xs text-gray-500">Centang artikel lalu klik publish massal.</p>
+                <button id="bulkPublishBtn" type="submit" disabled
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-700 transition">
+                    <i data-lucide="check-check" class="w-4 h-4"></i>
+                    <span id="bulkPublishLabel">Publish terpilih (0)</span>
+                </button>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-200 bg-gray-50">
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-10">
+                                <input id="selectAllArticles" type="checkbox" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                            </th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-12">#</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Judul</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</th>
@@ -50,6 +70,10 @@
                     <tbody class="divide-y divide-gray-100">
                         @foreach ($articles as $article)
                             <tr class="hover:bg-gray-50 transition">
+                                <td class="px-4 py-3.5">
+                                    <input type="checkbox" name="article_ids[]" value="{{ $article->id }}"
+                                        class="article-checkbox rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                                </td>
                                 <td class="px-4 py-3.5 text-gray-400 text-xs">{{ $loop->iteration }}</td>
                                 <td class="px-4 py-3.5">
                                     <a class="font-medium text-gray-900 hover:text-orange-600 transition" href="{{ route('blog.show', $article->slug) }}" target="_blank">
@@ -110,7 +134,7 @@
                     <p class="text-sm text-gray-500">Belum ada artikel</p>
                 </div>
             @endif
-        </div>
+        </form>
 
         {{-- Pagination --}}
         <div class="mt-2">
@@ -123,6 +147,50 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        const form = document.getElementById('bulkPublishForm');
+        const selectAll = document.getElementById('selectAllArticles');
+        const checkboxes = Array.from(document.querySelectorAll('.article-checkbox'));
+        const submitBtn = document.getElementById('bulkPublishBtn');
+        const submitLabel = document.getElementById('bulkPublishLabel');
+
+        if (!form || !selectAll || !submitBtn || !submitLabel || checkboxes.length === 0) {
+            return;
+        }
+
+        const updateState = () => {
+            const selectedCount = checkboxes.filter((item) => item.checked).length;
+            submitBtn.disabled = selectedCount === 0;
+            submitLabel.textContent = `Publish terpilih (${selectedCount})`;
+            selectAll.checked = selectedCount > 0 && selectedCount === checkboxes.length;
+            selectAll.indeterminate = selectedCount > 0 && selectedCount < checkboxes.length;
+        };
+
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach((item) => {
+                item.checked = this.checked;
+            });
+            updateState();
+        });
+
+        checkboxes.forEach((item) => {
+            item.addEventListener('change', updateState);
+        });
+
+        form.addEventListener('submit', function(event) {
+            const selectedCount = checkboxes.filter((item) => item.checked).length;
+
+            if (selectedCount === 0) {
+                event.preventDefault();
+                return;
+            }
+
+            if (!window.confirm(`Publish ${selectedCount} artikel terpilih sekarang?`)) {
+                event.preventDefault();
+            }
+        });
+
+        updateState();
     });
 </script>
 @endpush

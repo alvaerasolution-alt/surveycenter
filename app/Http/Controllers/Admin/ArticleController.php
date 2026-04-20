@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use App\Models\Article;
 use App\Services\SitemapService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Intervention\Image\Facades\Image;
 
 class ArticleController extends Controller
 {
@@ -60,7 +63,7 @@ class ArticleController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('articles', 'public');
+            $data['image'] = $this->storeArticleImage($request->file('image'));
         }
 
         if ($data['is_published']) {
@@ -123,7 +126,7 @@ class ArticleController extends Controller
             if ($article->image) {
                 Storage::disk('public')->delete($article->image);
             }
-            $data['image'] = $request->file('image')->store('articles', 'public');
+            $data['image'] = $this->storeArticleImage($request->file('image'));
         }
 
         if ($data['is_published']) {
@@ -194,6 +197,53 @@ class ArticleController extends Controller
         return redirect()->route('admin.articles.index')->with('success', "Article berhasil diubah ke {$status}.");
     }
 
+    public function bulkPublish(Request $request)
+    {
+        $data = $request->validate([
+            'article_ids' => ['required', 'array', 'min:1'],
+            'article_ids.*' => ['required', 'integer', 'exists:articles,id'],
+        ]);
+
+        $articleIds = array_values(array_unique($data['article_ids']));
+        $articles = Article::whereIn('id', $articleIds)->get();
+
+        $publishedCount = 0;
+
+        foreach ($articles as $article) {
+            $shouldSave = false;
+
+            if (!$article->is_published) {
+                $article->is_published = true;
+                $shouldSave = true;
+            }
+
+            if (!$article->published_at) {
+                $article->published_at = now();
+                $shouldSave = true;
+            }
+
+            if (!$article->meta_title || !$article->meta_description) {
+                [$metaTitle, $metaDescription] = $this->generateMetaFields($article->title, $article->content);
+                $article->meta_title = $article->meta_title ?: $metaTitle;
+                $article->meta_description = $article->meta_description ?: $metaDescription;
+                $shouldSave = true;
+            }
+
+            if ($shouldSave) {
+                $article->save();
+                $publishedCount++;
+            }
+        }
+
+        if ($publishedCount > 0) {
+            $this->regenerateSitemap();
+        }
+
+        return redirect()
+            ->route('admin.articles.index')
+            ->with('success', "{$publishedCount} artikel berhasil dipublish.");
+    }
+
     private function generateMetaFields(string $title, string $content): array
     {
         $metaTitle = Str::limit(trim(strip_tags($title)), 60, '');
@@ -212,6 +262,68 @@ class ArticleController extends Controller
             app(SitemapService::class)->generate();
         } catch (\Throwable $e) {
             report($e);
+        }
+    }
+
+    private function storeArticleImage(UploadedFile $file): string
+    {
+        if (! function_exists('imagecreatefromstring') || ! function_exists('imagecreatetruecolor')) {
+            return $file->store('articles', 'public');
+        }
+
+        try {
+            $rawContent = file_get_contents($file->getRealPath());
+            $sourceImage = $rawContent ? \imagecreatefromstring($rawContent) : false;
+
+            if (! $sourceImage) {
+                return $file->store('articles', 'public');
+            }
+
+            $sourceWidth = \imagesx($sourceImage);
+            $sourceHeight = \imagesy($sourceImage);
+
+            // Max width 1200px
+            $targetWidth = min($sourceWidth, 1200);
+            $ratio = $targetWidth / $sourceWidth;
+            $targetHeight = (int) round($sourceHeight * $ratio);
+
+            $targetImage = \imagecreatetruecolor($targetWidth, $targetHeight);
+
+            // Handle transparency for PNG/WebP if needed (converting to white background for JPEG)
+            $white = \imagecolorallocate($targetImage, 255, 255, 255);
+            \imagefill($targetImage, 0, 0, $white);
+
+            \imagecopyresampled(
+                $targetImage,
+                $sourceImage,
+                0,
+                0,
+                0,
+                0,
+                $targetWidth,
+                $targetHeight,
+                $sourceWidth,
+                $sourceHeight
+            );
+
+            ob_start();
+            \imagejpeg($targetImage, null, 80);
+            $processedImage = ob_get_clean();
+
+            \imagedestroy($sourceImage);
+            \imagedestroy($targetImage);
+
+            if ($processedImage === false) {
+                return $file->store('articles', 'public');
+            }
+
+            $path = 'articles/' . Str::uuid() . '.jpg';
+            Storage::disk('public')->put($path, $processedImage);
+
+            return $path;
+        } catch (\Throwable $e) {
+            report($e);
+            return $file->store('articles', 'public');
         }
     }
 }

@@ -72,8 +72,8 @@
         title="Jasa Survey Pasar - Jasa Sebar Kuesioner - Survey Brand Awarness » Umpan Komentar"
         href="https://surveycenter.co.id/comments/feed/">
 
-    {{-- Tailwind CDN --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- Tailwind CSS & Alpine JS via Vite --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- alpine js --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
