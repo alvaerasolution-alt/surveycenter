@@ -44,13 +44,15 @@
             @endphp
 
             @foreach($actions as $action)
-                <a href="{{ route($action['route']) }}"
-                   class="group flex items-center gap-3 bg-white rounded-xl border border-gray-200/80 p-3.5 hover:shadow-md hover:border-{{ $action['color'] }}-200 transition-all duration-200">
-                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br {{ $action['gradient'] }} flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition">
-                        <i data-lucide="{{ $action['icon'] }}" class="w-4 h-4 text-white"></i>
-                    </div>
-                    <span class="text-[13px] font-medium text-gray-700 group-hover:text-gray-900">{{ $action['label'] }}</span>
-                </a>
+                @if (Route::has($action['route']))
+                    <a href="{{ route($action['route']) }}"
+                       class="group flex items-center gap-3 bg-white rounded-xl border border-gray-200/80 p-3.5 hover:shadow-md hover:border-{{ $action['color'] }}-200 transition-all duration-200">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br {{ $action['gradient'] }} flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition">
+                            <i data-lucide="{{ $action['icon'] }}" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <span class="text-[13px] font-medium text-gray-700 group-hover:text-gray-900">{{ $action['label'] }}</span>
+                    </a>
+                @endif
             @endforeach
         </div>
     </div>
@@ -76,14 +78,16 @@
             @endphp
 
             @foreach($menuCards as $card)
-                <a href="{{ route($card['route']) }}"
-                   class="group bg-white rounded-xl border border-gray-200/80 p-4 hover:shadow-md hover:border-orange-200 transition-all duration-200">
-                    <div class="w-9 h-9 rounded-lg bg-gray-50 group-hover:bg-orange-50 flex items-center justify-center mb-3 transition">
-                        <i data-lucide="{{ $card['icon'] }}" class="w-[18px] h-[18px] text-gray-400 group-hover:text-orange-600 transition"></i>
-                    </div>
-                    <h3 class="text-[13px] font-semibold text-gray-800 group-hover:text-gray-900">{{ $card['label'] }}</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">{{ $card['desc'] }}</p>
-                </a>
+                @if (Route::has($card['route']))
+                    <a href="{{ route($card['route']) }}"
+                       class="group bg-white rounded-xl border border-gray-200/80 p-4 hover:shadow-md hover:border-orange-200 transition-all duration-200">
+                        <div class="w-9 h-9 rounded-lg bg-gray-50 group-hover:bg-orange-50 flex items-center justify-center mb-3 transition">
+                            <i data-lucide="{{ $card['icon'] }}" class="w-[18px] h-[18px] text-gray-400 group-hover:text-orange-600 transition"></i>
+                        </div>
+                        <h3 class="text-[13px] font-semibold text-gray-800 group-hover:text-gray-900">{{ $card['label'] }}</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">{{ $card['desc'] }}</p>
+                    </a>
+                @endif
             @endforeach
         </div>
     </div>
