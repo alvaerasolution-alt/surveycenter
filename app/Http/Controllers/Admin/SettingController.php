@@ -19,7 +19,11 @@ class SettingController extends Controller
             'sosmed_twitter',
             'sosmed_linkedin',
             'sosmed_instagram',
-            'sosmed_tiktok'
+            'sosmed_tiktok',
+            'popup_wa_enabled',
+            'popup_wa_title',
+            'popup_wa_subtitle',
+            'popup_admin_number',
         ])->pluck('value', 'key');
 
         return view('admin.settings.edit', compact('settings'));
@@ -28,20 +32,25 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'video_url' => 'nullable|string',
-            'footer_alamat' => 'nullable|string',
-            'footer_whatsapp' => 'nullable|string',
-            'footer_email' => 'nullable|email',
-            'sosmed_facebook' => 'nullable|string',
-            'sosmed_twitter' => 'nullable|string',
-            'sosmed_linkedin' => 'nullable|string',
-            'sosmed_instagram' => 'nullable|string',
-            'sosmed_tiktok' => 'nullable|string',
+            'video_url'           => 'nullable|string',
+            'footer_alamat'       => 'nullable|string',
+            'footer_whatsapp'     => 'nullable|string',
+            'footer_email'        => 'nullable|email',
+            'sosmed_facebook'     => 'nullable|string',
+            'sosmed_twitter'      => 'nullable|string',
+            'sosmed_linkedin'     => 'nullable|string',
+            'sosmed_instagram'    => 'nullable|string',
+            'sosmed_tiktok'       => 'nullable|string',
+            'popup_wa_enabled'    => 'nullable|in:0,1',
+            'popup_wa_title'      => 'nullable|string|max:100',
+            'popup_wa_subtitle'   => 'nullable|string|max:150',
+            'popup_admin_number'  => 'nullable|string|max:20',
         ]);
 
         $keys = [
             'video_url', 'footer_alamat', 'footer_whatsapp', 'footer_email',
-            'sosmed_facebook', 'sosmed_twitter', 'sosmed_linkedin', 'sosmed_instagram', 'sosmed_tiktok'
+            'sosmed_facebook', 'sosmed_twitter', 'sosmed_linkedin', 'sosmed_instagram', 'sosmed_tiktok',
+            'popup_wa_title', 'popup_wa_subtitle', 'popup_admin_number',
         ];
 
         foreach ($keys as $key) {
@@ -52,6 +61,12 @@ class SettingController extends Controller
                 );
             }
         }
+
+        // Simpan checkbox (tidak dikirim saat unchecked)
+        Setting::updateOrCreate(
+            ['key' => 'popup_wa_enabled'],
+            ['value' => $request->has('popup_wa_enabled') ? '1' : '0']
+        );
 
         return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui!');
     }

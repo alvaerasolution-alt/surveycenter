@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\SingaPayController;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use App\Models\Response;
 use Illuminate\Validation\ValidationException;
 
@@ -87,6 +88,21 @@ class TransactionController extends Controller
 
         $items = json_decode($validated['items'], true);
 
+        if ((bool) config('payment_gateways.mock_mode', false)) {
+            $mockStatus = $this->resolveMockStatus();
+
+            $transaction = Transaction::create([
+                'survey_id' => $survey->id,
+                'user_id' => Auth::id(),
+                'amount' => $finalPrice,
+                'status' => $mockStatus,
+                'singapay_ref' => 'MOCK-' . Str::upper(Str::random(12)),
+            ]);
+
+            return redirect()->route('transactions.progress', $transaction)
+                ->with('success', 'Mock payment dibuat dengan status: ' . $mockStatus . '.');
+        }
+
         $invoice = $this->singaPay->createInvoice($finalPrice, $items);
 
         if (!isset($invoice['success']) || !$invoice['success']) {
@@ -151,6 +167,15 @@ class TransactionController extends Controller
             'payment_method' => $request->payment_method,
         ]);
 
+        if ((bool) config('payment_gateways.mock_mode', false)) {
+            $transaction->update([
+                'status' => $this->resolveMockStatus(),
+            ]);
+
+            return redirect()->route('transactions.progress', $transaction)
+                ->with('success', 'Mock payment diproses tanpa gateway eksternal.');
+        }
+
         if ($request->payment_method === 'qris') {
             // Redirect ke controller SingaPay untuk QRIS
             return redirect()->route('singapay.pay', $transaction->id);
@@ -163,6 +188,21 @@ class TransactionController extends Controller
 
         // Transfer VA (BCA/BNI)
         return redirect()->route('transactions.showTransfer', $transaction->id);
+    }
+
+    private function resolveMockStatus(): string
+    {
+        $defaultStatus = (string) config('payment_gateways.mock_default_status', Transaction::STATUS_PAID);
+        $allowedStatuses = [
+            Transaction::STATUS_PENDING,
+            Transaction::STATUS_PROCESSING,
+            Transaction::STATUS_PAID,
+            Transaction::STATUS_FAILED,
+        ];
+
+        return in_array($defaultStatus, $allowedStatuses, true)
+            ? $defaultStatus
+            : Transaction::STATUS_PAID;
     }
 
     public function showTransfer(Transaction $transaction)

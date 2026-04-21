@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -80,6 +81,10 @@ class PaymentController extends Controller
             return back()->with('warning', 'Transaksi ini sudah dibayar.');
         }
 
+        if ((bool) config('payment_gateways.mock_mode', false)) {
+            return $this->processMockPayment($transaction, $validated['payment_method'], $selectedGateway);
+        }
+
         try {
             if ($selectedGateway === 'faspay') {
                 return $this->processFaspayPayment($transaction, $validated['payment_method']);
@@ -96,6 +101,51 @@ class PaymentController extends Controller
 
             return back()->with('error', 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.');
         }
+    }
+
+    private function processMockPayment(Transaction $transaction, string $paymentMethod, string $gateway)
+    {
+        $defaultStatus = (string) config('payment_gateways.mock_default_status', Transaction::STATUS_PAID);
+        $allowedStatuses = [
+            Transaction::STATUS_PENDING,
+            Transaction::STATUS_PROCESSING,
+            Transaction::STATUS_PAID,
+            Transaction::STATUS_FAILED,
+        ];
+
+        $nextStatus = in_array($defaultStatus, $allowedStatuses, true)
+            ? $defaultStatus
+            : Transaction::STATUS_PAID;
+
+        $mockReference = 'MOCK-' . Str::upper(Str::random(12));
+
+        $transaction->update([
+            'payment_method' => $paymentMethod,
+            'singapay_ref' => $mockReference,
+            'status' => $nextStatus,
+        ]);
+
+        Log::info('Mock payment processed', [
+            'transaction_id' => $transaction->id,
+            'user_id' => Auth::id(),
+            'gateway' => $gateway,
+            'payment_method' => $paymentMethod,
+            'status' => $nextStatus,
+            'reference' => $mockReference,
+        ]);
+
+        if ($nextStatus === Transaction::STATUS_PAID) {
+            return redirect()->route('user.payments.success', $transaction)
+                ->with('success', 'Mock payment berhasil (mode development).');
+        }
+
+        if ($nextStatus === Transaction::STATUS_FAILED) {
+            return redirect()->route('user.payments.failed', $transaction)
+                ->with('error', 'Mock payment gagal (mode development).');
+        }
+
+        return redirect()->route('user.transactions.show', $transaction)
+            ->with('info', 'Mock payment dibuat dengan status: ' . $nextStatus . '.');
     }
 
     /**

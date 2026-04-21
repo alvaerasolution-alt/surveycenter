@@ -8,6 +8,7 @@ $normalizeGateway = static function (?string $value): string {
 
 $configuredOrder = array_values(array_filter(array_map('trim', explode(',', (string) env('PAYMENT_GATEWAY_ORDER', 'singapay,faspay')))));
 $normalizedOrder = [];
+$mockMode = env('PAYMENT_MOCK_MODE', false);
 
 foreach ($configuredOrder as $gateway) {
     $normalized = $normalizeGateway($gateway);
@@ -17,6 +18,9 @@ foreach ($configuredOrder as $gateway) {
 }
 
 return [
+    'mock_mode' => $mockMode,
+    'mock_default_status' => env('PAYMENT_MOCK_DEFAULT_STATUS', 'paid'),
+
     'order' => $normalizedOrder,
 
     'default' => $normalizeGateway(env('PAYMENT_GATEWAY_DEFAULT', 'singapay')),
@@ -25,17 +29,17 @@ return [
         'singapay' => [
             'label' => 'SingaPay',
             'enabled' => env('PAYMENT_GATEWAY_SINGAPAY_ENABLED', true),
-            'configured' => !empty(env('SINGAPAY_API_KEY'))
+            'configured' => $mockMode || (!empty(env('SINGAPAY_API_KEY'))
                 && !empty(env('SINGAPAY_CLIENT_ID'))
                 && !empty(env('SINGAPAY_CLIENT_SECRET'))
-                && !empty(env('SINGAPAY_ACCOUNT_ID')),
+                && !empty(env('SINGAPAY_ACCOUNT_ID'))),
         ],
         'faspay' => [
             'label' => 'Faspay',
             'enabled' => env('PAYMENT_GATEWAY_FASPAY_ENABLED', env('PAYMENT_GATEWAY_FASTPAY_ENABLED', true)),
-            'configured' => !empty(env('FASPAY_MERCHANT_ID'))
+            'configured' => $mockMode || (!empty(env('FASPAY_MERCHANT_ID'))
                 && !empty(env('FASPAY_USER_ID'))
-                && !empty(env('FASPAY_PASSWORD')),
+                && !empty(env('FASPAY_PASSWORD'))),
         ],
     ],
 ];

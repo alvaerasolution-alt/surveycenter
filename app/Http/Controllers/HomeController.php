@@ -52,59 +52,70 @@ class HomeController extends Controller
      */
     public function storeCustomer(Request $request)
     {
-	   // Cek static API key pada request API
-	   if ($request->ajax() && $request->header('X-API-KEY') !== 'MXuMiiKBC898/dclL1g0+Hy1wyUgvXMI3KiUdCCuG8U=') {
+        // Cek static API key pada request API
+        if ($request->ajax() && $request->header('X-API-KEY') !== 'MXuMiiKBC898/dclL1g0+Hy1wyUgvXMI3KiUdCCuG8U=') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized'
             ], 403);
         }
-		
+
         // Validasi input form
         $request->validate([
             'full_name' => 'required|string|max:150',
             'email'     => 'nullable|email|max:150',
             'phone'     => 'required|string|max:20',
+            'company'   => 'nullable|string|max:150',
             'notes'     => 'nullable|string',
+            'source'    => 'nullable|string|max:50',
         ]);
+
+        // Gabungkan notes + company
+        $notes = $request->notes ?? '';
+        if (!empty($request->company)) {
+            $notes = 'Perusahaan: ' . $request->company . ($notes ? "\n" . $notes : '');
+        }
 
         // Simpan ke database
         $customer = Customer::create([
             'full_name' => $request->full_name,
-            'email'     => $request->email,
+            'email'     => $request->email ?? '',
             'phone'     => $request->phone,
-            'notes'     => $request->notes,
+            'notes'     => $notes,
+            'source'    => $request->source ?? 'website',
             'status'    => 'lead',
         ]);
 
         FollowUp::create([
-            'customer_id' => $customer->id,
+            'customer_id'    => $customer->id,
             'follow_up_date' => now(),
-            'status' => 'pending',
-            'note' => 'Follow-up otomatis setelah customer dibuat'
+            'status'         => 'pending',
+            'note'           => 'Follow-up otomatis dari ' . ($request->source ?? 'website'),
         ]);
 
-        // Buat pesan untuk admin/sales
-        $message = "Hai kak, aku mau tanya-tanya dulu.%0A"
+        // Nomor WhatsApp admin — ambil dari settings, fallback hardcode
+        $adminPhone = preg_replace('/[^0-9]/', '',
+            \App\Models\Setting::where('key', 'popup_admin_number')->value('value')
+            ?: \App\Models\Setting::where('key', 'footer_whatsapp')->value('value')
+            ?: '6285198887963'
+        );
+
+        // Buat pesan WA
+        $msg = "Hai kak, aku mau tanya-tanya dulu.%0A"
             . "Perkenalkan nama saya *{$customer->full_name}*.%0A"
-            . "Nomor saya: {$customer->phone}.%0A"
-            . (!empty($customer->notes) ? "Catatan: {$customer->notes}%0A" : "");
+            . "Nomor saya: {$customer->phone}."
+            . (!empty($request->company) ? "%0APerusahaan: {$request->company}" : '');
 
-        // Nomor WhatsApp admin/sales (gunakan format internasional, contoh 6281234567890)
-        $adminPhone = "6285198887963";
+        $waLink = "https://wa.me/{$adminPhone}?text={$msg}";
 
-        // Buat link WhatsApp
-        $waLink = "https://wa.me/{$adminPhone}?text={$message}";
-		
-		if ($request->ajax()) {
+        if ($request->ajax()) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'Customer berhasil dibuat',
-                'redirect' => $waLink
+                'status'   => 'success',
+                'message'  => 'Data berhasil disimpan',
+                'redirect' => $waLink,
             ]);
         }
 
-        // Redirect langsung ke WhatsApp admin
         return redirect()->away($waLink);
     }
 }
