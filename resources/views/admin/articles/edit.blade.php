@@ -63,20 +63,6 @@
             class="w-full border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-500">
         </div>
 
-        <div>
-          <label class="inline-flex items-center gap-2 font-semibold text-gray-700 mb-2">
-            <input type="checkbox" name="is_published" value="1" @checked(old('is_published', $article->is_published))>
-            Publish artikel
-          </label>
-          <input type="datetime-local" name="published_at"
-            value="{{ old('published_at', $article->published_at ? $article->published_at->format('Y-m-d\TH:i') : '') }}"
-            class="w-full border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-500">
-          <p class="text-sm text-gray-500 mt-1">Biarkan kosong untuk memakai waktu publish saat ini.</p>
-          @error('published_at')
-            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-          @enderror
-        </div>
-
         {{-- Gambar --}}
         <div>
           <label for="image" class="block font-semibold text-gray-700 mb-2">Gambar Artikel</label>

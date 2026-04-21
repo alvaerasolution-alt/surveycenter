@@ -5,7 +5,7 @@
     $articleBodyText = trim(preg_replace('/\s+/', ' ', strip_tags($article->content ?? '')) ?? '');
     $articleDescription = $article->meta_description ?: Str::limit($articleBodyText, 160, '');
     $articleImage = $article->image ? asset('storage/' . $article->image) : asset('assets/logosc.png');
-    $publishedAt = $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String();
+    $publishedAt = $article->created_at->toIso8601String();
     $modifiedAt = $article->updated_at ? $article->updated_at->toIso8601String() : $publishedAt;
 
     $articleJsonLd = [

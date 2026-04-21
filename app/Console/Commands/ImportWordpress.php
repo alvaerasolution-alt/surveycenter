@@ -56,8 +56,6 @@ class ImportWordpress extends Command
                 [
                     'title'      => $post->post_title,
                     'slug'       => Str::slug($post->post_title), // WAJIB diset
-                    'is_published' => true,
-                    'published_at' => $post->post_date,
                     'excerpt'    => $post->post_excerpt,
                     'content'    => $post->post_content,
                     'category'   => $category,

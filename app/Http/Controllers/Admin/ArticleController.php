@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use App\Models\Article;
 use App\Services\SitemapService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -46,13 +45,9 @@ class ArticleController extends Controller
             'content' => 'required|string',
             'category' => 'nullable|string|max:100',
             'image' => 'nullable|image|max:2048',
-            'is_published' => 'nullable|boolean',
-            'published_at' => 'nullable|date',
         ]);
 
-        $data = $request->all();
-
-        $data['is_published'] = $request->boolean('is_published');
+        $data = $request->only(['title', 'excerpt', 'content', 'category']);
 
         $data['slug'] = Str::slug($request->title);
 
@@ -66,14 +61,6 @@ class ArticleController extends Controller
             $data['image'] = $this->storeArticleImage($request->file('image'));
         }
 
-        if ($data['is_published']) {
-            $data['published_at'] = $request->filled('published_at')
-                ? Carbon::parse($request->published_at)
-                : now();
-        } else {
-            $data['published_at'] = null;
-        }
-
         [$data['meta_title'], $data['meta_description']] = $this->generateMetaFields(
             $request->title,
             $request->content
@@ -81,9 +68,7 @@ class ArticleController extends Controller
 
         Article::create($data);
 
-        if ($data['is_published']) {
-            $this->regenerateSitemap();
-        }
+        $this->regenerateSitemap();
 
         return redirect()->route('admin.articles.index')->with('success', 'Article created successfully!');
     }
@@ -103,14 +88,11 @@ class ArticleController extends Controller
             'content'  => 'required|string',
             'category' => 'nullable|string|max:100',
             'image'    => 'nullable|image|max:2048',
-            'is_published' => 'nullable|boolean',
-            'published_at' => 'nullable|date',
         ]);
 
         $article = Article::findOrFail($id);
 
-        $data = $request->all();
-        $data['is_published'] = $request->boolean('is_published');
+        $data = $request->only(['title', 'excerpt', 'content', 'category']);
 
         if ($article->title !== $request->title) {
             $data['slug'] = Str::slug($request->title);
@@ -129,28 +111,14 @@ class ArticleController extends Controller
             $data['image'] = $this->storeArticleImage($request->file('image'));
         }
 
-        if ($data['is_published']) {
-            $data['published_at'] = $request->filled('published_at')
-                ? Carbon::parse($request->published_at)
-                : ($article->published_at ?: now());
-        } else {
-            $data['published_at'] = null;
-        }
-
-        if ($data['is_published']) {
-            [$data['meta_title'], $data['meta_description']] = $this->generateMetaFields(
-                $request->title,
-                $request->content
-            );
-        }
-
-        $sitemapNeedsRefresh = $article->is_published || $data['is_published'];
+        [$data['meta_title'], $data['meta_description']] = $this->generateMetaFields(
+            $request->title,
+            $request->content
+        );
 
         $article->update($data);
 
-        if ($sitemapNeedsRefresh) {
-            $this->regenerateSitemap();
-        }
+        $this->regenerateSitemap();
 
         return redirect()->route('admin.articles.index')->with('success', 'Article updated successfully!');
     }
@@ -159,7 +127,6 @@ class ArticleController extends Controller
     public function destroy($id)
     {
         $article = Article::findOrFail($id);
-        $wasPublished = $article->is_published;
 
         if ($article->image && Storage::disk('public')->exists($article->image)) {
             Storage::disk('public')->delete($article->image);
@@ -167,81 +134,21 @@ class ArticleController extends Controller
 
         $article->delete();
 
-        if ($wasPublished) {
-            $this->regenerateSitemap();
-        }
+        $this->regenerateSitemap();
 
         return redirect()->route('admin.articles.index')->with('success', 'Article deleted successfully!');
     }
 
     public function togglePublish($id)
     {
-        $article = Article::findOrFail($id);
-        $article->is_published = ! $article->is_published;
-
-        if ($article->is_published) {
-            $article->published_at = $article->published_at ?: now();
-            [$article->meta_title, $article->meta_description] = $this->generateMetaFields(
-                $article->title,
-                $article->content
-            );
-        } else {
-            $article->published_at = null;
-        }
-
-        $article->save();
-        $this->regenerateSitemap();
-
-        $status = $article->is_published ? 'published' : 'draft';
-
-        return redirect()->route('admin.articles.index')->with('success', "Article berhasil diubah ke {$status}.");
+        return redirect()->route('admin.articles.index')
+            ->with('info', 'Status artikel sudah dihapus.');
     }
 
     public function bulkPublish(Request $request)
     {
-        $data = $request->validate([
-            'article_ids' => ['required', 'array', 'min:1'],
-            'article_ids.*' => ['required', 'integer', 'exists:articles,id'],
-        ]);
-
-        $articleIds = array_values(array_unique($data['article_ids']));
-        $articles = Article::whereIn('id', $articleIds)->get();
-
-        $publishedCount = 0;
-
-        foreach ($articles as $article) {
-            $shouldSave = false;
-
-            if (!$article->is_published) {
-                $article->is_published = true;
-                $shouldSave = true;
-            }
-
-            if (!$article->published_at) {
-                $article->published_at = now();
-                $shouldSave = true;
-            }
-
-            if (!$article->meta_title || !$article->meta_description) {
-                [$metaTitle, $metaDescription] = $this->generateMetaFields($article->title, $article->content);
-                $article->meta_title = $article->meta_title ?: $metaTitle;
-                $article->meta_description = $article->meta_description ?: $metaDescription;
-                $shouldSave = true;
-            }
-
-            if ($shouldSave) {
-                $article->save();
-                $publishedCount++;
-            }
-        }
-
-        if ($publishedCount > 0) {
-            $this->regenerateSitemap();
-        }
-
-        return redirect()
-            ->route('admin.articles.index')
-            ->with('success', "{$publishedCount} artikel berhasil dipublish.");
+        return redirect()->route('admin.articles.index')
+            ->with('info', 'Status artikel sudah dihapus.');
     }
 
     private function generateMetaFields(string $title, string $content): array

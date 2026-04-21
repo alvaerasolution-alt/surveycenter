@@ -268,10 +268,8 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
      Route::get('articles', [ArticleController::class, 'index'])->name('admin.articles.index');
      Route::get('articles/create', [ArticleController::class, 'create'])->name('admin.articles.create');
      Route::post('articles', [ArticleController::class, 'store'])->name('admin.articles.store');
-     Route::post('articles/bulk-publish', [ArticleController::class, 'bulkPublish'])->name('admin.articles.bulk-publish');
      Route::get('articles/{article}/edit', [ArticleController::class, 'edit'])->name('admin.articles.edit');
      Route::put('articles/{article}', [ArticleController::class, 'update'])->name('admin.articles.update');
-     Route::patch('articles/{id}/toggle-publish', [ArticleController::class, 'togglePublish'])->name('admin.articles.toggle-publish');
      Route::delete('articles/{id}', [ArticleController::class, 'destroy'])->name('admin.articles.destroy');
 
     Route::resource('layanan', AdminLayananController::class)->names('admin.layanan');
