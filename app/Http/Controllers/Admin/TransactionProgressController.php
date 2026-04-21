@@ -64,7 +64,14 @@ class TransactionProgressController extends Controller
             }
             
             if ($msg) {
-                $transaction->user->notify(new \App\Notifications\SurveyCompletedNotification($transaction->survey, $msg));
+                try {
+                    $transaction->user->notify(new \App\Notifications\SurveyCompletedNotification($transaction->survey, $msg));
+                } catch (\Exception $e) {
+                    \Log::error('Gagal mengirim notifikasi survey selesai: ' . $e->getMessage());
+                    return redirect()->route('admin.transactions.progress.index')
+                        ->with('success', 'Progress berhasil diperbarui.')
+                        ->with('warning', 'Notifikasi email gagal dikirim: ' . $e->getMessage());
+                }
             }
         }
 

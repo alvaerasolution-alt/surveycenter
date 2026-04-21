@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class SurveyCompletedNotification extends Notification implements ShouldQueue
@@ -30,21 +29,7 @@ class SurveyCompletedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
-    }
-
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->subject('Survey Selesai — ' . $this->survey->title)
-            ->view('emails.survey-completed', [
-                'survey' => $this->survey,
-                'messageText' => $this->messageText,
-                'notifiable' => $notifiable,
-            ]);
+        return ['database'];
     }
 
     /**

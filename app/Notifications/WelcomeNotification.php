@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class WelcomeNotification extends Notification implements ShouldQueue
@@ -26,25 +25,7 @@ class WelcomeNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
-    }
-
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->subject('Selamat Datang di SurveyCenter!')
-            ->greeting('Halo ' . $notifiable->name . '!')
-            ->line('Selamat datang di SurveyCenter! Akun Anda telah berhasil dibuat dan diverifikasi.')
-            ->line('Dengan SurveyCenter, Anda bisa:')
-            ->line('• Membuat dan mengelola survei profesional')
-            ->line('• Menganalisis data responden secara real-time')
-            ->line('• Mengekspor hasil survei ke PDF')
-            ->action('Masuk ke Dashboard', route('user.dashboard'))
-            ->line('Jika Anda memiliki pertanyaan, jangan ragu untuk menghubungi tim kami.')
-            ->salutation('Salam, Tim SurveyCenter');
+        return ['database'];
     }
 
     /**
