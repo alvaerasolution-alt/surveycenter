@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FaspayTestTransaction;
 use App\Services\FaspayService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -22,7 +23,7 @@ class FaspayTestTransactionController extends Controller
      */
     public function index()
     {
-        $transactions = FaspayTestTransaction::where('user_id', auth()->id())
+        $transactions = FaspayTestTransaction::where('user_id', Auth::id())
             ->orWhereNull('user_id')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
@@ -62,7 +63,7 @@ class FaspayTestTransactionController extends Controller
 
             // Create test transaction
             $transaction = FaspayTestTransaction::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'bill_no' => $billNo,
                 'amount' => $validated['amount'],
                 'customer_name' => $validated['customer_name'],
@@ -128,8 +129,8 @@ class FaspayTestTransactionController extends Controller
                 'cust_phone' => $testTransaction->customer_phone,
                 'due_date' => $testTransaction->expires_at?->format('Y-m-d H:i:s'),
                 'bill_expired_date' => $testTransaction->expires_at?->format('Y-m-d H:i:s'),
-                'return_url' => route('faspay.webhook.return'),
-                'notif_url' => route('faspay.webhook.notification'),
+                'return_url' => route('faspay.return'),
+                'notif_url' => route('faspay.notification'),
             ];
 
             // Create invoice at Faspay

@@ -298,8 +298,8 @@ class PaymentController extends Controller
             'cust_phone' => Auth::user()->phone ?? '',
             'due_date' => now()->addMinutes((int) config('faspay.invoice_expiration', 30))->format('Y-m-d H:i:s'),
             'bill_expired_date' => now()->addMinutes((int) config('faspay.invoice_expiration', 30))->format('Y-m-d H:i:s'),
-            'return_url' => route('faspay.webhook.return'),
-            'notif_url' => route('faspay.webhook.notification'),
+            'return_url' => route('faspay.return'),
+            'notif_url' => route('faspay.notification'),
         ];
 
         $response = $faspayService->createInvoice($invoiceData);
@@ -317,6 +317,9 @@ class PaymentController extends Controller
         $transaction->update([
             'payment_method' => $paymentMethod,
             'singapay_ref' => $billNo,
+            'bill_no' => $billNo,
+            'payment_ref' => $billNo,
+            'trx_id' => $response['trx_id'] ?? null,
             'status' => Transaction::STATUS_PROCESSING,
         ]);
 

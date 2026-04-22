@@ -54,7 +54,12 @@ class FaspayController extends Controller
             // Find transaction by bill_no
             $transaction = FaspayTestTransaction::where('bill_no', $notification['bill_no'])->first();
 
-            $mainTransaction = Transaction::where('singapay_ref', $notification['bill_no'])->first();
+            // Fallback: cari di tabel transactions utama via kolom bill_no
+            $mainTransaction = Transaction::where('bill_no', $notification['bill_no'])->first();
+            // Jika tidak ada, coba via payment_ref
+            if (!$mainTransaction) {
+                $mainTransaction = Transaction::where('payment_ref', $notification['bill_no'])->first();
+            }
 
             if (!$transaction) {
                 if (!$mainTransaction) {
@@ -72,8 +77,17 @@ class FaspayController extends Controller
                 }
             }
 
+            if ($mainTransaction && $mainTransaction->status === Transaction::STATUS_PAID) {
+                Log::info('Main transaction already paid, skipping re-processing', [
+                    'bill_no' => $notification['bill_no'],
+                    'transaction_id' => $mainTransaction->id,
+                ]);
+            }
+
+            $paymentStatusCode = (string) $notification['payment_status_code'];
+
             // Handle different payment status codes
-            switch ($notification['payment_status_code']) {
+            switch ($paymentStatusCode) {
                 case '2': // Payment Success
                     if ($transaction) {
                         $transaction->markAsPaid([
@@ -85,7 +99,7 @@ class FaspayController extends Controller
                         ]);
                     }
 
-                    if ($mainTransaction) {
+                    if ($mainTransaction && $mainTransaction->status !== Transaction::STATUS_PAID) {
                         $mainTransaction->update([
                             'status' => Transaction::STATUS_PAID,
                             'payment_method' => strtolower((string) ($notification['payment_channel'] ?? $mainTransaction->payment_method)),
@@ -100,7 +114,7 @@ class FaspayController extends Controller
                         $transaction->markAsFailed('Payment failed from Faspay');
                     }
 
-                    if ($mainTransaction) {
+                    if ($mainTransaction && $mainTransaction->status !== Transaction::STATUS_PAID) {
                         $mainTransaction->update([
                             'status' => Transaction::STATUS_FAILED,
                         ]);
@@ -114,7 +128,7 @@ class FaspayController extends Controller
                         $transaction->update(['status' => FaspayTestTransaction::STATUS_EXPIRED]);
                     }
 
-                    if ($mainTransaction) {
+                    if ($mainTransaction && $mainTransaction->status !== Transaction::STATUS_PAID) {
                         $mainTransaction->update([
                             'status' => Transaction::STATUS_FAILED,
                         ]);
@@ -128,7 +142,7 @@ class FaspayController extends Controller
                         $transaction->update(['status' => FaspayTestTransaction::STATUS_CANCELLED]);
                     }
 
-                    if ($mainTransaction) {
+                    if ($mainTransaction && $mainTransaction->status !== Transaction::STATUS_PAID) {
                         $mainTransaction->update([
                             'status' => Transaction::STATUS_FAILED,
                         ]);
@@ -143,7 +157,7 @@ class FaspayController extends Controller
                         $transaction->update(['status' => FaspayTestTransaction::STATUS_PROCESSING]);
                     }
 
-                    if ($mainTransaction) {
+                    if ($mainTransaction && $mainTransaction->status !== Transaction::STATUS_PAID) {
                         $mainTransaction->update([
                             'status' => Transaction::STATUS_PROCESSING,
                         ]);
@@ -203,34 +217,50 @@ class FaspayController extends Controller
         try {
             $billNo = $request->input('bill_no');
             $status = $request->input('status');
-            $trxId = $request->input('trx_id');
+            $trxId  = $request->input('trx_id');
 
+            // Cari di tabel test transactions
             $transaction = FaspayTestTransaction::where('bill_no', $billNo)->first();
 
+            // Fallback: cari di tabel transactions utama
             if (!$transaction) {
-                Log::warning('Return URL: Transaction not found', ['bill_no' => $billNo]);
+                $mainTransaction = Transaction::where('bill_no', $billNo)
+                    ->orWhere('payment_ref', $billNo)
+                    ->first();
+
+                if ($mainTransaction) {
+                    // Update trx_id jika ada
+                    if ($trxId) {
+                        $mainTransaction->update(['trx_id' => $trxId]);
+                    }
+
+                    // Redirect ke halaman transaksi user
+                    return redirect()->route('user.transactions.show', $mainTransaction)
+                        ->with('info', 'Pembayaran sedang diproses. Status akan diperbarui otomatis.');
+                }
+
+                Log::warning('Return URL: Transaction not found in both tables', ['bill_no' => $billNo]);
                 return view('faspay.return.error', [
                     'message' => 'Transaction not found',
                     'details' => ['bill_no' => $billNo],
                 ]);
             }
 
-            // Store the return data for reference
+            // Store the return data for reference (test transaction)
             $transaction->update([
                 'trx_id' => $trxId ?? $transaction->trx_id,
             ]);
 
             // The actual status update happens via webhook notification
-            // We just show the appropriate view based on expected status
             if ($status === '0' || $transaction->isPaid()) {
                 return view('faspay.return.success', [
                     'transaction' => $transaction,
-                    'message' => 'Payment successful! Waiting for confirmation...',
+                    'message'     => 'Payment successful! Waiting for confirmation...',
                 ]);
             } else {
                 return view('faspay.return.pending', [
                     'transaction' => $transaction,
-                    'message' => 'Payment is being processed. Please wait...',
+                    'message'     => 'Payment is being processed. Please wait...',
                 ]);
             }
         } catch (\Exception $e) {

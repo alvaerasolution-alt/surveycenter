@@ -159,6 +159,9 @@ Route::get('/blog/category/{category?}', [BlogController::class, 'category'])->n
 Route::get('/layanan/{slug}', [App\Http\Controllers\LayananController::class, 'show'])
     ->name('layanan.show');
 
+// Faspay Return URL
+Route::get('/transaction/faspay/return', [FaspayController::class, 'returnUrl'])->name('faspay.return');
+
 Route::get('/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 
@@ -327,11 +330,11 @@ Route::middleware(['auth'])->prefix('faspay/test')->name('faspay.')->group(funct
 });
 
 // Faspay Webhook Routes (NO auth required - Faspay will call these)
-Route::post('/api/webhook/faspay/payment', [FaspayController::class, 'notification'])
+Route::post('/api/webhook/faspay/notification', [FaspayController::class, 'notification'])
     ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
-    ->name('faspay.webhook.notification');
+    ->name('faspay.notification');
 
-Route::get('/payment/return', [FaspayController::class, 'returnUrl'])->name('faspay.webhook.return');
+// Return URL Faspay tersedia di /transaction/faspay/return
 
 // Faspay Debug Routes (dev only)
 Route::middleware(['auth'])->prefix('faspay')->group(function () {
