@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PartnerLogo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class PartnerLogoController extends Controller
@@ -34,6 +35,8 @@ class PartnerLogoController extends Controller
             'logo_path' => $path,
         ]);
 
+        Cache::forget('home_partner_logos');
+
         return redirect()->route('partner-logos.index')->with('success', 'Logo berhasil ditambahkan!');
     }
 
@@ -60,6 +63,8 @@ class PartnerLogoController extends Controller
             'logo_path' => $path,
         ]);
 
+        Cache::forget('home_partner_logos');
+
         return redirect()->route('partner-logos.index')->with('success', 'Logo berhasil diperbarui!');
     }
 
@@ -67,6 +72,8 @@ class PartnerLogoController extends Controller
     {
         Storage::disk('public')->delete($partnerLogo->logo_path);
         $partnerLogo->delete();
+
+        Cache::forget('home_partner_logos');
 
         return redirect()->route('partner-logos.index')->with('success', 'Logo berhasil dihapus!');
     }

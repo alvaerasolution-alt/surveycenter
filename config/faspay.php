@@ -16,12 +16,25 @@ return [
      */
     'endpoints' => [
         'sandbox' => [
-            'base_url' => 'https://simulator.faspay.co.id',
-            'payment_url' => 'https://simulator.faspay.co.id/payments/xpress/',
+            'base_url' => 'https://xpress-sandbox.faspay.co.id',
+            'payment_url' => 'https://xpress-sandbox.faspay.co.id/v4/post',
         ],
         'production' => [
-            'base_url' => 'https://gateway.faspay.co.id',
-            'payment_url' => 'https://gateway.faspay.co.id/payments/xpress/',
+            'base_url' => 'https://xpress.faspay.co.id',
+            'payment_url' => 'https://xpress.faspay.co.id/v4/post',
+        ],
+    ],
+
+    /**
+     * Payment Channel Inquiry Endpoints (Faspay Debit)
+     * XML and JSON endpoints are separate from Xpress invoice endpoint.
+     */
+    'payment_channel_inquiry' => [
+        'xml' => [
+            'development' => 'https://debit-sandbox.faspay.co.id/pws/100001/182xx00010100000',
+        ],
+        'json' => [
+            'development' => 'https://debit-sandbox.faspay.co.id/cvr/100001/10',
         ],
     ],
     
