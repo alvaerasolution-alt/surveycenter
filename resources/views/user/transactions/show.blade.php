@@ -195,6 +195,10 @@
             <i data-lucide="eye" class="w-4 h-4 inline mr-2"></i>
             Lihat Survey
         </a>
+        <a href="{{ route('transactions.download', $transaction->id) }}" class="flex-1 px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium text-sm hover:bg-gray-50 transition text-center flex items-center justify-center">
+            <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>
+            Unduh Invoice
+        </a>
         @if(in_array($transaction->status, [\App\Models\Transaction::STATUS_PENDING, \App\Models\Transaction::STATUS_FAILED], true))
             <a href="{{ route('user.payments.show', $transaction) }}" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition">
                 <i data-lucide="credit-card" class="w-4 h-4 inline mr-2"></i>

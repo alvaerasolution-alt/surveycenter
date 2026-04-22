@@ -179,61 +179,7 @@
         </div>
     </div>
 
-    {{-- Transaction Information --}}
-    @if($transactions->isNotEmpty())
-    <div class="section">
-        <h2 class="section-title">Informasi Transaksi</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>No. Transaksi</th>
-                    <th>Jumlah</th>
-                    <th>Status</th>
-                    <th>Progress</th>
-                    <th>Tanggal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($transactions as $transaction)
-                <tr>
-                    <td>#{{ $transaction->id }}</td>
-                    <td>Rp {{ number_format($transaction->amount, 0, ',', '.') }}</td>
-                    <td>
-                        @php
-                            $statusClass = match($transaction->status) {
-                                'paid' => 'badge-success',
-                                'pending' => 'badge-warning',
-                                'processing' => 'badge-warning',
-                                default => 'badge-pending'
-                            };
-                            $statusLabel = \App\Models\Transaction::getStatusLabel($transaction->status);
-                        @endphp
-                        <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
-                    </td>
-                    <td>
-                        @php
-                            $progress = (int) $transaction->progress;
-                            $progressClass = match(true) {
-                                $progress >= 100 => 'progress-100',
-                                $progress >= 75 => 'progress-75',
-                                $progress >= 50 => 'progress-50',
-                                $progress >= 25 => 'progress-25',
-                                default => 'progress-0',
-                            };
-                        @endphp
-                        <div class="progress-bar">
-                            <div class="progress-fill {{ $progressClass }}">
-                                {{ $progress }}%
-                            </div>
-                        </div>
-                    </td>
-                    <td>{{ $transaction->created_at->format('d/m/Y') }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-    @endif
+
 
     {{-- Summary Statistics --}}
     <div class="section">
@@ -247,14 +193,7 @@
                 <div class="info-label">Responden Diperoleh</div>
                 <div class="info-value">{{ $adminResponses->sum('respond_count') }}</div>
             </div>
-            <div class="info-row">
-                <div class="info-label">Total Transaksi</div>
-                <div class="info-value">{{ $transactions->count() }}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Total Biaya</div>
-                <div class="info-value">Rp {{ number_format($transactions->sum('amount'), 0, ',', '.') }}</div>
-            </div>
+
         </div>
     </div>
 

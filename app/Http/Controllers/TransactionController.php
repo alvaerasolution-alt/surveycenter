@@ -46,14 +46,7 @@ class TransactionController extends Controller
             'user_type' => 'required|in:mahasiswa,perusahaan,umum'
         ]);
 
-        $formLinkError = $this->formLinkValidationService->validate(
-            $validated['link'] ?? null,
-            $validated['title']
-        );
 
-        if ($formLinkError !== null) {
-            throw ValidationException::withMessages(['link' => $formLinkError]);
-        }
 
         $pricePerQuestion = 1000;
         $baseTotal = $validated['question_count'] * $validated['respondent_count'] * $pricePerQuestion;

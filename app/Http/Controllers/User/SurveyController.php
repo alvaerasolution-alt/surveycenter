@@ -84,14 +84,7 @@ class SurveyController extends Controller
             'user_type'        => 'required|in:mahasiswa,perusahaan,umum',
         ]);
 
-        $formLinkError = $this->formLinkValidationService->validate(
-            $validated['form_link'] ?? null,
-            $validated['title']
-        );
 
-        if ($formLinkError !== null) {
-            throw ValidationException::withMessages(['form_link' => $formLinkError]);
-        }
 
         $user = Auth::user();
 

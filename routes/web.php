@@ -273,9 +273,13 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
      Route::delete('articles/{id}', [ArticleController::class, 'destroy'])->name('admin.articles.destroy');
 
     Route::resource('layanan', AdminLayananController::class)->names('admin.layanan');
-    Route::resource('discount-banners', DiscountBannerController::class)->names('admin.discount-banners');
+    Route::resource('discount-banners', DiscountBannerController::class)
+        ->except(['show'])
+        ->names('admin.discount-banners');
 
-    Route::resource('dashboard-banners', DashboardBannerController::class)->names('admin.dashboard-banners');
+    Route::resource('dashboard-banners', DashboardBannerController::class)
+        ->except(['show'])
+        ->names('admin.dashboard-banners');
     Route::post('dashboard-banners/{dashboardBanner}/toggle', [DashboardBannerController::class, 'toggle'])
         ->name('admin.dashboard-banners.toggle');
 

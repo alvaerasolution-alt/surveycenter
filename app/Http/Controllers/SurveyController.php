@@ -43,14 +43,7 @@ class SurveyController extends Controller
             'google_form_link' => 'required|url|max:2048',
         ]);
 
-        $formLinkError = $this->formLinkValidationService->validate(
-            $validated['google_form_link'] ?? null,
-            $validated['title']
-        );
 
-        if ($formLinkError !== null) {
-            throw ValidationException::withMessages(['google_form_link' => $formLinkError]);
-        }
 
         // Simpan survey
         $survey = Survey::create([

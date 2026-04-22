@@ -201,11 +201,16 @@
                         <p class="text-sm font-medium text-gray-900">{{ $transaction->statusActivityLabel() }}</p>
                         <p class="text-xs text-gray-500">{{ $transaction->created_at->format('d M Y, H:i') }}</p>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-gray-900">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</p>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $transaction->statusBadgeClass() }}">
-                            {{ $transaction->statusLabel() }}
-                        </span>
+                    <div class="text-right flex flex-col items-end gap-2">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</p>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $transaction->statusBadgeClass() }}">
+                                {{ $transaction->statusLabel() }}
+                            </span>
+                        </div>
+                        <a href="{{ route('transactions.download', $transaction->id) }}" class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            <i data-lucide="download" class="w-3 h-3"></i> Unduh Invoice
+                        </a>
                     </div>
                 </div>
             @empty
