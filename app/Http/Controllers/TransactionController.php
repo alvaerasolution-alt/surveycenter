@@ -6,13 +6,12 @@ use App\Models\Survey;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Services\SingaPayService;
+use App\Services\FaspayService;
 use App\Services\FormLinkValidationService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use App\Http\Controllers\SingaPayController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Response;
@@ -20,12 +19,12 @@ use Illuminate\Validation\ValidationException;
 
 class TransactionController extends Controller
 {
-    private SingaPayService $singaPay;
+    private FaspayService $faspayService;
     private FormLinkValidationService $formLinkValidationService;
 
-    public function __construct(SingaPayService $singaPay, FormLinkValidationService $formLinkValidationService)
+    public function __construct(FaspayService $faspayService, FormLinkValidationService $formLinkValidationService)
     {
-        $this->singaPay = $singaPay;
+        $this->faspayService = $faspayService;
         $this->formLinkValidationService = $formLinkValidationService;
     }
 
@@ -45,8 +44,6 @@ class TransactionController extends Controller
             'link' => 'required|url|max:2048',
             'user_type' => 'required|in:mahasiswa,perusahaan,umum'
         ]);
-
-
 
         $pricePerQuestion = 1000;
         $baseTotal = $validated['question_count'] * $validated['respondent_count'] * $pricePerQuestion;
@@ -79,8 +76,6 @@ class TransactionController extends Controller
             'google_form_link' => $validated['link'] ?? null,
         ]);
 
-        $items = json_decode($validated['items'], true);
-
         if ((bool) config('payment_gateways.mock_mode', false)) {
             $mockStatus = $this->resolveMockStatus();
 
@@ -96,28 +91,48 @@ class TransactionController extends Controller
                 ->with('success', 'Mock payment dibuat dengan status: ' . $mockStatus . '.');
         }
 
-        $invoice = $this->singaPay->createInvoice($finalPrice, $items);
+        // Create Faspay invoice (same flow as kost project)
+        $billNo = 'TRX-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(6));
 
-        if (!isset($invoice['success']) || !$invoice['success']) {
-            Log::error('Transaction Failed', ['user_id' => Auth::id(), 'error' => $invoice['message'] ?? 'Unknown error']);
-            return back()->with('error', 'Gagal membuat pembayaran: ' . ($invoice['message'] ?? 'Kesalahan tidak diketahui.'));
+        $invoiceData = [
+            'bill_no' => $billNo,
+            'bill_total' => $finalPrice,
+            'bill_description' => $validated['title'] ?? 'Survey Payment',
+            'cust_name' => Auth::user()->name ?? 'Customer',
+            'cust_email' => Auth::user()->email ?? '',
+            'cust_phone' => Auth::user()->phone ?? '081234567890',
+            'bill_expired_date' => now()->addMinutes((int) config('faspay.invoice_expiration', 30))->format('Y-m-d H:i:s'),
+            'return_url' => route('faspay.return'),
+        ];
+
+        $response = $this->faspayService->createInvoice($invoiceData);
+
+        if (!($response['success'] ?? false) || empty($response['payment_url'])) {
+            Log::error('Transaction Failed (Faspay)', [
+                'user_id' => Auth::id(),
+                'error' => $response['message'] ?? 'Unknown error',
+                'response' => $response,
+            ]);
+            return back()->with('error', 'Gagal membuat pembayaran: ' . ($response['message'] ?? 'Kesalahan tidak diketahui.'));
         }
 
         Transaction::create([
             'survey_id' => $survey->id,
             'user_id' => Auth::id(),
             'amount' => $finalPrice,
-            'status' => Transaction::STATUS_PENDING,
-            'singapay_ref' => $invoice['reff_no']
+            'status' => Transaction::STATUS_PROCESSING,
+            'bill_no' => $billNo,
+            'payment_ref' => $billNo,
+            'trx_id' => $response['trx_id'] ?? null,
         ]);
 
-        return redirect($invoice['payment_url']);
+        return redirect($response['payment_url']);
     }
 
     public function handleInvoice(Request $request)
     {
-        $data = $this->singaPay->webhook($request);
-        return response()->json($data);
+        // Faspay webhook is handled by FaspayController::notification()
+        return response()->json(['status' => 'ok']);
     }
 
     public function history()
@@ -132,28 +147,15 @@ class TransactionController extends Controller
 
     public function payment(Transaction $transaction)
     {
-        if (empty($transaction->qr_data)) {
-            $singapay = app(\App\Http\Controllers\SingaPayController::class);
-            $qrData   = $singapay->generateQris($transaction);
-
-            if ($qrData) {
-                $transaction->update([
-                    'qr_data' => $qrData,
-                ]);
-            }
-        }
-
         return view('transactions.payment', [
             'transaction' => $transaction,
         ]);
     }
 
-
-
     public function processPayment(Request $request, Transaction $transaction)
     {
         $request->validate([
-            'payment_method' => 'required|in:qris,transfer,gopay',
+            'payment_method' => 'required|in:qris,transfer,gopay,virtual_account,e_wallet',
         ]);
 
         $transaction->update([
@@ -169,18 +171,40 @@ class TransactionController extends Controller
                 ->with('success', 'Mock payment diproses tanpa gateway eksternal.');
         }
 
-        if ($request->payment_method === 'qris') {
-            // Redirect ke controller SingaPay untuk QRIS
-            return redirect()->route('singapay.pay', $transaction->id);
+        // Create Faspay invoice for all payment methods (same as kost project)
+        $billNo = 'TRX-' . $transaction->id . '-' . now()->format('YmdHis');
+
+        $invoiceData = [
+            'bill_no' => $billNo,
+            'bill_total' => $transaction->amount,
+            'bill_description' => $transaction->survey->title ?? 'Survey Payment',
+            'cust_name' => Auth::user()->name ?? 'Customer',
+            'cust_email' => Auth::user()->email ?? '',
+            'cust_phone' => Auth::user()->phone ?? '081234567890',
+            'bill_expired_date' => now()->addMinutes((int) config('faspay.invoice_expiration', 30))->format('Y-m-d H:i:s'),
+            'return_url' => route('faspay.return'),
+        ];
+
+        $response = $this->faspayService->createInvoice($invoiceData);
+
+        if (!($response['success'] ?? false) || empty($response['payment_url'])) {
+            Log::error('Faspay processPayment failed', [
+                'transaction_id' => $transaction->id,
+                'response' => $response,
+            ]);
+
+            return back()->with('error', 'Gagal membuat pembayaran: ' . ($response['message'] ?? 'Kesalahan tidak diketahui.'));
         }
 
-        if ($request->payment_method === 'gopay') {
-            // Redirect ke halaman GoPay (saat ini placeholder)
-            return redirect()->route('transactions.showTransfer', $transaction->id);
-        }
+        $transaction->update([
+            'bill_no' => $billNo,
+            'payment_ref' => $billNo,
+            'trx_id' => $response['trx_id'] ?? null,
+            'status' => Transaction::STATUS_PROCESSING,
+        ]);
 
-        // Transfer VA (BCA/BNI)
-        return redirect()->route('transactions.showTransfer', $transaction->id);
+        // Redirect to Faspay payment page (handles all payment methods)
+        return redirect($response['payment_url']);
     }
 
     private function resolveMockStatus(): string
