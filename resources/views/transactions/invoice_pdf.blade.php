@@ -104,9 +104,9 @@
             </div>
             <p style="margin:5px 0; line-height:1.5;">
                 NPWP: 47.831.083.2-124.000 <br>
-                Alamat: Jl. Raya Palka Km 03, Sindangheula, Kec. Pabuaran, Royal Sindangheula Kabupaten Serang, Blok A
-                23B, Kabupaten Serang, Banten 42163 <br>
-                Telp: 0851-9888-7963
+                Scientia Residences Tower C, Lantai II, Jl. Scientia Square Utara, Kel. Curug Sangereng, Kec. Kelapa Dua, Kab. Tangerang, Banten 15810
+                <br>
+                Telp: 0851-2478-6980
             </p>
         </div>
 
@@ -145,18 +145,6 @@
                 <tr>
                     <th>Jumlah Responden</th>
                     <td>{{ $transaction->survey->respondent_count ?? ($transaction->survey->responses->first()->respond_count ?? 0) }} Orang</td>
-                </tr>
-                <tr>
-                    <th>Link Form</th>
-                    <td>
-                        @if (!empty($transaction->survey->form_link))
-                            <a href="{{ $transaction->survey->form_link }}" target="_blank">Klik di sini</a>
-                        @elseif(!empty(optional($transaction->survey->responses->first())->google_form_link))
-                            <a href="{{ $transaction->survey->responses->first()->google_form_link }}" target="_blank">Klik di sini</a>
-                        @else
-                            -
-                        @endif
-                    </td>
                 </tr>
             </tbody>
         </table>
