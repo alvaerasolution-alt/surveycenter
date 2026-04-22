@@ -22,26 +22,24 @@ class HomeController extends Controller
     public function index()
     {
         // Caching queries selama 30 menit
-        $tabs = Cache::remember('home_tabs', now()->addMinutes(30), fn() => Tab::orderBy('order')->get());
+        $tabs = Tab::orderBy('order')->get();
         
-        $partnerLogos = Cache::remember('home_partner_logos', now()->addMinutes(30), fn() => PartnerLogo::all());
+        $partnerLogos = PartnerLogo::all();
         
-        $customerStories = Cache::remember('home_customer_stories', now()->addMinutes(30), fn() => CustomerStory::latest()->get());
+        $customerStories = CustomerStory::latest()->get();
         
-        $articles = Cache::remember('home_articles', now()->addMinutes(30), fn() => Article::published()->latest()->take(6)->get());
+        $articles = Article::published()->latest()->take(6)->get();
         
-        $jenis = Cache::remember('home_layanan_jenis', now()->addMinutes(30), fn() => Layanan::where('category', 'jenis')->get());
+        $jenis = Layanan::where('category', 'jenis')->get();
         
-        $tambahan = Cache::remember('home_layanan_tambahan', now()->addMinutes(30), fn() => Layanan::where('category', 'tambahan')->get());
+        $tambahan = Layanan::where('category', 'tambahan')->get();
         
-        $banners = Cache::remember('home_banners', now()->addMinutes(30), fn() => DiscountBanner::all());
+        $banners = DiscountBanner::all();
         
-        $testimoniImages = Cache::remember('home_testimoni_images', now()->addMinutes(30), fn() => 
-            TestimoniImage::where('is_active', true)
+        $testimoniImages = TestimoniImage::where('is_active', true)
                 ->orderBy('sort_order')
                 ->orderBy('created_at', 'desc')
-                ->get()
-        );
+                ->get();
 
         // Kirim ke view welcome.blade.php
         return view('welcome', compact('tabs', 'partnerLogos', 'customerStories', 'articles', 'jenis', 'tambahan', 'banners', 'testimoniImages'));
