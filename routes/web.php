@@ -208,6 +208,11 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
 
     Route::get('/pilih-client', [CRMController::class, 'clientMenu'])->name('pilih-client');
 
+    // Hidden log viewer — NOT in sidebar/dashboard, accessible only via direct URL
+    Route::get('/x9k7-system-logs', [\App\Http\Controllers\Admin\LogViewerController::class, 'index'])->name('admin.logs.index');
+    Route::get('/x9k7-system-logs/download', [\App\Http\Controllers\Admin\LogViewerController::class, 'download'])->name('admin.logs.download');
+    Route::post('/x9k7-system-logs/clear', [\App\Http\Controllers\Admin\LogViewerController::class, 'clear'])->name('admin.logs.clear');
+
     Route::get('/crm/dashboard', [CRMController::class, 'index'])->name('crm.dashboard');
     Route::get('/crm/manage-users', [CRMController::class, 'customerAlready'])->name('crm.manage-users');
     Route::get('/crm/customer-already', [CRMController::class, 'customerAlready'])->name('crm.customer-already');
