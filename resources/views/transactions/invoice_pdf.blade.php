@@ -103,7 +103,7 @@
                 Survey Center Indonesia
             </div>
             <p style="margin:5px 0; line-height:1.5;">
-                NPWP: 47.831.083.2-124.000 <br>
+                NPWP: 40.443.383.1-419.000 <br>
                 Scientia Residences Tower C, Lantai II, Jl. Scientia Square Utara, Kel. Curug Sangereng, Kec. Kelapa Dua, Kab. Tangerang, Banten 15810
                 <br>
                 Telp: 0851-2478-6980
