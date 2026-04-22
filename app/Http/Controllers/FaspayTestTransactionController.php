@@ -147,7 +147,7 @@ class FaspayTestTransactionController extends Controller
                 return redirect($response['payment_url'])
                     ->with('success', 'Redirecting to Faspay payment gateway...');
             } else {
-                return back()->withErrors(['error' => 'Failed to create payment link. Please try again.']);
+                return back()->withErrors(['error' => $response['message'] ?? 'Failed to create payment link. Please try again.']);
             }
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Payment processing error: ' . $e->getMessage()]);

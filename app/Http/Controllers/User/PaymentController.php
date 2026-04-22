@@ -311,7 +311,9 @@ class PaymentController extends Controller
                 'response' => $response,
             ]);
 
-            return back()->with('error', 'Gagal membuat link pembayaran Faspay. Silakan coba lagi.');
+            $reason = $response['message'] ?? 'Gagal membuat link pembayaran Faspay. Silakan coba lagi.';
+
+            return back()->with('error', $reason);
         }
 
         $transaction->update([

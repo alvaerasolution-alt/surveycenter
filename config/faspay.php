@@ -16,12 +16,12 @@ return [
      */
     'endpoints' => [
         'sandbox' => [
-            'base_url'    => 'https://xpress-sandbox.faspay.co.id',
-            'payment_url' => 'https://xpress-sandbox.faspay.co.id/v4/post',
+            'base_url' => 'https://simulator.faspay.co.id',
+            'payment_url' => 'https://simulator.faspay.co.id/payments/xpress/',
         ],
         'production' => [
-            'base_url'    => 'https://xpress.faspay.co.id',
-            'payment_url' => 'https://xpress.faspay.co.id/v4/post',
+            'base_url' => 'https://gateway.faspay.co.id',
+            'payment_url' => 'https://gateway.faspay.co.id/payments/xpress/',
         ],
     ],
     
