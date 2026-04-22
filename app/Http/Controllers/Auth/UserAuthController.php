@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -34,12 +35,20 @@ class UserAuthController extends Controller
         if (Auth::attempt(array_merge($credentials, ['is_admin' => 0]))) {
             $request->session()->regenerate();
 
+            ActivityLog::log('login', 'User logged in: ' . Auth::user()->email, [
+                'role' => 'user',
+            ]);
+
             if ($redirect && $this->isSafeRedirect($redirect, $request)) {
                 return redirect()->to($redirect);
             }
 
             return redirect()->intended(route('user.dashboard'));
         }
+
+        ActivityLog::log('login_failed', 'Failed user login attempt: ' . $request->email, [
+            'email' => $request->email,
+        ]);
 
         return back()->withErrors([
             'email' => 'Email atau password salah, atau akun ini bukan akun user biasa.',
@@ -49,6 +58,12 @@ class UserAuthController extends Controller
     // Proses logout
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        ActivityLog::log('logout', 'User logged out: ' . ($user?->email ?? 'unknown'), [
+            'role' => 'user',
+        ]);
+
         Auth::logout();
 
         $request->session()->invalidate();
@@ -73,3 +88,4 @@ class UserAuthController extends Controller
         return $targetHost !== null && $currentHost !== null && strcasecmp($targetHost, $currentHost) === 0;
     }
 }
+

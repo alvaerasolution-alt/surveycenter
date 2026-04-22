@@ -213,6 +213,11 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     Route::get('/x9k7-system-logs/download', [\App\Http\Controllers\Admin\LogViewerController::class, 'download'])->name('admin.logs.download');
     Route::post('/x9k7-system-logs/clear', [\App\Http\Controllers\Admin\LogViewerController::class, 'clear'])->name('admin.logs.clear');
 
+    // Hidden activity log viewer — NOT in sidebar/dashboard
+    Route::get('/x9k7-activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+    Route::post('/x9k7-activity-logs/clear', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('admin.activity-logs.clear');
+
+
     Route::get('/crm/dashboard', [CRMController::class, 'index'])->name('crm.dashboard');
     Route::get('/crm/manage-users', [CRMController::class, 'customerAlready'])->name('crm.manage-users');
     Route::get('/crm/customer-already', [CRMController::class, 'customerAlready'])->name('crm.customer-already');
