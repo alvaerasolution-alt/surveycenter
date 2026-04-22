@@ -116,8 +116,8 @@
             <strong>Status:</strong>
             <span
                 class="status 
-                {{ $transaction->displayStatus == 'paid' ? 'paid' : ($transaction->displayStatus == 'pending' ? 'pending' : 'unpaid') }}">
-                {{ strtoupper($transaction->displayStatus) }}
+                {{ $transaction->status == 'paid' ? 'paid' : ($transaction->status == 'processing' ? 'pending' : ($transaction->status == 'pending' ? 'pending' : 'unpaid')) }}">
+                {{ strtoupper($transaction->statusLabel()) }}
             </span>
         </p>
         <p><strong>Tanggal Invoice:</strong> {{ $transaction->created_at->format('l, d F Y') }}</p>
