@@ -44,6 +44,11 @@ Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
 
+// Google OAuth
+use App\Http\Controllers\Auth\GoogleAuthController;
+Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+
 // Password Reset via OTP (WhatsApp & Email)
 use App\Http\Controllers\Auth\ForgotPasswordController;
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
