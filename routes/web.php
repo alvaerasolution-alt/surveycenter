@@ -301,8 +301,6 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     Route::post('dashboard-banners/{dashboardBanner}/toggle', [DashboardBannerController::class, 'toggle'])
         ->name('admin.dashboard-banners.toggle');
 
-    Route::resource('transactions', AdminTransactionController::class)->names('admin.transactions');
-
     // Halaman daftar transaksi paid
     Route::get('/transactions/progress', [AdminTransactionProgressController::class, 'index'])
         ->name('admin.transactions.progress.index');
@@ -314,6 +312,8 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     // Aksi update progress
     Route::put('/transactions/{transaction}/progress', [AdminTransactionProgressController::class, 'update'])
         ->name('admin.transactions.progress.update');
+
+    Route::resource('transactions', AdminTransactionController::class)->names('admin.transactions');
 
     Route::get('/surveys/manage', [SurveyManagementController::class, 'index'])
         ->name('admin.surveys.manage');
