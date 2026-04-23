@@ -134,6 +134,13 @@
             ]"
             class="fixed lg:relative inset-y-0 left-0 z-50 flex flex-col sidebar-gradient text-white transition-all duration-300 ease-in-out shadow-xl shadow-orange-900/20">
 
+            {{-- Floating Toggle Button --}}
+            <button @click="sidebarOpen = !sidebarOpen"
+                class="absolute -right-3 top-6 w-6 h-6 bg-white rounded-full hidden lg:flex items-center justify-center text-gray-700 hover:text-orange-600 shadow-md border border-gray-200 z-[60] hover:scale-110 transition-all">
+                <i x-show="sidebarOpen" data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                <i x-show="!sidebarOpen" data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </button>
+
             {{-- Logo --}}
             <div class="flex items-center h-[64px] px-4 flex-shrink-0" :class="sidebarOpen ? 'justify-start' : 'justify-center'">
                 <a href="{{ url('/') }}" class="flex items-center gap-3 min-w-0">
@@ -259,9 +266,6 @@
             <header class="h-[64px] bg-white/80 backdrop-blur-lg border-b border-gray-200/80 flex items-center px-4 sm:px-6 lg:px-8 flex-shrink-0 z-30">
                 <button @click="mobileSidebar = true" class="p-2 -ml-2 rounded-lg hover:bg-gray-100 transition lg:hidden mr-1">
                     <i data-lucide="align-left" class="w-5 h-5 text-gray-500"></i>
-                </button>
-                <button @click="sidebarOpen = !sidebarOpen" class="hidden lg:flex p-2 -ml-2 rounded-lg hover:bg-gray-100 transition mr-2 text-gray-500">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
 
                 <div class="min-w-0">
