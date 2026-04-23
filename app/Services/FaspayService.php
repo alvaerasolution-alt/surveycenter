@@ -130,7 +130,7 @@ class FaspayService
                 'msisdn' => $phone,
                 'email' => $email,
                 'item' => $data['item'] ?? [[
-                    'product' => $billDescription,
+                    'product' => substr($billDescription, 0, 50),
                     'qty' => '1',
                     'amount' => $normalizedBillTotal,
                 ]],
