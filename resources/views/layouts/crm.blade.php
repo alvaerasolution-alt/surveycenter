@@ -120,7 +120,7 @@
             class="fixed lg:relative inset-y-0 left-0 z-50 flex flex-col sidebar-gradient text-white transition-all duration-300 ease-in-out shadow-xl shadow-black/10">
 
             {{-- Logo --}}
-            <div class="flex items-center h-[64px] px-4 flex-shrink-0">
+            <div class="flex items-center h-[64px] px-4 flex-shrink-0" :class="sidebarOpen ? 'justify-start' : 'justify-center'">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-9 h-9 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center flex-shrink-0 shadow-lg p-1">
                         <img src="{{ asset('assets/logosc.png') }}" alt="SurveyCenter Logo" class="w-full h-full object-contain">
@@ -130,11 +130,6 @@
                         <span class="text-2xs text-gray-500 font-medium">CRM Panel</span>
                     </div>
                 </div>
-                <button @click="sidebarOpen = !sidebarOpen"
-                    class="ml-auto w-7 h-7 rounded-lg hover:bg-white/10 transition hidden lg:flex items-center justify-center group">
-                    <i x-show="sidebarOpen" data-lucide="chevrons-left" class="w-4 h-4 text-gray-500 group-hover:text-gray-300"></i>
-                    <i x-show="!sidebarOpen" data-lucide="chevrons-right" class="w-4 h-4 text-gray-500 group-hover:text-gray-300"></i>
-                </button>
                 <button @click="mobileSidebar = false" class="ml-auto w-7 h-7 rounded-lg hover:bg-white/10 transition lg:hidden flex items-center justify-center">
                     <i data-lucide="x" class="w-4 h-4 text-gray-400"></i>
                 </button>
@@ -222,6 +217,11 @@
             <header class="h-[64px] bg-white/80 backdrop-blur-lg border-b border-gray-200/80 flex items-center px-4 sm:px-6 lg:px-8 flex-shrink-0 z-30">
                 <button @click="mobileSidebar = true" class="p-2 -ml-2 rounded-lg hover:bg-gray-100 transition lg:hidden mr-1">
                     <i data-lucide="align-left" class="w-5 h-5 text-gray-500"></i>
+                </button>
+
+                {{-- Desktop menu toggle --}}
+                <button @click="sidebarOpen = !sidebarOpen" class="hidden lg:flex p-2 -ml-2 rounded-lg hover:bg-gray-100 transition mr-2 text-gray-500">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
 
                 <div class="min-w-0">
