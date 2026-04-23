@@ -35,8 +35,8 @@ class ActivityLog extends Model
             'type'       => $type,
             'description'=> $description,
             'ip_address' => $request?->ip(),
-            'user_agent' => $request?->userAgent(),
-            'url'        => $request?->fullUrl(),
+            'user_agent' => $request?->userAgent() ? substr($request->userAgent(), 0, 255) : null,
+            'url'        => $request?->fullUrl() ? substr($request->fullUrl(), 0, 255) : null,
             'method'     => $request?->method(),
             'properties' => $properties,
         ]);
