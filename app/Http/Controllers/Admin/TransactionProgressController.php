@@ -14,7 +14,7 @@ class TransactionProgressController extends Controller
     public function index()
     {
         $transactions = Transaction::with(['survey', 'user'])
-            ->where('status', Transaction::STATUS_PAID)
+            ->whereIn('status', [Transaction::STATUS_PAID, Transaction::STATUS_PROCESSING])
             ->orderByDesc('updated_at')
             ->paginate(10);
 
@@ -27,9 +27,9 @@ class TransactionProgressController extends Controller
      */
     public function edit(Transaction $transaction)
     {
-        if ($transaction->status !== Transaction::STATUS_PAID) {
+        if (!in_array($transaction->status, [Transaction::STATUS_PAID, Transaction::STATUS_PROCESSING])) {
             return redirect()->route('admin.transactions.progress.index')
-                ->with('error', 'Hanya transaksi yang sudah dibayar yang bisa diupdate progress.');
+                ->with('error', 'Hanya transaksi yang sudah dibayar / diproses yang bisa diupdate progress.');
         }
 
         // View baru di folder admin/crmTransaction
@@ -45,9 +45,9 @@ class TransactionProgressController extends Controller
             'progress' => 'required|integer|min:0|max:100',
         ]);
 
-        if ($transaction->status !== Transaction::STATUS_PAID) {
+        if (!in_array($transaction->status, [Transaction::STATUS_PAID, Transaction::STATUS_PROCESSING])) {
             return redirect()->route('admin.transactions.progress.index')
-                ->with('error', 'Hanya transaksi yang sudah dibayar yang bisa diupdate progress.');
+                ->with('error', 'Hanya transaksi yang sudah dibayar / diproses yang bisa diupdate progress.');
         }
 
         $oldProgress = $transaction->progress;

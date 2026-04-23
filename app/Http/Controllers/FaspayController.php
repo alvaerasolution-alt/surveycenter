@@ -61,20 +61,18 @@ class FaspayController extends Controller
                 $mainTransaction = Transaction::where('payment_ref', $notification['bill_no'])->first();
             }
 
-            if (!$transaction) {
-                if (!$mainTransaction) {
-                    Log::warning('Faspay transaction not found', ['bill_no' => $notification['bill_no']]);
+            if (!$transaction && !$mainTransaction) {
+                Log::warning('Faspay transaction not found', ['bill_no' => $notification['bill_no']]);
 
-                    return response()->json([
-                        'response' => 'Payment Notification',
-                        'trx_id' => $notification['trx_id'],
-                        'merchant_id' => config('faspay.merchant_id'),
-                        'bill_no' => $notification['bill_no'],
-                        'response_code' => '05',
-                        'response_desc' => 'Transaction not found',
-                        'response_date' => now()->format('Y-m-d H:i:s'),
-                    ]);
-                }
+                return response()->json([
+                    'response' => 'Payment Notification',
+                    'trx_id' => $notification['trx_id'],
+                    'merchant_id' => config('faspay.merchant_id'),
+                    'bill_no' => $notification['bill_no'],
+                    'response_code' => '05',
+                    'response_desc' => 'Transaction not found',
+                    'response_date' => now()->format('Y-m-d H:i:s'),
+                ]);
             }
 
             if ($mainTransaction && $mainTransaction->status === Transaction::STATUS_PAID) {
