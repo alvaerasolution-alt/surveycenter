@@ -29,7 +29,12 @@ class SingaPayWebhookController extends Controller
 
         $data = $payload['data'] ?? null;
 
-        if ($data) {
+        // Decode if it's a JSON string
+        if (is_string($data)) {
+            $data = json_decode($data, true) ?? $data;
+        }
+
+        if (is_array($data) && isset($data['transaction_id'])) {
             Disbursement::updateOrCreate(
                 ['transaction_id' => $data['transaction_id']],
                 [
