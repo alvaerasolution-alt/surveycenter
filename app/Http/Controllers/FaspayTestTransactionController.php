@@ -49,7 +49,7 @@ class FaspayTestTransactionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:10000|max:100000000',
+            'amount' => 'required|numeric|min:1000|max:100000000',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email',
             'customer_phone' => 'required|string|max:20',

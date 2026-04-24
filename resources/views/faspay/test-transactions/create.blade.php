@@ -37,14 +37,14 @@
                                id="amount" 
                                name="amount" 
                                value="{{ old('amount', 50000) }}"
-                               min="10000" 
+                               min="1000" 
                                max="100000000" 
                                step="1000"
                                class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('amount') border-red-500 @enderror"
                                placeholder="e.g., 50000"
                                required>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Minimum: IDR 10,000 | Maximum: IDR 100,000,000</p>
+                    <p class="text-xs text-gray-500 mt-1">Minimum: IDR 1,000 | Maximum: IDR 100,000,000</p>
                 </div>
 
                 <!-- Customer Name -->
