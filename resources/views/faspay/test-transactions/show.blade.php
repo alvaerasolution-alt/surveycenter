@@ -192,6 +192,42 @@
                            class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-center transition duration-200 text-sm">
                             Pay Now
                         </a>
+
+                        @if(app()->isLocal())
+                        <form action="{{ route('faspay.test-transaction.simulate', $transaction) }}" method="POST" class="block pt-2" id="simulate-form">
+                            @csrf
+                            <button type="button" onclick="simulatePayment(this)"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg text-center transition duration-200 text-sm">
+                                Simulate Success
+                            </button>
+                        </form>
+                        <script>
+                            function simulatePayment(btn) {
+                                btn.disabled = true;
+                                btn.innerText = "Simulating...";
+                                const form = document.getElementById('simulate-form');
+                                fetch(form.action, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Accept': 'application/json'
+                                    }
+                                }).then(res => res.json()).then(data => {
+                                    if(data.success) {
+                                        window.location.reload();
+                                    } else {
+                                        alert('Error simulating: ' + (data.error || 'Unknown error'));
+                                        btn.disabled = false;
+                                        btn.innerText = "Simulate Success";
+                                    }
+                                }).catch(e => {
+                                    alert('Error: ' + e);
+                                    btn.disabled = false;
+                                    btn.innerText = "Simulate Success";
+                                });
+                            }
+                        </script>
+                        @endif
                     @endif
 
                     <a href="{{ route('faspay.test-transaction.index') }}" 

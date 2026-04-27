@@ -92,7 +92,7 @@ class TransactionController extends Controller
         }
 
         // Create Faspay invoice (same flow as kost project)
-        $billNo = 'TRX-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(6));
+        $billNo = $this->generateBillNo();
 
         $invoiceData = [
             'bill_no' => $billNo,
@@ -172,7 +172,7 @@ class TransactionController extends Controller
         }
 
         // Create Faspay invoice for all payment methods (same as kost project)
-        $billNo = 'TRX-' . $transaction->id . '-' . now()->format('YmdHis');
+        $billNo = $this->generateBillNo($transaction->id);
 
         $invoiceData = [
             'bill_no' => $billNo,
@@ -220,6 +220,18 @@ class TransactionController extends Controller
         return in_array($defaultStatus, $allowedStatuses, true)
             ? $defaultStatus
             : Transaction::STATUS_PAID;
+    }
+
+    private function generateBillNo(?int $transactionId = null): string
+    {
+        $prefix = strtoupper(trim((string) config('singapay.invoice_prefix', 'TRX')));
+        $prefix = preg_replace('/[^A-Z0-9]/', '', $prefix) ?: 'TRX';
+
+        if ($transactionId !== null) {
+            return $prefix . '-' . $transactionId . '-' . now()->format('YmdHis');
+        }
+
+        return $prefix . '-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(6));
     }
 
     public function showTransfer(Transaction $transaction)

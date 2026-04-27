@@ -59,7 +59,7 @@ class FaspayTestTransactionController extends Controller
 
         try {
             // Generate unique bill number
-            $billNo = 'TEST-' . now()->format('YmdHis') . '-' . Str::random(6);
+            $billNo = $this->generateTestBillNo();
 
             // Create test transaction
             $transaction = FaspayTestTransaction::create([
@@ -221,5 +221,13 @@ class FaspayTestTransactionController extends Controller
                 'error' => $e->getMessage(),
             ], 400);
         }
+    }
+
+    private function generateTestBillNo(): string
+    {
+        $prefix = strtoupper(trim((string) config('singapay.invoice_prefix', 'TRX')));
+        $prefix = preg_replace('/[^A-Z0-9]/', '', $prefix) ?: 'TRX';
+
+        return $prefix . '-TEST-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(6));
     }
 }
