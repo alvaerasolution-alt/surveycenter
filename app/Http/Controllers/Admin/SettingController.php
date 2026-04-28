@@ -30,7 +30,7 @@ class SettingController extends Controller
             // Poin
             'point_ratio',
             // Affiliate
-            'affiliate_commission_points',
+            'affiliate_commission_percent',
         ])->pluck('value', 'key');
 
         // Decode tiers JSON for the form
@@ -64,7 +64,7 @@ class SettingController extends Controller
             // Poin
             'point_ratio'         => 'nullable|integer|min:1',
             // Affiliate
-            'affiliate_commission_points' => 'nullable|integer|min:0',
+            'affiliate_commission_percent' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $keys = [
@@ -104,8 +104,8 @@ class SettingController extends Controller
             Setting::set('point_ratio', (string) $request->point_ratio);
         }
 
-        if ($request->has('affiliate_commission_points')) {
-            Setting::set('affiliate_commission_points', (string) $request->affiliate_commission_points);
+        if ($request->has('affiliate_commission_percent')) {
+            Setting::set('affiliate_commission_percent', (string) $request->affiliate_commission_percent);
         }
 
         return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui!');

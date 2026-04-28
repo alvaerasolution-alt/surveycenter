@@ -242,15 +242,15 @@
                             </span>
                             Pengaturan Affiliate
                         </h3>
-                        <p class="text-xs text-gray-500 mt-1">Atur berapa poin komisi yang diberikan saat referral berhasil order</p>
+                        <p class="text-xs text-gray-500 mt-1">Atur persentase komisi yang diberikan saat referral berhasil order</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Komisi per Order (Poin)</label>
-                        <input type="number" name="affiliate_commission_points" value="{{ $settings['affiliate_commission_points'] ?? 500 }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Komisi per Order (%)</label>
+                        <input type="number" name="affiliate_commission_percent" value="{{ $settings['affiliate_commission_percent'] ?? 10 }}"
                             class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                            placeholder="500" min="0">
-                        <p class="text-xs text-gray-400 mt-1">Poin yang diterima referrer setiap kali user yang direferensikan berhasil membayar order. Set <strong>0</strong> untuk menonaktifkan.</p>
+                            placeholder="2" min="0" max="100" step="0.1">
+                        <p class="text-xs text-gray-400 mt-1">Persentase dari total order yang diterima referrer sebagai saldo Rupiah. Contoh: <strong>2</strong> berarti 2% dari total order. Set <strong>0</strong> untuk menonaktifkan.</p>
                     </div>
                 </div>
 

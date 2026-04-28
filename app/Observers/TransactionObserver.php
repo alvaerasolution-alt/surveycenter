@@ -56,7 +56,7 @@ class TransactionObserver
     }
 
     /**
-     * Award referral commission points to the referrer.
+     * Award referral commission (Rupiah) to the referrer.
      * Only triggers if the paying user was referred by someone.
      * Idempotent via unique constraint on referral_commissions.transaction_id.
      */
@@ -77,28 +77,23 @@ class TransactionObserver
             return;
         }
 
-        $commissionPoints = ReferralCommission::getCommissionPoints();
-
-        if ($commissionPoints <= 0) {
+        $percent = ReferralCommission::getCommissionPercent();
+        if ($percent <= 0) {
             return;
         }
 
-        // Create point transaction for the referrer
-        $pointTx = PointTransaction::create([
-            'user_id' => $referrer->id,
-            'transaction_id' => $transaction->id,
-            'type' => PointTransaction::TYPE_EARN,
-            'points' => $commissionPoints,
-            'description' => 'Komisi referral dari ' . $buyer->name . ' (Transaksi #' . $transaction->id . ')',
-        ]);
+        $commissionAmount = ReferralCommission::calculateCommission($transaction->amount);
+        if ($commissionAmount <= 0) {
+            return;
+        }
 
-        // Record the commission
+        // Record the commission (Rupiah-based, no point transaction)
         ReferralCommission::create([
             'referrer_id' => $referrer->id,
             'referred_user_id' => $buyer->id,
             'transaction_id' => $transaction->id,
-            'point_transaction_id' => $pointTx->id,
-            'points_earned' => $commissionPoints,
+            'commission_amount' => $commissionAmount,
+            'commission_percent' => $percent,
         ]);
     }
 }

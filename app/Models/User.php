@@ -116,6 +116,28 @@ class User extends Authenticatable
         return $this->hasMany(ReferralCommission::class, 'referrer_id');
     }
 
+    public function affiliateWithdrawals()
+    {
+        return $this->hasMany(AffiliateWithdrawal::class);
+    }
+
+    /**
+     * Get the user's available affiliate balance in Rupiah.
+     * Total commissions earned minus approved withdrawals.
+     */
+    public function getAffiliateBalanceAttribute(): int
+    {
+        $earned = (int) $this->referralCommissions()->sum('commission_amount');
+        $withdrawn = (int) $this->affiliateWithdrawals()
+            ->where('status', AffiliateWithdrawal::STATUS_APPROVED)
+            ->sum('amount');
+        $pending = (int) $this->affiliateWithdrawals()
+            ->where('status', AffiliateWithdrawal::STATUS_PENDING)
+            ->sum('amount');
+
+        return max(0, $earned - $withdrawn - $pending);
+    }
+
     /**
      * Generate a unique referral code from the user's name.
      */

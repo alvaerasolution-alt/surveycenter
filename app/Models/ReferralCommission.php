@@ -10,23 +10,31 @@ class ReferralCommission extends Model
 {
     use HasFactory;
 
-    /**
-     * Default points awarded to the referrer (used when no DB setting exists).
-     */
-    public const DEFAULT_COMMISSION_POINTS = 500;
+    public const DEFAULT_COMMISSION_PERCENT = 10; // 10%
 
     /**
-     * Get the commission points from settings.
+     * Get the commission percentage from settings.
      */
-    public static function getCommissionPoints(): int
+    public static function getCommissionPercent(): float
     {
-        return max(0, (int) Setting::get('affiliate_commission_points', self::DEFAULT_COMMISSION_POINTS));
+        return max(0, (float) Setting::get('affiliate_commission_percent', self::DEFAULT_COMMISSION_PERCENT));
+    }
+
+    /**
+     * Calculate commission amount in Rupiah from an order total.
+     */
+    public static function calculateCommission(int $orderAmount): int
+    {
+        $percent = self::getCommissionPercent();
+        return (int) floor($orderAmount * $percent / 100);
     }
 
     protected $fillable = [
         'referrer_id',
         'referred_user_id',
         'transaction_id',
+        'commission_amount',
+        'commission_percent',
         'point_transaction_id',
         'points_earned',
     ];
@@ -44,10 +52,5 @@ class ReferralCommission extends Model
     public function transaction()
     {
         return $this->belongsTo(Transaction::class);
-    }
-
-    public function pointTransaction()
-    {
-        return $this->belongsTo(PointTransaction::class);
     }
 }

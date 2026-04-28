@@ -36,6 +36,8 @@ use App\Http\Controllers\FaspayController;
 use App\Http\Controllers\FormAnalyzerController;
 use App\Http\Controllers\User\RewardController;
 use App\Http\Controllers\User\AffiliateController;
+use App\Http\Controllers\Admin\AffiliateWithdrawalController;
+use App\Http\Controllers\Admin\RewardItemController;
 use App\Services\SitemapService;
 
 Route::get('/', [HomeController::class, 'index'])->name('landing');
@@ -112,6 +114,7 @@ Route::middleware(['auth'])->group(function () {
     // User Affiliate
     Route::prefix('affiliate')->name('user.affiliate.')->group(function () {
         Route::get('/', [AffiliateController::class, 'index'])->name('index');
+        Route::post('/withdraw', [AffiliateController::class, 'withdraw'])->name('withdraw');
     });
 
     // User Notifications
@@ -263,6 +266,16 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
 
     Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'edit'])->name('settings.edit');
     Route::post('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+
+    // Reward Items CRUD
+    Route::resource('reward-items', RewardItemController::class)->except(['show'])->names('admin.reward-items');
+
+    // Affiliate Withdrawals
+    Route::prefix('affiliate-withdrawals')->name('admin.affiliate-withdrawals.')->group(function () {
+        Route::get('/', [AffiliateWithdrawalController::class, 'index'])->name('index');
+        Route::post('/{withdrawal}/approve', [AffiliateWithdrawalController::class, 'approve'])->name('approve');
+        Route::post('/{withdrawal}/reject', [AffiliateWithdrawalController::class, 'reject'])->name('reject');
+    });
 
     // Tab Management (CRUD)
     Route::get('tabs', [TabController::class, 'index'])->name('tabs.index');
