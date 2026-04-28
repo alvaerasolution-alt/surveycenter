@@ -34,6 +34,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FaspayTestTransactionController;
 use App\Http\Controllers\FaspayController;
 use App\Http\Controllers\FormAnalyzerController;
+use App\Http\Controllers\User\RewardController;
+use App\Http\Controllers\User\AffiliateController;
 use App\Services\SitemapService;
 
 Route::get('/', [HomeController::class, 'index'])->name('landing');
@@ -99,6 +101,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{transaction}/process', [\App\Http\Controllers\User\PaymentController::class, 'process'])->name('process');
         Route::get('/{transaction}/success', [\App\Http\Controllers\User\PaymentController::class, 'success'])->name('success');
         Route::get('/{transaction}/failed', [\App\Http\Controllers\User\PaymentController::class, 'failed'])->name('failed');
+    });
+
+    // User Rewards
+    Route::prefix('rewards')->name('user.rewards.')->group(function () {
+        Route::get('/', [RewardController::class, 'index'])->name('index');
+        Route::post('/{rewardItem}/redeem', [RewardController::class, 'redeem'])->name('redeem');
+    });
+
+    // User Affiliate
+    Route::prefix('affiliate')->name('user.affiliate.')->group(function () {
+        Route::get('/', [AffiliateController::class, 'index'])->name('index');
     });
 
     // User Notifications

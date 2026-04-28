@@ -6,11 +6,21 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (empty($user->referral_code)) {
+                $user->referral_code = self::generateReferralCode($user->name);
+            }
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +34,8 @@ class User extends Authenticatable
         'password',
         'google_id',
         'google_avatar',
+        'referral_code',
+        'referred_by_id',
     ];
 
     /**
@@ -58,5 +70,75 @@ class User extends Authenticatable
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function pointTransactions()
+    {
+        return $this->hasMany(PointTransaction::class);
+    }
+
+    public function rewardRedemptions()
+    {
+        return $this->hasMany(RewardRedemption::class);
+    }
+
+    /**
+     * Get user's current point balance.
+     */
+    public function getPointBalanceAttribute(): int
+    {
+        $earned = $this->pointTransactions()->where('type', PointTransaction::TYPE_EARN)->sum('points');
+        $redeemed = $this->pointTransactions()->where('type', PointTransaction::TYPE_REDEEM)->sum('points');
+
+        return (int) ($earned - $redeemed);
+    }
+
+    /**
+     * Get total points ever earned.
+     */
+    public function getTotalPointsEarnedAttribute(): int
+    {
+        return (int) $this->pointTransactions()->where('type', PointTransaction::TYPE_EARN)->sum('points');
+    }
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by_id');
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referred_by_id');
+    }
+
+    public function referralCommissions()
+    {
+        return $this->hasMany(ReferralCommission::class, 'referrer_id');
+    }
+
+    /**
+     * Generate a unique referral code from the user's name.
+     */
+    public static function generateReferralCode(?string $name = null): string
+    {
+        $base = $name
+            ? Str::slug(Str::limit($name, 10, ''), '')
+            : Str::random(6);
+
+        $code = strtolower($base) . rand(10, 99);
+
+        while (self::where('referral_code', $code)->exists()) {
+            $code = strtolower($base) . rand(100, 999);
+        }
+
+        return $code;
+    }
+
+    /**
+     * Get the user's referral URL.
+     */
+    public function getReferralUrlAttribute(): string
+    {
+        return url('/?ref=' . $this->referral_code);
     }
 }

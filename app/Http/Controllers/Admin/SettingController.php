@@ -24,9 +24,19 @@ class SettingController extends Controller
             'popup_wa_title',
             'popup_wa_subtitle',
             'popup_admin_number',
+            // Pricing
+            'pricing_tiers',
+            'pricing_min_order',
+            // Poin
+            'point_ratio',
+            // Affiliate
+            'affiliate_commission_points',
         ])->pluck('value', 'key');
 
-        return view('admin.settings.edit', compact('settings'));
+        // Decode tiers JSON for the form
+        $pricingTiers = json_decode($settings['pricing_tiers'] ?? \App\Helpers\VolumePricing::DEFAULT_TIERS_JSON, true);
+
+        return view('admin.settings.edit', compact('settings', 'pricingTiers'));
     }
 
     public function update(Request $request)
@@ -45,6 +55,16 @@ class SettingController extends Controller
             'popup_wa_title'      => 'nullable|string|max:100',
             'popup_wa_subtitle'   => 'nullable|string|max:150',
             'popup_admin_number'  => 'nullable|string|max:20',
+            // Pricing
+            'tier_max'            => 'nullable|array',
+            'tier_max.*'          => 'nullable|integer|min:1',
+            'tier_price'          => 'nullable|array',
+            'tier_price.*'        => 'required|integer|min:1',
+            'pricing_min_order'   => 'nullable|integer|min:0',
+            // Poin
+            'point_ratio'         => 'nullable|integer|min:1',
+            // Affiliate
+            'affiliate_commission_points' => 'nullable|integer|min:0',
         ]);
 
         $keys = [
@@ -55,18 +75,38 @@ class SettingController extends Controller
 
         foreach ($keys as $key) {
             if ($request->has($key)) {
-                Setting::updateOrCreate(
-                    ['key' => $key],
-                    ['value' => $request->$key]
-                );
+                Setting::set($key, $request->$key);
             }
         }
 
         // Simpan checkbox (tidak dikirim saat unchecked)
-        Setting::updateOrCreate(
-            ['key' => 'popup_wa_enabled'],
-            ['value' => $request->has('popup_wa_enabled') ? '1' : '0']
-        );
+        Setting::set('popup_wa_enabled', $request->has('popup_wa_enabled') ? '1' : '0');
+
+        // Build pricing tiers JSON
+        if ($request->has('tier_price')) {
+            $tiers = [];
+            $maxValues = $request->input('tier_max', []);
+            $priceValues = $request->input('tier_price', []);
+
+            foreach ($priceValues as $i => $price) {
+                $max = isset($maxValues[$i]) && $maxValues[$i] !== '' ? (int) $maxValues[$i] : null;
+                $tiers[] = ['max' => $max, 'price' => (int) $price];
+            }
+
+            Setting::set('pricing_tiers', json_encode($tiers));
+        }
+
+        if ($request->has('pricing_min_order')) {
+            Setting::set('pricing_min_order', (string) $request->pricing_min_order);
+        }
+
+        if ($request->has('point_ratio')) {
+            Setting::set('point_ratio', (string) $request->point_ratio);
+        }
+
+        if ($request->has('affiliate_commission_points')) {
+            Setting::set('affiliate_commission_points', (string) $request->affiliate_commission_points);
+        }
 
         return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui!');
     }

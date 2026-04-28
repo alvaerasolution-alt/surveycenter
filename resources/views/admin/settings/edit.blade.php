@@ -158,6 +158,102 @@
                     </div>
                 </div>
 
+                {{-- ══════════════════════════════════════════ --}}
+                {{-- PENGATURAN HARGA --}}
+                {{-- ══════════════════════════════════════════ --}}
+                <div class="mt-8 p-5 bg-orange-50 border border-orange-200 rounded-xl space-y-5">
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-800 flex items-center gap-2">
+                            <span class="inline-flex w-7 h-7 bg-orange-500 rounded-lg items-center justify-center">
+                                <i data-lucide="calculator" class="w-4 h-4 text-white"></i>
+                            </span>
+                            Pengaturan Harga
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-1">Atur harga per soal per responden dan batas jumlah responden tiap tier</p>
+                    </div>
+
+                    <div id="tierContainer" class="space-y-3">
+                        @foreach($pricingTiers as $i => $tier)
+                        <div class="tier-row flex items-center gap-3 bg-white rounded-lg p-3 border border-orange-100">
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Maks Responden</label>
+                                <input type="number" name="tier_max[]" value="{{ $tier['max'] }}"
+                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                    placeholder="Kosongkan = unlimited" min="1">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Harga (Rp)</label>
+                                <input type="number" name="tier_price[]" value="{{ $tier['price'] }}" required
+                                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                    placeholder="Contoh: 500" min="1">
+                            </div>
+                            <button type="button" onclick="this.closest('.tier-row').remove()" class="mt-5 p-2 text-red-400 hover:text-red-600 transition" title="Hapus tier">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <button type="button" onclick="addTierRow()" class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 transition">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        Tambah Tier
+                    </button>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Minimum Order (Rp)</label>
+                        <input type="number" name="pricing_min_order" value="{{ $settings['pricing_min_order'] ?? 50000 }}"
+                            class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                            placeholder="50000" min="0">
+                        <p class="text-xs text-gray-400 mt-1">Biaya total minimal per survey agar bisa checkout</p>
+                    </div>
+                </div>
+
+                {{-- ══════════════════════════════════════════ --}}
+                {{-- PENGATURAN POIN --}}
+                {{-- ══════════════════════════════════════════ --}}
+                <div class="mt-8 p-5 bg-amber-50 border border-amber-200 rounded-xl space-y-5">
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-800 flex items-center gap-2">
+                            <span class="inline-flex w-7 h-7 bg-amber-500 rounded-lg items-center justify-center">
+                                <i data-lucide="coins" class="w-4 h-4 text-white"></i>
+                            </span>
+                            Pengaturan Poin
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-1">Atur berapa rupiah transaksi yang setara dengan 1 poin</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Rasio Poin (Rp per 1 Poin)</label>
+                        <input type="number" name="point_ratio" value="{{ $settings['point_ratio'] ?? 1000 }}"
+                            class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                            placeholder="1000" min="1">
+                        <p class="text-xs text-gray-400 mt-1">Contoh: <strong>1000</strong> berarti Rp 1.000 = 1 Poin. <strong>2000</strong> berarti Rp 2.000 = 1 Poin.</p>
+                    </div>
+                </div>
+
+                {{-- ══════════════════════════════════════════ --}}
+                {{-- PENGATURAN AFFILIATE --}}
+                {{-- ══════════════════════════════════════════ --}}
+                <div class="mt-8 p-5 bg-purple-50 border border-purple-200 rounded-xl space-y-5">
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-800 flex items-center gap-2">
+                            <span class="inline-flex w-7 h-7 bg-purple-500 rounded-lg items-center justify-center">
+                                <i data-lucide="share-2" class="w-4 h-4 text-white"></i>
+                            </span>
+                            Pengaturan Affiliate
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-1">Atur berapa poin komisi yang diberikan saat referral berhasil order</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Komisi per Order (Poin)</label>
+                        <input type="number" name="affiliate_commission_points" value="{{ $settings['affiliate_commission_points'] ?? 500 }}"
+                            class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                            placeholder="500" min="0">
+                        <p class="text-xs text-gray-400 mt-1">Poin yang diterima referrer setiap kali user yang direferensikan berhasil membayar order. Set <strong>0</strong> untuk menonaktifkan.</p>
+                    </div>
+                </div>
+
                 <div class="flex items-center gap-3 pt-6 border-t mt-6">
                     <button type="submit"
                         class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition shadow-sm">
@@ -198,6 +294,31 @@
             document.getElementById('previewSubtitle').textContent = this.value || 'Isi data berikut untuk melanjutkan';
         });
     });
+
+    function addTierRow() {
+        const container = document.getElementById('tierContainer');
+        const row = document.createElement('div');
+        row.className = 'tier-row flex items-center gap-3 bg-white rounded-lg p-3 border border-orange-100';
+        row.innerHTML = `
+            <div class="flex-1">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Maks Responden</label>
+                <input type="number" name="tier_max[]"
+                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Kosongkan = unlimited" min="1">
+            </div>
+            <div class="flex-1">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Harga (Rp)</label>
+                <input type="number" name="tier_price[]" required
+                    class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Contoh: 500" min="1">
+            </div>
+            <button type="button" onclick="this.closest('.tier-row').remove()" class="mt-5 p-2 text-red-400 hover:text-red-600 transition" title="Hapus tier">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        `;
+        container.appendChild(row);
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
 </script>
 @endpush
 

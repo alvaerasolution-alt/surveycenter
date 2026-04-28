@@ -51,42 +51,47 @@
     {{-- LEFT: Pricing Info Card --}}
     <div class="space-y-6">
 
-      {{-- Price Highlight --}}
+      {{-- Volume Pricing Table --}}
       <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-7">
         <div class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-xl">💡</div>
+          <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-xl">�</div>
           <div>
-            <h2 class="text-lg font-bold text-gray-900">Harga Dasar</h2>
-            <p class="text-xs text-gray-400">per pertanyaan × per responden</p>
+            <h2 class="text-lg font-bold text-gray-900">Volume Pricing</h2>
+            <p class="text-xs text-gray-400">Harga otomatis turun sesuai jumlah responden</p>
           </div>
         </div>
-        <div class="flex items-end gap-2 mb-2">
-          <span class="text-5xl font-extrabold text-gray-900">Rp</span>
-          <span class="text-6xl font-extrabold text-orange-500 leading-none">1.000</span>
+        <div class="overflow-hidden rounded-xl border border-gray-200">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="px-4 py-2.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Responden</th>
+                <th class="px-4 py-2.5 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Harga/Soal/Orang</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              @php $vTiers = \App\Helpers\VolumePricing::getTiers(); $prev = 1; @endphp
+              @foreach($vTiers as $i => $tier)
+              <tr class="{{ $loop->last ? 'bg-emerald-50/50' : ($i % 2 ? 'bg-orange-50/50' : '') }}">
+                <td class="px-4 py-2.5 text-gray-700">
+                  @if($tier['max'] === null)
+                    ≥ {{ number_format($prev, 0, ',', '.') }}
+                  @else
+                    {{ number_format($prev, 0, ',', '.') }} – {{ number_format($tier['max'], 0, ',', '.') }}
+                  @endif
+                </td>
+                <td class="px-4 py-2.5 text-right {{ $loop->last ? 'font-bold text-emerald-600' : ($loop->first ? 'font-semibold text-gray-900' : 'font-semibold text-orange-600') }}">
+                  Rp {{ number_format($tier['price'], 0, ',', '.') }}
+                </td>
+              </tr>
+              @php if($tier['max'] !== null) $prev = $tier['max'] + 1; @endphp
+              @endforeach
+            </tbody>
+          </table>
         </div>
-        <p class="text-sm text-gray-500 mb-4">per pertanyaan / per responden</p>
-        <div class="bg-red-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 border border-red-200">
+        <p class="text-xs text-gray-500 mt-3">Formula: jumlah soal × jumlah responden × harga per tier</p>
+        <div class="mt-3 bg-red-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 border border-red-200">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          Minimal order Rp 100.000 per survey
-        </div>
-      </div>
-
-      {{-- Diskon Badge --}}
-      <div class="grid grid-cols-3 gap-3">
-        <div class="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
-          <div class="text-2xl font-extrabold text-orange-600 mb-1">50%</div>
-          <div class="text-xs font-semibold text-gray-700">Diskon</div>
-          <div class="text-xs text-gray-400 mt-0.5">Mahasiswa</div>
-        </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
-          <div class="text-2xl font-extrabold text-emerald-600 mb-1">30%</div>
-          <div class="text-xs font-semibold text-gray-700">Diskon</div>
-          <div class="text-xs text-gray-400 mt-0.5">Perusahaan</div>
-        </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
-          <div class="text-2xl font-extrabold text-gray-400 mb-1">0%</div>
-          <div class="text-xs font-semibold text-gray-700">Diskon</div>
-          <div class="text-xs text-gray-400 mt-0.5">Umum</div>
+          Minimal order Rp {{ number_format(\App\Helpers\VolumePricing::getMinOrder(), 0, ',', '.') }} per survey
         </div>
       </div>
 
@@ -247,40 +252,29 @@
           </div>
         </div>
 
-        {{-- User Type --}}
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Jenis Pengguna</label>
-          <select id="userType"
-            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition appearance-none bg-white">
-            <option value="">— Pilih jenis pengguna —</option>
-            <option value="mahasiswa">🎓 Mahasiswa  (Diskon 50%)</option>
-            <option value="perusahaan">🏢 Perusahaan (Diskon 30%)</option>
-            <option value="umum">👤 Umum       (Tanpa Diskon)</option>
-          </select>
-        </div>
-
         {{-- RESULT BOX --}}
         <div id="resultBox" class="hidden">
           <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-4">
             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Rincian Biaya</h3>
             <div class="space-y-2">
               <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Biaya Pertanyaan</span>
-                <span id="questionPrice" class="font-semibold text-gray-900">Rp 0</span>
+                <span class="text-gray-600">Harga per Soal per Orang</span>
+                <span id="unitPrice" class="font-semibold text-gray-900">Rp {{ number_format(\App\Helpers\VolumePricing::getTiers()[0]['price'] ?? 500, 0, ',', '.') }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Jumlah Pertanyaan</span>
+                <span id="questionCount" class="font-semibold text-gray-900">0</span>
               </div>
               <div class="flex justify-between text-sm">
                 <span class="text-gray-600">Jumlah Responden</span>
                 <span id="respondentCount" class="font-semibold text-gray-900">0</span>
               </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Diskon</span>
-                <span id="discountLabel" class="font-semibold text-emerald-600">-</span>
-              </div>
               <div class="border-t border-gray-200 pt-3 mt-3 flex justify-between items-center">
-                <span class="text-sm font-bold text-gray-900">Total Setelah Diskon</span>
+                <span class="text-sm font-bold text-gray-900">Total Biaya</span>
                 <span id="totalCost" class="text-2xl font-extrabold text-orange-500">Rp 0</span>
               </div>
-              <p id="minWarning" class="hidden text-xs text-red-500 font-medium text-right">⚠ Minimal Rp 100.000</p>
+              <p id="specialPriceMsg" class="hidden text-xs text-emerald-600 font-medium text-right"></p>
+              <p id="minWarning" class="hidden text-xs text-red-500 font-medium text-right">⚠ Minimal Rp 50.000</p>
             </div>
           </div>
 
@@ -293,7 +287,6 @@
             <input type="hidden" name="items" id="postItems">
             <input type="hidden" name="total_cost" id="postTotalCost">
             <input type="hidden" name="link" id="postLink">
-            <input type="hidden" name="user_type" id="postUserType">
 
             @guest
             <div class="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800">
@@ -401,7 +394,7 @@ function updateSubmitState() {
     const agreeTerms     = document.getElementById('agreeTerms');
     const submitButton   = document.getElementById('submitButton');
     if (!submitButton) return;
-    const MIN = 100000;
+    const MIN = 50000;
     const price = parseInt(totalCostInput ? totalCostInput.value : 0) || 0;
     submitButton.disabled = !(price >= MIN && agreeTerms && agreeTerms.checked);
 }
@@ -429,16 +422,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAuthenticated = pricingMeta ? pricingMeta.dataset.auth === '1' : false;
     const questionInput  = document.getElementById('questions');
     const respondentInput= document.getElementById('respondents');
-    const userTypeSelect = document.getElementById('userType');
     const titleInput     = document.getElementById('title');
     const formLinkInput  = document.getElementById('googleFormLink');
     const resultBox      = document.getElementById('resultBox');
     const placeholder    = document.getElementById('calcPlaceholder');
-    const MIN            = 100000;
-    const DRAFT_KEY      = 'pricing_form_draft_v1';
+    const MIN            = {{ \App\Helpers\VolumePricing::getMinOrder() }};
+    const PRICING_TIERS  = {!! \App\Helpers\VolumePricing::tiersForJs() !!};
+    const DRAFT_KEY      = 'pricing_form_draft_v2';
     const AUTO_SUBMIT_KEY = 'pricing_auto_submit_after_login_v1';
 
     const fmt = n => 'Rp ' + n.toLocaleString('id-ID');
+
+    function getVolumePricePerUnit(respondents) {
+        for (const tier of PRICING_TIERS) {
+            if (tier.max === null || respondents <= tier.max) return tier.price;
+        }
+        return PRICING_TIERS[0]?.price ?? 500;
+    }
 
     function saveDraft() {
         try {
@@ -448,7 +448,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 questions: questionInput.value || '',
                 respondents: respondentInput.value || '',
                 link: formLinkInput.value || '',
-                userType: userTypeSelect.value || '',
                 agreeTerms: !!(agreeTerms && agreeTerms.checked),
             };
             sessionStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
@@ -469,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof data.questions === 'string') questionInput.value = data.questions;
             if (typeof data.respondents === 'string') respondentInput.value = data.respondents;
             if (typeof data.link === 'string') formLinkInput.value = data.link;
-            if (typeof data.userType === 'string') userTypeSelect.value = data.userType;
 
             const agreeTerms = document.getElementById('agreeTerms');
             if (agreeTerms && typeof data.agreeTerms === 'boolean') {
@@ -516,31 +514,34 @@ document.addEventListener('DOMContentLoaded', () => {
     function calculate() {
         const q = parseInt(questionInput.value) || 0;
         const r = parseInt(respondentInput.value) || 0;
-        const t = userTypeSelect.value;
 
         if (q > 0 && r > 0) {
-            const base   = q * r * 1000;
-            let discount = 0, label = 'Tidak ada diskon';
-            if (t === 'mahasiswa')  { discount = base * 0.5; label = 'Diskon 50% (Mahasiswa)'; }
-            if (t === 'perusahaan') { discount = base * 0.3; label = 'Diskon 30% (Perusahaan)'; }
-            const final = base - discount;
+            const unitPrice = getVolumePricePerUnit(r);
+            const total = q * r * unitPrice;
 
-            document.getElementById('questionPrice').textContent   = fmt(q * 1000);
+            document.getElementById('unitPrice').textContent       = fmt(unitPrice);
+            document.getElementById('questionCount').textContent   = q;
             document.getElementById('respondentCount').textContent = r;
-            document.getElementById('discountLabel').textContent   = discount > 0 ? '-' + fmt(discount) + ' (' + label.split(' ')[1] + ')' : 'Tidak ada';
-            document.getElementById('totalCost').textContent       = fmt(final);
-            document.getElementById('minWarning').classList.toggle('hidden', final >= MIN);
+            document.getElementById('totalCost').textContent       = fmt(total);
+            document.getElementById('minWarning').classList.toggle('hidden', total >= MIN);
+
+            // Special price message
+            const specialMsg = document.getElementById('specialPriceMsg');
+            if (r >= 100) {
+                specialMsg.textContent = 'Anda mendapatkan harga spesial Rp ' + unitPrice.toLocaleString('id-ID') + '/soal karena order > ' + (r >= 1000 ? '1.000' : r >= 500 ? '500' : '100') + ' responden';
+                specialMsg.classList.remove('hidden');
+            } else {
+                specialMsg.classList.add('hidden');
+            }
 
             // fill hidden fields
             document.getElementById('postTitle').value      = titleInput.value;
             document.getElementById('postQuestions').value  = q;
             document.getElementById('postRespondents').value= r;
             document.getElementById('postLink').value       = formLinkInput.value;
-            document.getElementById('postTotalCost').value  = final;
-            document.getElementById('postUserType').value   = t;
+            document.getElementById('postTotalCost').value  = total;
             document.getElementById('postItems').value      = JSON.stringify([
-                {name:'Biaya Survey', quantity:1, unit_price: base},
-                ...(discount > 0 ? [{name: label, quantity:1, unit_price: -discount}] : [])
+                {name:'Biaya Survey (' + q + ' soal x ' + r + ' responden x Rp ' + unitPrice.toLocaleString('id-ID') + ')', quantity:1, unit_price: total}
             ]);
 
             resultBox.classList.remove('hidden');
@@ -554,12 +555,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     questionInput.addEventListener('input', calculate);
     respondentInput.addEventListener('input', calculate);
-    userTypeSelect.addEventListener('change', calculate);
     titleInput.addEventListener('input', saveDraft);
     formLinkInput.addEventListener('input', saveDraft);
     questionInput.addEventListener('input', saveDraft);
     respondentInput.addEventListener('input', saveDraft);
-    userTypeSelect.addEventListener('change', saveDraft);
 
     restoreDraft();
     autoSubmitAfterLogin();
@@ -575,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
         const p = parseInt(document.getElementById('postTotalCost').value) || 0;
-        if (p < MIN) { e.preventDefault(); alert('Total biaya minimal Rp 100.000'); return false; }
+        if (p < MIN) { e.preventDefault(); alert('Total biaya minimal Rp 50.000'); return false; }
         const link = (document.getElementById('googleFormLink').value || '').trim();
         if (!link) { e.preventDefault(); alert('Link form wajib diisi'); return false; }
         if (!document.getElementById('agreeTerms').checked) { e.preventDefault(); alert('Setujui Syarat & Ketentuan terlebih dahulu'); return false; }

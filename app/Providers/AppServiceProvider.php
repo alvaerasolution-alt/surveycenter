@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Transaction;
 use App\Models\Layanan;
 use App\Models\Setting;
+use App\Observers\TransactionObserver;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Transaction::observe(TransactionObserver::class);
+
         // Map route names → seo slugs stored in settings table
         $seoSlugMap = [
             'landing'    => 'home',

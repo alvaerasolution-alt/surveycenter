@@ -14,7 +14,22 @@
         question: {{ old('question_count', 0) }},
         respond: {{ old('respond_count', 0) }},
         google_form_link: '{{ old('google_form_link') }}',
-        price: 1000
+        _tiers: {!! \App\Helpers\VolumePricing::tiersForJs() !!},
+        get unitPrice() {
+            for (const tier of this._tiers) {
+                if (tier.max === null || this.respond <= tier.max) return tier.price;
+            }
+            return this._tiers[0]?.price ?? 500;
+        },
+        get totalPrice() { return this.question * this.respond * this.unitPrice; },
+        get isSpecialPrice() { return this._tiers.length > 0 && this._tiers[0].max !== null && this.respond > this._tiers[0].max; },
+        get specialLabel() {
+            for (let i = this._tiers.length - 1; i >= 1; i--) {
+                const prev = this._tiers[i - 1];
+                if (prev.max !== null && this.respond > prev.max) return '> ' + prev.max.toLocaleString('id-ID');
+            }
+            return '> 100';
+        }
     }" x-cloak>
 
         <div class="w-full max-w-3xl bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
@@ -36,19 +51,24 @@
                 <!-- Rules & Announcements -->
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                            <p class="text-xs text-gray-500">Harga Dasar</p>
-                            <p class="text-lg font-bold text-orange-600">Rp 1.000</p>
-                            <p class="text-[11px] text-gray-500">per pertanyaan / responden</p>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                            <p class="text-xs text-gray-500">Diskon</p>
-                            <p class="text-sm font-semibold text-gray-800">Mahasiswa 50% • Perusahaan 30%</p>
-                            <p class="text-[11px] text-gray-500">Umum tanpa diskon</p>
+                        <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm md:col-span-2">
+                            <p class="text-xs text-gray-500 mb-1">Volume Pricing (per soal/orang)</p>
+                            <div class="grid grid-cols-{{ count(\App\Helpers\VolumePricing::getTiers()) }} gap-2 text-xs">
+                                @php $vTiers = \App\Helpers\VolumePricing::getTiers(); $prev = 1; @endphp
+                                @foreach($vTiers as $tier)
+                                <div class="text-center">
+                                    <p class="font-semibold {{ $loop->last ? 'text-emerald-600' : ($loop->first ? 'text-gray-700' : 'text-orange-600') }}">
+                                        {{ $tier['max'] === null ? '≥ ' . number_format($prev, 0, ',', '.') : number_format($prev, 0, ',', '.') . '–' . number_format($tier['max'], 0, ',', '.') }}
+                                    </p>
+                                    <p class="{{ $loop->last ? 'text-emerald-600' : ($loop->first ? 'text-gray-900' : 'text-orange-600') }} font-bold">Rp {{ number_format($tier['price'], 0, ',', '.') }}</p>
+                                </div>
+                                @php if($tier['max'] !== null) $prev = $tier['max'] + 1; @endphp
+                                @endforeach
+                            </div>
                         </div>
                         <div class="bg-red-50 border border-red-200 rounded-lg p-3 shadow-sm">
                             <p class="text-xs text-red-600">Minimum Order</p>
-                            <p class="text-sm font-bold text-red-700">Rp 50.000 / survey</p>
+                            <p class="text-sm font-bold text-red-700">Rp {{ number_format(\App\Helpers\VolumePricing::getMinOrder(), 0, ',', '.') }} / survey</p>
                             <p class="text-[11px] text-red-600">Wajib terpenuhi saat checkout</p>
                         </div>
                     </div>
@@ -286,16 +306,12 @@
                     <!-- Body -->
                     <div class="divide-y">
                         <div class="flex justify-between px-4 py-2">
-                            <span>Biaya per pertanyaan</span>
-                            <span x-text="`Rp ${price.toLocaleString('id-ID')}`"></span>
+                            <span>Harga per soal per orang</span>
+                            <span x-text="`Rp ${unitPrice.toLocaleString('id-ID')}`"></span>
                         </div>
                         <div class="flex justify-between px-4 py-2">
                             <span>Jumlah pertanyaan</span>
                             <span x-text="question"></span>
-                        </div>
-                        <div class="flex justify-between px-4 py-2">
-                            <span>Total per pertanyaan</span>
-                            <span x-text="`Rp ${(question * price).toLocaleString('id-ID')}`"></span>
                         </div>
                         <div class="flex justify-between px-4 py-2">
                             <span>Jumlah responden</span>
@@ -303,14 +319,18 @@
                         </div>
                     </div>
 
+                    <!-- Special price notice -->
+                    <div x-show="isSpecialPrice" class="px-4 py-2 bg-emerald-50 text-emerald-700 text-xs font-medium">
+                        <span x-text="`Anda mendapatkan harga spesial Rp ${unitPrice.toLocaleString('id-ID')}/soal karena order ${specialLabel} responden`"></span>
+                    </div>
+
                     <!-- Footer / Total -->
                     <div class="bg-gray-50 px-4 py-3 flex justify-between items-center font-bold text-green-600 text-base">
                         <span>Total yang harus dibayar</span>
                         <span class="text-xl"
-                            x-text="`Rp ${(question * price * respond).toLocaleString('id-ID')}`"></span>
+                            x-text="`Rp ${totalPrice.toLocaleString('id-ID')}`"></span>
                     </div>
                 </div>
-
 
                 <div class="flex justify-end gap-3 mt-4">
                     <button type="button" @click="showModal = false"

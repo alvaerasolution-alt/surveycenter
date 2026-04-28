@@ -64,6 +64,16 @@ class GoogleAuthController extends Controller
                 // Since this system requires a phone, we might generate a dummy one or redirect to a form to complete profile.
                 // For simplicity here, we create the user and they might need to update their profile later.
                 
+                // Check for referral code in session
+                $referrerId = null;
+                $refCode = $request->session()->pull('referral_code');
+                if ($refCode) {
+                    $referrer = User::where('referral_code', $refCode)->first();
+                    if ($referrer) {
+                        $referrerId = $referrer->id;
+                    }
+                }
+
                 $newUser = User::create([
                     'name' => $googleUser->name,
                     'email' => $googleUser->email,
@@ -71,6 +81,7 @@ class GoogleAuthController extends Controller
                     'google_avatar' => $googleUser->avatar,
                     'password' => Hash::make(Str::random(16)), // set a random password
                     'phone' => '08000000000', // Placeholder phone number
+                    'referred_by_id' => $referrerId,
                 ]);
                 
                 $newUser->forceFill([

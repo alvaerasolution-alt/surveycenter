@@ -10,8 +10,8 @@
                 Selamat Datang, {{ auth()->user()->name }} 🎉
             </h1>
             <p class="text-lg md:text-xl text-gray-800 mb-6">
-                Buat survei dengan mudah hanya <strong>Rp 1.000</strong> per pertanyaan dan <strong>Rp 1.000</strong> per
-                responden.
+                Buat survei dengan mudah mulai <strong>Rp 350</strong> per soal per responden.
+                Harga otomatis turun sesuai jumlah responden.
             </p>
             <a href="{{ route('pricing') }}"
                 class="mt-4 inline-block bg-black text-white px-8 py-4 rounded-xl shadow-lg hover:bg-gray-800 transition font-semibold">

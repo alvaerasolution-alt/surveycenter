@@ -15,6 +15,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Response;
+use App\Helpers\VolumePricing;
 use Illuminate\Validation\ValidationException;
 
 class TransactionController extends Controller
@@ -42,24 +43,14 @@ class TransactionController extends Controller
             'respondent_count' => 'required|integer|min:1',
             'items' => 'required|string',
             'link' => 'required|url|max:2048',
-            'user_type' => 'required|in:mahasiswa,perusahaan,umum'
         ]);
 
-        $pricePerQuestion = 1000;
-        $baseTotal = $validated['question_count'] * $validated['respondent_count'] * $pricePerQuestion;
+        // Volume pricing berdasarkan jumlah responden
+        $finalPrice = VolumePricing::calculateTotal($validated['question_count'], $validated['respondent_count']);
 
-        $discount = 0;
-
-        if ($validated['user_type'] === 'mahasiswa') {
-            $discount = $baseTotal * 0.5;
-        } elseif ($validated['user_type'] === 'perusahaan') {
-            $discount = $baseTotal * 0.3;
-        }
-
-        $finalPrice = $baseTotal - $discount;
-
-        if ($finalPrice < 100000) {
-            abort(403, 'Minimal total pembayaran adalah Rp 100.000');
+        $minOrder = VolumePricing::getMinOrder();
+        if ($finalPrice < $minOrder) {
+            abort(403, 'Minimal total pembayaran adalah Rp ' . number_format($minOrder, 0, ',', '.'));
         }
 
         $survey = Survey::create([

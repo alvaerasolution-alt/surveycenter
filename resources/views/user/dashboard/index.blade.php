@@ -36,7 +36,7 @@
         <div class="relative z-10">
             <p class="text-orange-200 text-xs font-medium uppercase tracking-widest mb-2">{{ now()->translatedFormat('l, d F Y') }}</p>
             <h1 class="text-2xl sm:text-3xl font-bold leading-tight">Selamat Datang, {{ $user->name }}!</h1>
-            <p class="mt-2 text-orange-100 text-sm max-w-lg">Kelola survey Anda dengan mudah. Buat survey baru dengan harga mulai Rp 1.000 per pertanyaan.</p>
+            <p class="mt-2 text-orange-100 text-sm max-w-lg">Kelola survey Anda dengan mudah. Buat survey baru dengan harga mulai Rp 350 per soal per responden.</p>
             <a href="{{ route('user.surveys.create') }}" class="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-white text-orange-600 rounded-lg font-semibold text-sm hover:bg-orange-50 transition shadow-lg shadow-orange-700/20">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 Buat Survey Baru
@@ -115,6 +115,26 @@
         </div>
     </div>
 
+    {{-- Poin Reward Card --}}
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/80 p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                    <i data-lucide="coins" class="w-6 h-6 text-amber-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-900">Reward & Poin Anda</p>
+                    <p class="text-2xl font-extrabold text-amber-600">{{ number_format($user->point_balance, 0, ',', '.') }} <span class="text-sm font-medium text-gray-500">poin</span></p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">Rp 1.000 transaksi = 1 poin. Tukarkan dengan pulsa atau voucher!</p>
+                </div>
+            </div>
+            <a href="{{ route('user.rewards.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600 transition shadow-sm">
+                <i data-lucide="gift" class="w-4 h-4"></i>
+                Lihat Reward
+            </a>
+        </div>
+    </div>
+
     {{-- Info Pricing untuk Create Survey --}}
     <div class="bg-white rounded-xl border border-gray-200/80 p-5">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -128,20 +148,23 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                <p class="text-[11px] text-gray-500">Harga Dasar</p>
-                <p class="text-sm font-bold text-orange-600">Rp 1.000</p>
-                <p class="text-[11px] text-gray-500">per pertanyaan / responden</p>
-            </div>
-            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                <p class="text-[11px] text-gray-500">Diskon</p>
-                <p class="text-sm font-semibold text-gray-800">Mahasiswa 50% • Perusahaan 30%</p>
-                <p class="text-[11px] text-gray-500">Umum tanpa diskon</p>
+                <p class="text-[11px] text-gray-500">Volume Pricing (per soal/orang)</p>
+                <div class="mt-1 space-y-0.5 text-xs">
+                    @php $vTiers = \App\Helpers\VolumePricing::getTiers(); $prev = 1; @endphp
+                    @foreach($vTiers as $tier)
+                    <p class="{{ $loop->last ? 'text-emerald-600 font-bold' : ($loop->first ? 'text-gray-700' : 'text-orange-600') }}">
+                        <span class="font-semibold">{{ $tier['max'] === null ? '≥ ' . number_format($prev, 0, ',', '.') : number_format($prev, 0, ',', '.') . '–' . number_format($tier['max'], 0, ',', '.') }}:</span>
+                        Rp {{ number_format($tier['price'], 0, ',', '.') }}
+                    </p>
+                    @php if($tier['max'] !== null) $prev = $tier['max'] + 1; @endphp
+                    @endforeach
+                </div>
             </div>
             <div class="rounded-lg border border-red-200 bg-red-50 p-3">
                 <p class="text-[11px] text-red-600">Minimum Order</p>
-                <p class="text-sm font-bold text-red-700">Rp 50.000 / survey</p>
+                <p class="text-sm font-bold text-red-700">Rp {{ number_format(\App\Helpers\VolumePricing::getMinOrder(), 0, ',', '.') }} / survey</p>
                 <p class="text-[11px] text-red-600">AI analyzer aktif saat judul + link terisi</p>
             </div>
         </div>

@@ -172,6 +172,8 @@
                         ['route' => 'user.surveys.create', 'is' => 'user.surveys.create', 'icon' => 'plus-circle', 'label' => 'Buat Survey'],
                         ['route' => 'user.transactions.index', 'is' => 'user.transactions.*', 'icon' => 'receipt', 'label' => 'Transaksi'],
                         ['route' => 'user.analytics', 'is' => 'user.analytics', 'icon' => 'bar-chart-2', 'label' => 'Analytics'],
+                        ['route' => 'user.rewards.index', 'is' => 'user.rewards.*', 'icon' => 'gift', 'label' => 'Reward & Poin'],
+                        ['route' => 'user.affiliate.index', 'is' => 'user.affiliate.*', 'icon' => 'share-2', 'label' => 'Affiliate'],
                     ];
                 @endphp
 

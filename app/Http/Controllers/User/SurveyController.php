@@ -9,6 +9,7 @@ use App\Services\FormLinkValidationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\VolumePricing;
 use Illuminate\Validation\ValidationException;
 
 class SurveyController extends Controller
@@ -81,30 +82,20 @@ class SurveyController extends Controller
             'respondent_count' => 'required|integer|min:1|max:10000',
             'form_link'        => 'required|url|max:2048',
             'description'      => 'nullable|string|max:1000',
-            'user_type'        => 'required|in:mahasiswa,perusahaan,umum',
         ]);
 
 
 
         $user = Auth::user();
 
-        // Calculate cost — sama persis dengan halaman pricing
-        // Formula: pertanyaan × responden × Rp 1.000
-        $baseTotal = $validated['question_count'] * $validated['respondent_count'] * 1000;
+        // Calculate cost — volume pricing berdasarkan jumlah responden
+        $totalCost = VolumePricing::calculateTotal($validated['question_count'], $validated['respondent_count']);
 
-        $discount = 0;
-        if ($validated['user_type'] === 'mahasiswa') {
-            $discount = $baseTotal * 0.5;
-        } elseif ($validated['user_type'] === 'perusahaan') {
-            $discount = $baseTotal * 0.3;
-        }
-
-        $totalCost = $baseTotal - $discount;
-
-        // Enforce minimum order Rp 50.000
-        if ($totalCost < 50000) {
+        // Enforce minimum order
+        $minOrder = VolumePricing::getMinOrder();
+        if ($totalCost < $minOrder) {
             throw ValidationException::withMessages([
-                'respondent_count' => 'Total biaya minimal Rp 50.000 per survey. Tambah jumlah pertanyaan atau responden.',
+                'respondent_count' => 'Total biaya minimal Rp ' . number_format($minOrder, 0, ',', '.') . ' per survey. Tambah jumlah pertanyaan atau responden.',
             ]);
         }
 

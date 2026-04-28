@@ -23,20 +23,23 @@
         </div>
 
         <div class="px-6 pt-5">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p class="text-[11px] text-gray-500">Harga Dasar</p>
-                    <p class="text-sm font-bold text-orange-600">Rp 1.000</p>
-                    <p class="text-[11px] text-gray-500">per pertanyaan / responden</p>
-                </div>
-                <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p class="text-[11px] text-gray-500">Diskon</p>
-                    <p class="text-sm font-semibold text-gray-800">Mahasiswa 50% • Perusahaan 30%</p>
-                    <p class="text-[11px] text-gray-500">Umum tanpa diskon</p>
+                    <p class="text-[11px] text-gray-500">Volume Pricing (per soal/orang)</p>
+                    <div class="mt-1 space-y-0.5 text-xs">
+                        @php $vTiers = \App\Helpers\VolumePricing::getTiers(); $prev = 1; @endphp
+                        @foreach($vTiers as $tier)
+                        <p class="{{ $loop->last ? 'text-emerald-600 font-bold' : ($loop->first ? 'text-gray-700' : 'text-orange-600') }}">
+                            <span class="font-semibold">{{ $tier['max'] === null ? '≥ ' . number_format($prev, 0, ',', '.') : number_format($prev, 0, ',', '.') . '–' . number_format($tier['max'], 0, ',', '.') }}:</span>
+                            Rp {{ number_format($tier['price'], 0, ',', '.') }}
+                        </p>
+                        @php if($tier['max'] !== null) $prev = $tier['max'] + 1; @endphp
+                        @endforeach
+                    </div>
                 </div>
                 <div class="rounded-lg border border-red-200 bg-red-50 p-3">
                     <p class="text-[11px] text-red-600">Minimum Order</p>
-                    <p class="text-sm font-bold text-red-700">Rp 50.000 / survey</p>
+                    <p class="text-sm font-bold text-red-700">Rp {{ number_format(\App\Helpers\VolumePricing::getMinOrder(), 0, ',', '.') }} / survey</p>
                     <p class="text-[11px] text-red-600">Wajib saat checkout</p>
                 </div>
             </div>
@@ -194,23 +197,6 @@
                 @enderror
             </div>
 
-            {{-- User Type --}}
-            <div>
-                <label for="user_type" class="block text-sm font-medium text-gray-700 mb-2">
-                    Jenis Pengguna <span class="text-red-500">*</span>
-                </label>
-                <select name="user_type" id="user_type" required
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition appearance-none bg-white @error('user_type') border-red-500 @enderror">
-                    <option value="">— Pilih jenis pengguna —</option>
-                    <option value="mahasiswa" {{ old('user_type') == 'mahasiswa' ? 'selected' : '' }}>🎓 Mahasiswa (Diskon 50%)</option>
-                    <option value="perusahaan" {{ old('user_type') == 'perusahaan' ? 'selected' : '' }}>🏢 Perusahaan (Diskon 30%)</option>
-                    <option value="umum" {{ old('user_type') == 'umum' ? 'selected' : '' }}>👤 Umum (Tanpa Diskon)</option>
-                </select>
-                @error('user_type')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
             {{-- Cost Estimation --}}
             <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border border-orange-100">
                 <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -219,21 +205,22 @@
                 </h3>
                 <div class="space-y-3">
                     <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Biaya dasar (pertanyaan × responden)</span>
-                        <span class="text-gray-900" id="base-cost">Rp 0</span>
+                        <span class="text-gray-600">Harga per soal per orang</span>
+                        <span class="text-gray-900 font-semibold" id="unit-price">Rp {{ number_format(\App\Helpers\VolumePricing::getTiers()[0]['price'] ?? 500, 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex justify-between text-sm" id="discount-row" style="display:none !important">
-                        <span class="text-emerald-600" id="discount-label">Diskon</span>
-                        <span class="text-emerald-600 font-semibold" id="discount-amount">- Rp 0</span>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Kalkulasi</span>
+                        <span class="text-gray-900" id="base-cost">0 soal × 0 responden</span>
                     </div>
                     <div class="border-t border-orange-200 pt-3 flex justify-between">
-                        <span class="font-semibold text-gray-900">Total Setelah Diskon</span>
+                        <span class="font-semibold text-gray-900">Total Biaya</span>
                         <span class="font-bold text-orange-600 text-lg" id="total-cost">Rp 0</span>
                     </div>
+                    <p id="special-price-msg" class="hidden text-xs text-emerald-600 font-medium text-right"></p>
                     <p id="min-warning" class="hidden text-xs text-red-500 font-medium text-right">⚠ Minimal order Rp 50.000 per survey</p>
                 </div>
                 <p class="text-xs text-gray-500 mt-4">
-                    * Harga dasar: Rp 1.000 × jumlah pertanyaan × jumlah responden
+                    * Harga otomatis turun sesuai jumlah responden (volume pricing)
                 </p>
             </div>
 
@@ -303,47 +290,44 @@
 
         const questionInput   = document.getElementById('question_count');
         const respondentInput = document.getElementById('respondent_count');
-        const userTypeSelect  = document.getElementById('user_type');
+        const unitPriceEl     = document.getElementById('unit-price');
         const baseCostEl      = document.getElementById('base-cost');
-        const discountRow     = document.getElementById('discount-row');
-        const discountLabel   = document.getElementById('discount-label');
-        const discountAmount  = document.getElementById('discount-amount');
         const totalCostEl     = document.getElementById('total-cost');
+        const specialPriceMsg = document.getElementById('special-price-msg');
         const minWarning      = document.getElementById('min-warning');
-        const MIN_ORDER       = 50000;
+        const MIN_ORDER       = {{ \App\Helpers\VolumePricing::getMinOrder() }};
+        const PRICING_TIERS   = {!! \App\Helpers\VolumePricing::tiersForJs() !!};
 
         function formatCurrency(value) {
             return 'Rp ' + value.toLocaleString('id-ID');
         }
 
+        function getVolumePricePerUnit(respondents) {
+            for (const tier of PRICING_TIERS) {
+                if (tier.max === null || respondents <= tier.max) return tier.price;
+            }
+            return PRICING_TIERS[0]?.price ?? 500;
+        }
+
         function calculateCost() {
-            const questions  = parseInt(questionInput.value) || 0;
+            const questions   = parseInt(questionInput.value) || 0;
             const respondents = parseInt(respondentInput.value) || 0;
-            const userType   = userTypeSelect ? userTypeSelect.value : '';
+            const unitPrice   = getVolumePricePerUnit(respondents);
+            const total       = questions * respondents * unitPrice;
 
-            // Formula sama dengan halaman pricing: pertanyaan × responden × 1000
-            const base = questions * respondents * 1000;
+            unitPriceEl.textContent = formatCurrency(unitPrice);
+            baseCostEl.textContent  = questions + ' soal \u00d7 ' + respondents + ' responden';
+            totalCostEl.textContent = formatCurrency(total);
 
-            let discount = 0;
-            let discountText = '';
-            if (userType === 'mahasiswa')  { discount = base * 0.5; discountText = 'Diskon 50% (Mahasiswa)'; }
-            if (userType === 'perusahaan') { discount = base * 0.3; discountText = 'Diskon 30% (Perusahaan)'; }
-
-            const final = base - discount;
-
-            baseCostEl.textContent  = formatCurrency(base);
-            totalCostEl.textContent = formatCurrency(final);
-
-            if (discount > 0) {
-                discountRow.style.removeProperty('display');
-                discountLabel.textContent  = discountText;
-                discountAmount.textContent = '- ' + formatCurrency(discount);
+            if (respondents >= 100) {
+                specialPriceMsg.textContent = 'Anda mendapatkan harga spesial ' + formatCurrency(unitPrice) + '/soal karena order > ' + (respondents >= 1000 ? '1.000' : respondents >= 500 ? '500' : '100') + ' responden';
+                specialPriceMsg.classList.remove('hidden');
             } else {
-                discountRow.style.setProperty('display', 'none', 'important');
+                specialPriceMsg.classList.add('hidden');
             }
 
             if (questions > 0 && respondents > 0) {
-                minWarning.classList.toggle('hidden', final >= MIN_ORDER);
+                minWarning.classList.toggle('hidden', total >= MIN_ORDER);
             } else {
                 minWarning.classList.add('hidden');
             }
@@ -351,7 +335,6 @@
 
         questionInput.addEventListener('input', calculateCost);
         respondentInput.addEventListener('input', calculateCost);
-        if (userTypeSelect) userTypeSelect.addEventListener('change', calculateCost);
 
         // Initial calculation
         calculateCost();
