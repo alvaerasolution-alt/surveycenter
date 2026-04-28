@@ -49,13 +49,13 @@ class RewardItem extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', 1);
+        return $query->where('is_active', '=', 1);
     }
 
     public function scopeAvailable($query)
     {
-        return $query->active()->where(function ($q) {
-            $q->where('stock', -1)->orWhere('stock', '>', 0);
+        return $query->where('is_active', '=', 1)->where(function ($q) {
+            $q->where('stock', '=', -1)->orWhere('stock', '>', 0);
         });
     }
 

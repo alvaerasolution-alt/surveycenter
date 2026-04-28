@@ -34,7 +34,7 @@ class RewardItemController extends Controller
             'is_active'   => 'nullable|boolean',
         ]);
 
-        $data['is_active'] = $request->has('is_active');
+        $data['is_active'] = (bool) $request->input('is_active', 0);
 
         RewardItem::create($data);
 
@@ -60,7 +60,7 @@ class RewardItemController extends Controller
             'is_active'   => 'nullable|boolean',
         ]);
 
-        $data['is_active'] = $request->has('is_active');
+        $data['is_active'] = (bool) $request->input('is_active', 0);
 
         $reward_item->update($data);
 
