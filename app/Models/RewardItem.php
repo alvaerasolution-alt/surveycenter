@@ -19,15 +19,7 @@ class RewardItem extends Model
         'points_cost',
         'value',
         'stock',
-        'is_active',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-        ];
-    }
 
     public function redemptions()
     {
@@ -39,22 +31,12 @@ class RewardItem extends Model
      */
     public function isAvailable(): bool
     {
-        if (!$this->is_active) {
-            return false;
-        }
-
-        // stock = -1 means unlimited
         return $this->stock === -1 || $this->stock > 0;
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', '=', 1);
     }
 
     public function scopeAvailable($query)
     {
-        return $query->where('is_active', '=', 1)->where(function ($q) {
+        return $query->where(function ($q) {
             $q->where('stock', '=', -1)->orWhere('stock', '>', 0);
         });
     }

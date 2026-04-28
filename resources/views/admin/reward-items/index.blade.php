@@ -35,7 +35,6 @@
                         <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Harga Poin</th>
                         <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Nilai</th>
                         <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Stok</th>
-                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
                         <th class="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -63,17 +62,6 @@
                         <td class="px-4 py-3 text-gray-600">
                             {{ $item->stock === -1 ? 'Unlimited' : $item->stock }}
                         </td>
-                        <td class="px-4 py-3">
-                            @if($item->is_active)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-green-100 text-green-700">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i> Aktif
-                            </span>
-                            @else
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-500">
-                                <i data-lucide="x-circle" class="w-3 h-3"></i> Nonaktif
-                            </span>
-                            @endif
-                        </td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('admin.reward-items.edit', $item) }}"
@@ -91,7 +79,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-12 text-center">
+                        <td colspan="6" class="px-4 py-12 text-center">
                             <i data-lucide="gift" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
                             <p class="text-sm text-gray-400">Belum ada reward item.</p>
                             <a href="{{ route('admin.reward-items.create') }}" class="inline-flex items-center gap-1 text-sm text-orange-600 font-medium mt-2 hover:underline">

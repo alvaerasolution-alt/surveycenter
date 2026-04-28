@@ -31,10 +31,7 @@ class RewardItemController extends Controller
             'points_cost' => 'required|integer|min:1',
             'value'       => 'nullable|string|max:100',
             'stock'       => 'required|integer|min:-1',
-            'is_active'   => 'nullable|boolean',
         ]);
-
-        $data['is_active'] = (bool) $request->input('is_active', 0);
 
         RewardItem::create($data);
 
@@ -57,10 +54,7 @@ class RewardItemController extends Controller
             'points_cost' => 'required|integer|min:1',
             'value'       => 'nullable|string|max:100',
             'stock'       => 'required|integer|min:-1',
-            'is_active'   => 'nullable|boolean',
         ]);
-
-        $data['is_active'] = (bool) $request->input('is_active', 0);
 
         $reward_item->update($data);
 
