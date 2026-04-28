@@ -68,7 +68,8 @@ class SurveyController extends Controller
      */
     public function create()
     {
-        return view('user.surveys.create');
+        $terms = \App\Models\Setting::where('key', 'terms_content')->value('value') ?? '';
+        return view('user.surveys.create', compact('terms'));
     }
 
     /**

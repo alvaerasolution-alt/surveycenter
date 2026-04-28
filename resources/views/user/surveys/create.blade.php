@@ -224,12 +224,26 @@
                 </p>
             </div>
 
+            {{-- Checkbox S&K --}}
+            <div class="flex items-start gap-2.5">
+                <input type="checkbox" id="agreeTerms"
+                    class="w-4 h-4 mt-0.5 rounded border-gray-300 text-orange-500 focus:ring-orange-400 cursor-pointer flex-shrink-0"
+                    onclick="handleCheckboxClick(event)">
+                <label for="agreeTerms" class="text-xs text-gray-600 leading-snug select-none"
+                       onclick="handleLabelClick(event)" style="cursor:pointer">
+                    Saya telah membaca dan menyetujui
+                    <span class="text-orange-500 font-semibold underline">Syarat &amp; Ketentuan</span>
+                    yang berlaku.
+                </label>
+            </div>
+
             {{-- Submit Button --}}
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                 <a href="{{ route('user.surveys.index') }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                     Batal
                 </a>
-                <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition shadow-sm">
+                <button type="submit" id="submitSurveyBtn" disabled
+                    class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     Buat Survey
                 </button>
@@ -279,6 +293,106 @@
             </p>
         </div>
     </div>
+
+{{-- ═══════════ MODAL SYARAT & KETENTUAN ═══════════ --}}
+<div id="termsModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
+      <h3 class="text-lg font-bold text-gray-900">Syarat &amp; Ketentuan</h3>
+      <button id="modalCloseX" onclick="closeTermsModal()"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100"
+          style="opacity:.3;cursor:not-allowed" disabled>
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="flex items-center gap-2 px-6 py-2 bg-amber-50 border-b border-amber-100 text-amber-700 text-xs font-medium">
+      <svg class="w-3.5 h-3.5 animate-bounce flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      Scroll sampai bawah untuk mengaktifkan tombol
+    </div>
+    <div id="termsBody" class="flex-1 overflow-y-auto px-6 py-5 terms-prose" onscroll="checkTermsScroll()">
+      @if($terms)
+        {!! $terms !!}
+      @else
+        <p class="text-gray-400 text-sm italic text-center py-8">Syarat &amp; ketentuan belum diatur oleh admin.</p>
+      @endif
+      <div class="h-6"></div>
+    </div>
+    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between flex-shrink-0 bg-gray-50">
+      <p id="scrollMsg" class="text-xs text-gray-400 italic">Scroll sampai bawah untuk melanjutkan</p>
+      <div class="flex gap-3">
+        <button id="modalCloseBtn" onclick="closeTermsModal()"
+            class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-200 transition"
+            style="opacity:.3;cursor:not-allowed" disabled>Tutup</button>
+        <button id="acceptBtn" onclick="acceptTerms()"
+            class="px-5 py-2 text-sm font-bold text-white bg-orange-500 rounded-lg transition hover:bg-orange-600"
+            style="opacity:.3;cursor:not-allowed" disabled>Saya Setuju</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.terms-prose h1{font-size:1.3rem;font-weight:700;margin-bottom:.5rem;color:#111827}
+.terms-prose h2{font-size:1.1rem;font-weight:700;margin-bottom:.5rem;color:#1f2937}
+.terms-prose p{margin-bottom:.75rem;color:#374151;font-size:.875rem;line-height:1.65}
+.terms-prose ul{list-style:disc;padding-left:1.5rem;margin-bottom:.75rem}
+.terms-prose ol{list-style:decimal;padding-left:1.5rem;margin-bottom:.75rem}
+.terms-prose li{margin-bottom:.25rem;color:#374151;font-size:.875rem}
+.terms-prose strong{font-weight:700}
+.terms-prose blockquote{border-left:4px solid #fbbf24;padding-left:1rem;color:#6b7280;margin:.75rem 0}
+</style>
+
+<script>
+function updateSubmitState(){
+    const cb=document.getElementById('agreeTerms');
+    const btn=document.getElementById('submitSurveyBtn');
+    if(btn) btn.disabled=!(cb&&cb.checked);
+}
+function handleCheckboxClick(e){
+    const cb=document.getElementById('agreeTerms');
+    if(!cb.checked){e.preventDefault();openTermsModal();}
+    else{updateSubmitState();}
+}
+function handleLabelClick(e){
+    e.preventDefault();
+    const cb=document.getElementById('agreeTerms');
+    if(!cb.checked){openTermsModal();}
+    else{cb.checked=false;updateSubmitState();}
+}
+function openTermsModal(){
+    const m=document.getElementById('termsModal');
+    m.classList.remove('hidden');m.classList.add('flex');
+    const body=document.getElementById('termsBody');
+    body.scrollTop=0;setScrolledState(false);
+    setTimeout(checkTermsScroll,150);
+}
+function closeTermsModal(){
+    const m=document.getElementById('termsModal');
+    m.classList.add('hidden');m.classList.remove('flex');
+}
+function acceptTerms(){
+    document.getElementById('agreeTerms').checked=true;
+    updateSubmitState();closeTermsModal();
+}
+function checkTermsScroll(){
+    const b=document.getElementById('termsBody');
+    if(!b)return;
+    if(b.scrollTop+b.clientHeight>=b.scrollHeight-40)setScrolledState(true);
+}
+function setScrolledState(done){
+    const accept=document.getElementById('acceptBtn');
+    const closeBtn=document.getElementById('modalCloseBtn');
+    const closeX=document.getElementById('modalCloseX');
+    const msg=document.getElementById('scrollMsg');
+    if(done){
+        [accept,closeBtn,closeX].forEach(el=>{if(el){el.disabled=false;el.style.opacity='1';el.style.cursor='pointer';}});
+        if(msg)msg.textContent='Anda sudah membaca syarat & ketentuan';
+    }else{
+        [accept,closeBtn,closeX].forEach(el=>{if(el){el.disabled=true;el.style.opacity='.3';el.style.cursor='not-allowed';}});
+        if(msg)msg.textContent='Scroll sampai bawah untuk melanjutkan';
+    }
+}
+</script>
 
 </div>
 @endsection
