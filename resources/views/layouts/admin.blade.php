@@ -211,6 +211,7 @@
                         ['route' => 'admin.layanan.index', 'is' => 'admin.layanan.*', 'icon' => 'briefcase', 'label' => 'Kelola Layanan', 'check' => 'routeIs'],
                         ['route' => 'admin.transactions.index', 'is' => 'admin.transactions.*', 'icon' => 'credit-card', 'label' => 'Transaksi', 'check' => 'routeIs'],
                         ['route' => 'admin.reward-items.index', 'is' => 'admin.reward-items.*', 'icon' => 'gift', 'label' => 'Kelola Reward', 'check' => 'routeIs'],
+                        ['route' => 'admin.reward-redemptions.index', 'is' => 'admin.reward-redemptions.*', 'icon' => 'repeat', 'label' => 'Penukaran Poin', 'check' => 'routeIs'],
                         ['route' => 'admin.affiliate-withdrawals.index', 'is' => 'admin.affiliate-withdrawals.*', 'icon' => 'wallet', 'label' => 'Withdrawal Affiliate', 'check' => 'routeIs'],
                         ['route' => 'admin.seo.index', 'is' => 'admin.seo.*', 'icon' => 'search', 'label' => 'Kelola SEO', 'check' => 'routeIs'],
                         ['route' => 'admin.terms.edit', 'is' => 'admin.terms.*', 'icon' => 'file-check', 'label' => 'Syarat & Ketentuan', 'check' => 'routeIs'],

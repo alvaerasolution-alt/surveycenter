@@ -38,6 +38,7 @@ use App\Http\Controllers\User\RewardController;
 use App\Http\Controllers\User\AffiliateController;
 use App\Http\Controllers\Admin\AffiliateWithdrawalController;
 use App\Http\Controllers\Admin\RewardItemController;
+use App\Http\Controllers\Admin\RewardRedemptionController;
 use App\Services\SitemapService;
 
 Route::get('/', [HomeController::class, 'index'])->name('landing');
@@ -269,6 +270,10 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
 
     // Reward Items CRUD
     Route::resource('reward-items', RewardItemController::class)->except(['show'])->names('admin.reward-items');
+
+    // Reward Redemptions
+    Route::get('reward-redemptions', [RewardRedemptionController::class, 'index'])->name('admin.reward-redemptions.index');
+    Route::patch('reward-redemptions/{redemption}/status', [RewardRedemptionController::class, 'updateStatus'])->name('admin.reward-redemptions.update-status');
 
     // Affiliate Withdrawals
     Route::prefix('affiliate-withdrawals')->name('admin.affiliate-withdrawals.')->group(function () {
