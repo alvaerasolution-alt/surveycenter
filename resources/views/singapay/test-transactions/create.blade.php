@@ -33,7 +33,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama Customer <span class="text-red-500">*</span></label>
-                    <input type="text" name="customer_name" value="{{ old('customer_name', Auth::user()->name ?? 'Test User') }}" required
+                    <input type="text" name="customer_name" value="{{ old('customer_name', auth()->user()->name ?? 'Test User') }}" required
                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                     @error('customer_name')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                 </div>
@@ -47,7 +47,7 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Email <span class="text-red-500">*</span></label>
-                <input type="email" name="customer_email" value="{{ old('customer_email', Auth::user()->email ?? 'test@test.com') }}" required
+                <input type="email" name="customer_email" value="{{ old('customer_email', auth()->user()->email ?? 'test@test.com') }}" required
                     class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                 @error('customer_email')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
             </div>
