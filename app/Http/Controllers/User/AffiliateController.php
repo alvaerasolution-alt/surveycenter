@@ -68,7 +68,7 @@ class AffiliateController extends Controller
     public function withdraw(Request $request)
     {
         $request->validate([
-            'amount'              => 'required|integer|min:10000',
+            'amount'              => 'required|integer|min:100000',
             'bank_name'           => 'required|string|max:100',
             'account_number'      => 'required|string|max:50',
             'account_holder_name' => 'required|string|max:150',

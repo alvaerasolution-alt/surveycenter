@@ -133,15 +133,15 @@
             </div>
         </div>
         <div class="p-5">
-            @if($affiliateBalance >= 10000)
+            @if($affiliateBalance >= 100000)
             <form method="POST" action="{{ route('user.affiliate.withdraw') }}" class="space-y-4">
                 @csrf
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah Penarikan (Rp)</label>
-                        <input type="number" name="amount" value="{{ old('amount') }}" required min="10000" max="{{ $affiliateBalance }}"
+                        <input type="number" name="amount" value="{{ old('amount') }}" required min="100000" max="{{ $affiliateBalance }}"
                             class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent @error('amount') border-red-300 @enderror"
-                            placeholder="Minimal Rp 10.000">
+                            placeholder="Minimal Rp 100.000">
                         @error('amount')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                         <p class="text-xs text-gray-400 mt-1">Saldo tersedia: <strong class="text-green-600">Rp {{ number_format($affiliateBalance, 0, ',', '.') }}</strong></p>
                     </div>
@@ -173,7 +173,7 @@
             <div class="text-center py-4">
                 <i data-lucide="wallet" class="w-10 h-10 text-gray-300 mx-auto mb-2"></i>
                 <p class="text-sm text-gray-500">Saldo belum mencukupi untuk penarikan.</p>
-                <p class="text-xs text-gray-400 mt-1">Minimal penarikan Rp 10.000. Saldo Anda: <strong>Rp {{ number_format($affiliateBalance, 0, ',', '.') }}</strong></p>
+                <p class="text-xs text-gray-400 mt-1">Minimal penarikan Rp 100.000. Saldo Anda: <strong>Rp {{ number_format($affiliateBalance, 0, ',', '.') }}</strong></p>
             </div>
             @endif
 
