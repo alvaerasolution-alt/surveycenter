@@ -10,6 +10,7 @@
             <div>
                 <h2 class="text-lg font-semibold text-gray-900">Permintaan Withdrawal</h2>
                 <p class="text-sm text-gray-500 mt-1">Kelola permintaan penarikan saldo affiliate dari user</p>
+                <p class="text-xs text-blue-600 mt-1"><i data-lucide="calendar-clock" class="w-3.5 h-3.5 inline -mt-0.5"></i> Penarikan diproses setiap tanggal 6 setiap bulannya</p>
             </div>
             @if($pendingCount > 0)
             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">

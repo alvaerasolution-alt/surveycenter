@@ -22,8 +22,10 @@
     <meta property="og:description" content="{{ $seoDesc ?? 'SurveyCenter - Jasa Survey Pasar & Sebar Kuesioner Terpercaya' }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="{{ asset('assets/logosc.png') }}">
+    <meta property="og:image:width" content="500">
+    <meta property="og:image:height" content="500">
     <meta property="og:image:alt" content="SurveyCenter">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="{{ $seoTitle ?? 'SurveyCenter' }}">
     <meta name="twitter:description" content="{{ $seoDesc ?? 'SurveyCenter - Jasa Survey Pasar & Sebar Kuesioner Terpercaya' }}">
     <meta name="twitter:image" content="{{ asset('assets/logosc.png') }}">

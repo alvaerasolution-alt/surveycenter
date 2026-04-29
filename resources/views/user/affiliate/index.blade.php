@@ -121,6 +121,17 @@
             </h2>
             <p class="text-xs text-gray-400 mt-0.5">Tarik saldo komisi Anda ke rekening bank</p>
         </div>
+
+        {{-- Withdrawal Schedule Notice --}}
+        <div class="px-5 py-3 bg-blue-50 border-b border-blue-100">
+            <div class="flex items-start gap-2">
+                <i data-lucide="calendar-clock" class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0"></i>
+                <div>
+                    <p class="text-xs font-medium text-blue-800">Penarikan diproses setiap tanggal 6</p>
+                    <p class="text-[11px] text-blue-600 mt-0.5">Anda dapat mengajukan penarikan kapan saja. Seluruh pengajuan akan diproses pada tanggal 6 setiap bulannya.</p>
+                </div>
+            </div>
+        </div>
         <div class="p-5">
             @if($affiliateBalance >= 10000)
             <form method="POST" action="{{ route('user.affiliate.withdraw') }}" class="space-y-4">
@@ -170,8 +181,9 @@
             <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
                 <p class="text-xs text-amber-700 font-medium">
                     <i data-lucide="clock" class="w-3.5 h-3.5 inline -mt-0.5"></i>
-                    Anda memiliki penarikan pending sebesar <strong>Rp {{ number_format($pendingWithdrawal, 0, ',', '.') }}</strong> yang sedang menunggu persetujuan admin.
+                    Anda memiliki penarikan pending sebesar <strong>Rp {{ number_format($pendingWithdrawal, 0, ',', '.') }}</strong>.
                 </p>
+                <p class="text-[11px] text-amber-600 mt-1">Penarikan akan diproses pada tanggal 6 setiap bulannya.</p>
             </div>
             @endif
         </div>
@@ -255,7 +267,7 @@
         <div class="bg-white rounded-xl border border-gray-200/80 overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100">
                 <h2 class="text-sm font-semibold text-gray-900">Riwayat Penarikan</h2>
-                <p class="text-xs text-gray-400 mt-0.5">Status penarikan saldo Anda</p>
+                <p class="text-xs text-gray-400 mt-0.5">Status penarikan saldo Anda · Diproses tanggal 6 setiap bulan</p>
             </div>
             <div class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
                 @forelse($withdrawals as $wd)
