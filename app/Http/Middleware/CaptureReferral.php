@@ -15,7 +15,13 @@ class CaptureReferral
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->has('ref') && !auth()->check()) {
-            $request->session()->put('referral_code', $request->query('ref'));
+            $refCode = $request->query('ref');
+            $request->session()->put('referral_code', $refCode);
+
+            // If not already on register page, redirect to register with ref code
+            if (!$request->is('register')) {
+                return redirect()->route('register', ['ref' => $refCode]);
+            }
         }
 
         return $next($request);

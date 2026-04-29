@@ -23,6 +23,15 @@
             
             <h1 class="text-[32px] font-extrabold text-[#071D49] tracking-tight text-center mb-[20px]">Registrasi akun</h1>
             
+            <!-- Referral Notification -->
+            @if(request('ref') || session('referral_code'))
+            @php $refCode = request('ref') ?: session('referral_code'); @endphp
+            <div class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 text-[12px] px-5 py-4 rounded-sm mb-4 leading-relaxed font-medium flex items-start gap-2">
+                <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Anda mendaftar menggunakan kode referral <strong>{{ $refCode }}</strong>. Selesaikan registrasi untuk mendapatkan keuntungan dari program afiliasi.</span>
+            </div>
+            @endif
+
             <!-- Banner Notification -->
             <div class="bg-[#f0f7ff] border-l-4 border-[#1e40af] text-[#0f4492] text-[12px] px-5 py-4 rounded-sm mb-8 leading-relaxed font-medium">
                 E-mail & nomor telepon dibutuhkan untuk menggunakan dashboard SurveyCenter, manajemen survei klien, pencatatan layanan, dll.
@@ -81,6 +90,14 @@
                     <p class="text-[10.5px] text-slate-400 mt-2 font-medium">Digunakan untuk notifikasi via WhatsApp jika dibutuhkan.</p>
                 </div>
                 
+                <div class="mb-5">
+                    <label class="block text-[10.5px] font-extrabold text-[#071D49] tracking-widest uppercase mb-2" for="referral_code">KODE REFERRAL (OPSIONAL)</label>
+                    <input type="text" id="referral_code" name="referral_code" value="{{ old('referral_code', request('ref') ?: session('referral_code')) }}" 
+                           class="w-full px-4 py-3 border border-[#e2e8f0] rounded text-[14px] text-[#071D49] font-medium focus:ring-1 focus:ring-[#ea580c] focus:border-[#ea580c] transition-all outline-none shadow-sm {{ (request('ref') || session('referral_code')) ? 'bg-emerald-50 border-emerald-300' : 'bg-white' }}" 
+                           placeholder="Masukkan kode referral jika ada">
+                    <p class="text-[10.5px] text-slate-400 mt-2 font-medium">Punya kode referral? Masukkan di sini untuk mendapatkan keuntungan.</p>
+                </div>
+
                 <div class="mb-5">
                     <label class="block text-[10.5px] font-extrabold text-[#071D49] tracking-widest uppercase mb-2" for="password">PASSWORD</label>
                     <input type="password" id="password" name="password" 

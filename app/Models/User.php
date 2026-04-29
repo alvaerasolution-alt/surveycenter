@@ -161,6 +161,6 @@ class User extends Authenticatable
      */
     public function getReferralUrlAttribute(): string
     {
-        return url('/?ref=' . $this->referral_code);
+        return url('/register?ref=' . $this->referral_code);
     }
 }

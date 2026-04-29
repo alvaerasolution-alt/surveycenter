@@ -26,10 +26,11 @@ class RegisterController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        // Check for referral code in session
+        // Check for referral code from form input or session
         $referrerId = null;
-        $refCode = $request->session()->pull('referral_code');
+        $refCode = $request->input('referral_code') ?: $request->session()->pull('referral_code');
         if ($refCode) {
+            $request->session()->forget('referral_code');
             $referrer = User::where('referral_code', $refCode)->first();
             if ($referrer) {
                 $referrerId = $referrer->id;
