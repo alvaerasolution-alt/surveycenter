@@ -56,7 +56,7 @@ class SingaPayService
         }
     }
 
-    public function createInvoice($amount, $items)
+    public function createInvoice($amount, $items, ?string $redirectUrl = null)
     {
         $tokenData = $this->getToken('1.1');
 
@@ -95,6 +95,10 @@ class SingaPayService
                 'VA_MAYBANK',
             ],
         ];
+
+        if ($redirectUrl) {
+            $payload['redirect_url'] = $redirectUrl;
+        }
 
         try {
             $response = Http::withHeaders($headers)

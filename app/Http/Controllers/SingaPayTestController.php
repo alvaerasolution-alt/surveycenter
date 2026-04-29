@@ -110,6 +110,8 @@ class SingaPayTestController extends Controller
         }
 
         try {
+            $redirectUrl = route('singapay.test.success', $transaction);
+
             $invoice = $this->singaPay->createInvoice(
                 $transaction->amount,
                 [
@@ -118,7 +120,8 @@ class SingaPayTestController extends Controller
                         'quantity' => 1,
                         'unit_price' => $transaction->amount,
                     ],
-                ]
+                ],
+                $redirectUrl
             );
 
             if (!isset($invoice['success']) || !$invoice['success']) {

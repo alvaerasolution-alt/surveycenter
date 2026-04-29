@@ -239,6 +239,8 @@ class PaymentController extends Controller
 
     private function processSingaPayPayment(Transaction $transaction, string $paymentMethod)
     {
+        $redirectUrl = route('user.payments.success', $transaction);
+
         $invoice = $this->singaPay->createInvoice(
             $transaction->amount,
             [
@@ -247,7 +249,8 @@ class PaymentController extends Controller
                     'quantity' => 1,
                     'unit_price' => $transaction->amount,
                 ],
-            ]
+            ],
+            $redirectUrl
         );
 
         if (!isset($invoice['success']) || !$invoice['success']) {
