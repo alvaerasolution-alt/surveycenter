@@ -122,7 +122,13 @@ class TransactionController extends Controller
 
     public function handleInvoice(Request $request)
     {
-        // Faspay webhook is handled by FaspayController::notification()
+        Log::info('SingaPay Invoice Webhook', $request->all());
+
+        $service = app(\App\Services\SingaPayService::class);
+        $result = $service->webhook($request);
+
+        Log::info('SingaPay Invoice Webhook Result', $result);
+
         return response()->json(['status' => 'ok']);
     }
 

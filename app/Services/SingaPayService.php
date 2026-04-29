@@ -23,7 +23,7 @@ class SingaPayService
         $this->clientSecret = config('singapay.client_secret');
         $this->apiKey = config('singapay.api_key');
         $this->accountId = config('singapay.account_id');
-        $this->baseUrl = 'https://payment-b2b.singapay.id';
+        $this->baseUrl = config('singapay.base_url', 'https://payment-b2b.singapay.id');
     }
 
     public function getListMethod()
