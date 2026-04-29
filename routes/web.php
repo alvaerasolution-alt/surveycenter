@@ -387,3 +387,21 @@ Route::middleware(['auth'])->prefix('faspay')->group(function () {
     Route::get('debug', [FaspayController::class, 'debugConfig'])->name('faspay.debug');
     Route::get('list-transactions', [FaspayController::class, 'listTransactions'])->name('faspay.list-transactions');
 });
+
+// ===== SINGAPAY TEST TRANSACTION ROUTES =====
+Route::middleware(['auth'])->prefix('singapay/test')->name('singapay.test.')->group(function () {
+    Route::get('transactions', [\App\Http\Controllers\SingaPayTestController::class, 'index'])->name('index');
+    Route::get('transactions/create', [\App\Http\Controllers\SingaPayTestController::class, 'create'])->name('create');
+    Route::post('transactions', [\App\Http\Controllers\SingaPayTestController::class, 'store'])->name('store');
+    Route::get('transactions/{singaPayTestTransaction}', [\App\Http\Controllers\SingaPayTestController::class, 'show'])->name('show');
+    Route::get('transactions/{singaPayTestTransaction}/payment', [\App\Http\Controllers\SingaPayTestController::class, 'payment'])->name('payment');
+    Route::post('transactions/{singaPayTestTransaction}/payment', [\App\Http\Controllers\SingaPayTestController::class, 'processPayment'])->name('process');
+    Route::get('transactions/{singaPayTestTransaction}/success', [\App\Http\Controllers\SingaPayTestController::class, 'success'])->name('success');
+    Route::get('transactions/{singaPayTestTransaction}/check-status', [\App\Http\Controllers\SingaPayTestController::class, 'checkStatus'])->name('check-status');
+    Route::delete('transactions/{singaPayTestTransaction}', [\App\Http\Controllers\SingaPayTestController::class, 'destroy'])->name('destroy');
+});
+
+// SingaPay Test Webhook (NO auth, NO CSRF)
+Route::post('/api/webhook/singapay/test', [\App\Http\Controllers\SingaPayTestController::class, 'webhook'])
+    ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+    ->name('singapay.test.webhook');

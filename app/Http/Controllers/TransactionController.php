@@ -129,6 +129,27 @@ class TransactionController extends Controller
 
         Log::info('SingaPay Invoice Webhook Result', $result);
 
+        // If real transaction not found, try test transactions
+        if (isset($result['handled']) && !$result['handled']) {
+            $reffNo = data_get($request->all(), 'data.payment.additional_info.payment_link.reff_no');
+            if ($reffNo) {
+                $testTrx = \App\Models\SingaPayTestTransaction::where('singapay_ref', $reffNo)->first();
+                if ($testTrx) {
+                    $status = data_get($request->all(), 'data.transaction.status');
+                    $method = data_get($request->all(), 'data.payment.method');
+                    if (in_array($status, ['paid', 'settlement', 'success'])) {
+                        $testTrx->markAsPaid(array_merge($request->all(), ['payment_method' => $method]));
+                        Log::info('SingaPay Invoice Webhook: Test transaction marked as paid', ['id' => $testTrx->id]);
+                    } elseif (in_array($status, ['failed', 'cancelled', 'expired'])) {
+                        $testTrx->update([
+                            'status' => \App\Models\SingaPayTestTransaction::STATUS_FAILED,
+                            'webhook_payload' => $request->all(),
+                        ]);
+                    }
+                }
+            }
+        }
+
         return response()->json(['status' => 'ok']);
     }
 
