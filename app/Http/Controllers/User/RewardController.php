@@ -59,12 +59,14 @@ class RewardController extends Controller
             return back()->with('error', 'Poin Anda tidak cukup. Butuh ' . number_format($rewardItem->points_cost, 0, ',', '.') . ' poin, saldo Anda ' . number_format($pointBalance, 0, ',', '.') . ' poin.');
         }
 
-        // For pulsa, phone number is required
+        // For tunai, payment info is required
         $phoneNumber = null;
-        if ($rewardItem->category === RewardItem::CATEGORY_PULSA) {
+        if ($rewardItem->category === RewardItem::CATEGORY_TUNAI) {
             $request->validate([
-                'phone_number' => 'required|string|min:10|max:15',
+                'phone_number' => 'required|string|max:255',
             ]);
+            $phoneNumber = $request->phone_number;
+        } else {
             $phoneNumber = $request->phone_number;
         }
 

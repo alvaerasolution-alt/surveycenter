@@ -217,17 +217,27 @@
                             <span class="inline-flex w-7 h-7 bg-amber-500 rounded-lg items-center justify-center">
                                 <i data-lucide="coins" class="w-4 h-4 text-white"></i>
                             </span>
-                            Pengaturan Poin
+                            Pengaturan Poin & Cashback
                         </h3>
-                        <p class="text-xs text-gray-500 mt-1">Atur berapa rupiah transaksi yang setara dengan 1 poin</p>
+                        <p class="text-xs text-gray-500 mt-1">Atur persentase cashback dan berapa rupiah transaksi yang setara dengan 1 poin</p>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Rasio Poin (Rp per 1 Poin)</label>
-                        <input type="number" name="point_ratio" value="{{ $settings['point_ratio'] ?? 1000 }}"
-                            class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
-                            placeholder="1000" min="1">
-                        <p class="text-xs text-gray-400 mt-1">Contoh: <strong>1000</strong> berarti Rp 1.000 = 1 Poin. <strong>2000</strong> berarti Rp 2.000 = 1 Poin.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Persentase Cashback (%)</label>
+                            <input type="number" name="cashback_percentage" value="{{ $settings['cashback_percentage'] ?? 1 }}"
+                                class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                                placeholder="1" min="0" max="100" step="0.1">
+                            <p class="text-xs text-gray-400 mt-1">Contoh: <strong>1</strong> berarti 1% dari total transaksi.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Rasio Poin (Rp per 1 Poin)</label>
+                            <input type="number" name="point_ratio" value="{{ $settings['point_ratio'] ?? 1000 }}"
+                                class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                                placeholder="1000" min="1">
+                            <p class="text-xs text-gray-400 mt-1">Contoh: <strong>1000</strong> berarti Rp 1.000 cashback = 1 Poin.</p>
+                        </div>
                     </div>
                 </div>
 

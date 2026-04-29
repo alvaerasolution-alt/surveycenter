@@ -29,6 +29,7 @@ class SettingController extends Controller
             'pricing_min_order',
             // Poin
             'point_ratio',
+            'cashback_percentage',
             // Affiliate
             'affiliate_commission_percent',
         ])->pluck('value', 'key');
@@ -63,6 +64,7 @@ class SettingController extends Controller
             'pricing_min_order'   => 'nullable|integer|min:0',
             // Poin
             'point_ratio'         => 'nullable|integer|min:1',
+            'cashback_percentage' => 'nullable|numeric|min:0|max:100',
             // Affiliate
             'affiliate_commission_percent' => 'nullable|numeric|min:0|max:100',
         ]);
@@ -102,6 +104,10 @@ class SettingController extends Controller
 
         if ($request->has('point_ratio')) {
             Setting::set('point_ratio', (string) $request->point_ratio);
+        }
+
+        if ($request->has('cashback_percentage')) {
+            Setting::set('cashback_percentage', (string) $request->cashback_percentage);
         }
 
         if ($request->has('affiliate_commission_percent')) {

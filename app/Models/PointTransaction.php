@@ -41,10 +41,22 @@ class PointTransaction extends Model
     }
 
     /**
+     * Get the cashback percentage from settings.
+     * Default: 1 (1%).
+     */
+    public static function getCashbackPercentage(): float
+    {
+        return max(0, (float) Setting::get('cashback_percentage', 1.0));
+    }
+
+    /**
      * Calculate points from a payment amount.
+     * Example: 1% cashback from 8,000,000 = 80,000. 80,000 / 1000 = 80 points.
      */
     public static function calculatePoints(int $amount): int
     {
-        return (int) floor($amount / self::getPointRatio());
+        $cashbackPercentage = self::getCashbackPercentage();
+        $cashbackAmount = $amount * ($cashbackPercentage / 100);
+        return (int) floor($cashbackAmount / self::getPointRatio());
     }
 }

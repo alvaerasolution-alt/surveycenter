@@ -9,8 +9,8 @@ class RewardItem extends Model
 {
     use HasFactory;
 
-    public const CATEGORY_PULSA = 'pulsa';
-    public const CATEGORY_VOUCHER = 'voucher';
+    public const CATEGORY_TUNAI = 'tunai';
+    public const CATEGORY_LAINNYA = 'lainnya';
 
     protected $fillable = [
         'name',
@@ -44,8 +44,8 @@ class RewardItem extends Model
     public static function getCategoryLabel(string $category): string
     {
         return match ($category) {
-            self::CATEGORY_PULSA => 'Pulsa All Operator',
-            self::CATEGORY_VOUCHER => 'Voucher Diskon',
+            self::CATEGORY_TUNAI => 'Uang Tunai',
+            self::CATEGORY_LAINNYA => 'Lain-lain',
             default => ucfirst($category),
         };
     }
@@ -53,8 +53,8 @@ class RewardItem extends Model
     public static function getCategoryIcon(string $category): string
     {
         return match ($category) {
-            self::CATEGORY_PULSA => 'smartphone',
-            self::CATEGORY_VOUCHER => 'ticket',
+            self::CATEGORY_TUNAI => 'banknote',
+            self::CATEGORY_LAINNYA => 'gift',
             default => 'gift',
         };
     }

@@ -101,22 +101,12 @@
                         </div>
 
                         @if($pointBalance >= $item->points_cost)
-                            @if($item->category === 'pulsa')
                             <button type="button"
-                                onclick="openRedeemModal({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->points_cost }}, true)"
+                                onclick="openRedeemModal({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->points_cost }}, '{{ $item->category }}')"
                                 class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition">
                                 <i data-lucide="arrow-right" class="w-3 h-3"></i>
                                 Tukar
                             </button>
-                            @else
-                            <form method="POST" action="{{ route('user.rewards.redeem', $item) }}" onsubmit="return confirm('Tukar {{ number_format($item->points_cost, 0, ',', '.') }} poin untuk {{ $item->name }}?')">
-                                @csrf
-                                <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition">
-                                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                                    Tukar
-                                </button>
-                            </form>
-                            @endif
                         @else
                         <span class="text-xs text-gray-400 font-medium">Poin kurang</span>
                         @endif
@@ -197,7 +187,7 @@
     </div>
 </div>
 
-{{-- Redeem Modal for Pulsa (needs phone number) --}}
+{{-- Redeem Modal --}}
 <div id="redeemModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
         <h3 class="text-base font-bold text-gray-900 mb-1">Tukar Poin</h3>
@@ -205,10 +195,10 @@
         <form id="redeemForm" method="POST">
             @csrf
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor HP <span class="text-red-500">*</span></label>
-                <input type="tel" name="phone_number" id="redeemPhone" required
+                <label id="redeemPhoneLabel" class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
+                <input type="text" name="phone_number" id="redeemPhone"
                     class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none"
-                    placeholder="08xxxxxxxxxx">
+                    placeholder="Contoh: Dana 08123xxx / Mandiri 123xxx">
             </div>
             <div class="flex gap-3">
                 <button type="button" onclick="closeRedeemModal()" class="flex-1 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
@@ -223,15 +213,26 @@
 </div>
 
 <script>
-function openRedeemModal(itemId, itemName, pointsCost, needsPhone) {
+function openRedeemModal(itemId, itemName, pointsCost, category) {
     const modal = document.getElementById('redeemModal');
     const desc = document.getElementById('redeemModalDesc');
     const form = document.getElementById('redeemForm');
     const phoneInput = document.getElementById('redeemPhone');
+    const phoneLabel = document.getElementById('redeemPhoneLabel');
 
     desc.textContent = 'Tukar ' + pointsCost.toLocaleString('id-ID') + ' poin untuk ' + itemName + '?';
     form.action = '{{ url("rewards") }}/' + itemId + '/redeem';
     phoneInput.value = '';
+
+    if (category === 'tunai') {
+        phoneLabel.innerHTML = 'Nomor Rekening / E-Wallet <span class="text-red-500">*</span>';
+        phoneInput.required = true;
+        phoneInput.placeholder = 'Contoh: Dana 08123xxx / BCA 123xxx';
+    } else {
+        phoneLabel.innerHTML = 'Keterangan <span class="text-gray-400 font-normal">(Opsional)</span>';
+        phoneInput.required = false;
+        phoneInput.placeholder = 'Catatan tambahan (opsional)';
+    }
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
