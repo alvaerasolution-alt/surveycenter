@@ -9,6 +9,8 @@ class SingaPayTestTransaction extends Model
 {
     use HasFactory;
 
+    protected $table = 'singapay_test_transactions';
+
     public const STATUS_PENDING = 'pending';
     public const STATUS_PROCESSING = 'processing';
     public const STATUS_PAID = 'paid';
