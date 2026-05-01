@@ -225,8 +225,7 @@ class FaspayTestTransactionController extends Controller
 
     private function generateTestBillNo(): string
     {
-        $prefix = strtoupper(trim((string) config('singapay.invoice_prefix', 'TRX')));
-        $prefix = preg_replace('/[^A-Z0-9]/', '', $prefix) ?: 'TRX';
+        $prefix = config('payment_gateways.invoice_prefix', 'TRX');
 
         return $prefix . '-TEST-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(6));
     }

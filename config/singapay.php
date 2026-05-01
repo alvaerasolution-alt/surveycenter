@@ -6,5 +6,5 @@ return [
     'client_id' => env('SINGAPAY_CLIENT_ID', ''),
     'client_secret' => env('SINGAPAY_CLIENT_SECRET', ''),
     'api_key' => env('SINGAPAY_API_KEY', ''),
-    'invoice_prefix' => env('SINGAPAY_INVOICE_PREFIX', env('PAYMENT_INVOICE_PREFIX', 'TRX')),
+    'invoice_prefix' => config('payment_gateways.invoice_prefix', 'TRX'),
 ];

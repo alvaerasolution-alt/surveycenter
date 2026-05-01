@@ -242,8 +242,7 @@ class TransactionController extends Controller
 
     private function generateBillNo(?int $transactionId = null): string
     {
-        $prefix = strtoupper(trim((string) config('singapay.invoice_prefix', 'TRX')));
-        $prefix = preg_replace('/[^A-Z0-9]/', '', $prefix) ?: 'TRX';
+        $prefix = config('payment_gateways.invoice_prefix', 'TRX');
 
         if ($transactionId !== null) {
             return $prefix . '-' . $transactionId . '-' . now()->format('YmdHis');

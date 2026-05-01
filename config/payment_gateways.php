@@ -21,6 +21,9 @@ return [
     'mock_mode' => $mockMode,
     'mock_default_status' => env('PAYMENT_MOCK_DEFAULT_STATUS', 'paid'),
 
+    // Unified invoice prefix for all payment gateways (SingaPay, Faspay, etc.)
+    'invoice_prefix' => strtoupper(trim((string) env('PAYMENT_INVOICE_PREFIX', 'TRX'))) ?: 'TRX',
+
     'order' => $normalizedOrder,
 
     'default' => $normalizeGateway(env('PAYMENT_GATEWAY_DEFAULT', 'singapay')),
