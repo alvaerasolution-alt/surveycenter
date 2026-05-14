@@ -121,7 +121,8 @@ class SingaPayTestController extends Controller
                         'unit_price' => $transaction->amount,
                     ],
                 ],
-                $redirectUrl
+                $redirectUrl,
+                $transaction->bill_no
             );
 
             if (!isset($invoice['success']) || !$invoice['success']) {

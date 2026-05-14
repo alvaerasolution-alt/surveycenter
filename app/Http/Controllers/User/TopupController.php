@@ -125,6 +125,8 @@ class TopupController extends Controller
         // For Singapay we need a success redirect URL
         $redirectUrl = route('user.topups.index'); 
 
+        $billNo = $this->generateBillNo();
+
         $invoice = $this->singaPay->createInvoice(
             $transaction->amount,
             [
@@ -134,7 +136,8 @@ class TopupController extends Controller
                     'unit_price' => $transaction->amount,
                 ],
             ],
-            $redirectUrl
+            $redirectUrl,
+            $billNo
         );
 
         if (!isset($invoice['success']) || !$invoice['success']) {
@@ -142,7 +145,9 @@ class TopupController extends Controller
         }
 
         $transaction->update([
-            'singapay_ref' => $invoice['reff_no'] ?? null,
+            'singapay_ref' => $invoice['reff_no'] ?? $billNo,
+            'bill_no' => $billNo,
+            'payment_ref' => $billNo,
             'status' => TopupTransaction::STATUS_PROCESSING,
         ]);
 
@@ -160,7 +165,7 @@ class TopupController extends Controller
             ]);
         }
 
-        $billNo = 'TU-' . $transaction->id . '-' . now()->format('YmdHis');
+        $billNo = $this->generateBillNo();
 
         $invoiceData = [
             'bill_no' => $billNo,
@@ -202,5 +207,11 @@ class TopupController extends Controller
     private function resolveDefaultGateway(array $gatewayOptions): string
     {
         return (string) config('payment_gateways.default', 'singapay');
+    }
+
+    private function generateBillNo(): string
+    {
+        $prefix = config('payment_gateways.invoice_prefix', 'TRX');
+        return $prefix . '-TU-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(6));
     }
 }

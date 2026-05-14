@@ -56,7 +56,7 @@ class SingaPayService
         }
     }
 
-    public function createInvoice($amount, $items, ?string $redirectUrl = null)
+    public function createInvoice($amount, $items, ?string $redirectUrl = null, ?string $customReffNo = null)
     {
         $tokenData = $this->getToken('1.1');
 
@@ -73,7 +73,7 @@ class SingaPayService
             'Authorization' => "Bearer {$token}",
         ];
 
-        $reffNo = 'RC' . strtoupper(uniqid());
+        $reffNo = $customReffNo ?? 'RC' . strtoupper(uniqid());
         $expiredAt = now()
             ->addMinutes(30)
             ->getTimestampMs();
