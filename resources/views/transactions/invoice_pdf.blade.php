@@ -98,7 +98,14 @@
     <div class="invoice-box">
         <!-- Header -->
         <div class="header" style="text-align:center; margin-bottom:20px;">
-            <img src="{{ url('assets/logosc.png') }}" alt="Logo" style="height:80px; margin-bottom:10px;">
+            @php
+                $logoPath = public_path('assets/logosc.png');
+                $logoData = file_exists($logoPath) ? base64_encode(file_get_contents($logoPath)) : '';
+                $logoSrc = $logoData ? 'data:image/png;base64,' . $logoData : '';
+            @endphp
+            @if($logoSrc)
+                <img src="{{ $logoSrc }}" alt="Logo" style="height:80px; margin-bottom:10px;">
+            @endif
             <div class="company" style="font-size:22px; font-weight:bold;">
                 Survey Center Indonesia
             </div>
