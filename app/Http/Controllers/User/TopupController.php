@@ -45,7 +45,7 @@ class TopupController extends Controller
         $defaultGateway = $this->resolveDefaultGateway($gatewayOptions);
 
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:10000',
+            'amount' => 'required|numeric|min:1',
             'payment_gateway' => 'nullable|string',
             'payment_method' => 'required|in:qris,virtual_account,e_wallet',
         ]);
@@ -167,7 +167,7 @@ class TopupController extends Controller
             'bill_reff' => 'TOPUP-' . $transaction->id,
             'bill_total' => $transaction->amount,
             'bill_description' => 'Top Up Saldo',
-            'cust_name' => Auth::user()->name ?? 'Customer',
+            'cust_name' => preg_replace('/[^a-zA-Z0-9\s]/', '', Auth::user()->name ?? 'Customer'),
             'cust_email' => Auth::user()->email ?? '',
             'cust_phone' => Auth::user()->phone ?? '',
             'due_date' => now()->addMinutes((int) config('faspay.invoice_expiration', 30))->format('Y-m-d H:i:s'),

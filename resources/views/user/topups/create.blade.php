@@ -28,9 +28,9 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <span class="text-gray-500 font-medium">Rp</span>
                     </div>
-                    <input type="number" name="amount" id="amount" value="{{ old('amount', 50000) }}" min="10000" step="1000" class="pl-12 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-lg font-medium" required>
+                    <input type="number" name="amount" id="amount" value="{{ old('amount', 50000) }}" min="1" step="1000" class="pl-12 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-lg font-medium" required>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">Minimal top up Rp 10.000</p>
+                <p class="text-xs text-gray-500 mt-2">Tidak ada minimal top up</p>
                 @error('amount')
                     <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
                 @enderror

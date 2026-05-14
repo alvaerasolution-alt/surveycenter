@@ -124,7 +124,7 @@ class FaspayTestTransactionController extends Controller
                 'bill_reff' => $testTransaction->bill_no,
                 'bill_total' => $testTransaction->amount,
                 'bill_description' => $testTransaction->bill_description,
-                'cust_name' => $testTransaction->customer_name,
+                'cust_name' => preg_replace('/[^a-zA-Z0-9\s]/', '', $testTransaction->customer_name),
                 'cust_email' => $testTransaction->customer_email,
                 'cust_phone' => $testTransaction->customer_phone,
                 'due_date' => $testTransaction->expires_at?->format('Y-m-d H:i:s'),
