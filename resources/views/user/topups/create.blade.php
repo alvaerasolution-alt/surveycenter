@@ -19,18 +19,29 @@
             <p class="text-sm text-gray-600 mt-1">Masukkan nominal dan pilih metode pembayaran</p>
         </div>
 
-        <form action="{{ route('user.topups.store') }}" method="POST" class="p-6">
+        <form action="{{ route('user.topups.store') }}" method="POST" class="p-6" x-data="{ amount: {{ old('amount', 50000) }} }">
             @csrf
 
             <div class="mb-8">
                 <label for="amount" class="block text-sm font-semibold text-gray-900 mb-2">Nominal Top Up (Rp)</label>
-                <div class="relative">
+                <div class="relative mb-3">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <span class="text-gray-500 font-medium">Rp</span>
                     </div>
-                    <input type="number" name="amount" id="amount" value="{{ old('amount', 50000) }}" min="1" step="1000" class="pl-12 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-lg font-medium" required>
+                    <input type="number" name="amount" id="amount" x-model="amount" min="1" step="1" class="pl-12 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-lg font-medium" required>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">Tidak ada minimal top up</p>
+                
+                {{-- Preset Buttons --}}
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-2">
+                    <button type="button" @click="amount = 20000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 20000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">20.000</button>
+                    <button type="button" @click="amount = 50000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 50000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">50.000</button>
+                    <button type="button" @click="amount = 100000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 100000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">100.000</button>
+                    <button type="button" @click="amount = 200000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 200000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">200.000</button>
+                    <button type="button" @click="amount = 500000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 500000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">500.000</button>
+                    <button type="button" @click="amount = 1000000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 1000000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">1.000.000</button>
+                </div>
+                
+                <p class="text-xs text-gray-500">Tidak ada minimal top up</p>
                 @error('amount')
                     <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
                 @enderror
