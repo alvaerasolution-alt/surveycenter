@@ -180,6 +180,7 @@ class User extends Authenticatable
 
         $totalSurveyPaid = (int) $this->transactions()
             ->where('status', Transaction::STATUS_PAID)
+            ->where('payment_method', 'saldo')
             ->sum('amount');
 
         return max(0, $totalTopup - $totalSurveyPaid);
