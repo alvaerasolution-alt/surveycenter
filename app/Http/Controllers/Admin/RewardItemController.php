@@ -27,9 +27,9 @@ class RewardItemController extends Controller
         $data = $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
-            'category'    => 'required|in:tunai,lainnya',
+            'category'    => 'required|in:tunai,lainnya,saldo',
             'points_cost' => 'required|integer|min:1',
-            'value'       => 'nullable|string|max:100',
+            'value'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:-1',
         ]);
 
@@ -50,9 +50,9 @@ class RewardItemController extends Controller
         $data = $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
-            'category'    => 'required|in:tunai,lainnya',
+            'category'    => 'required|in:tunai,lainnya,saldo',
             'points_cost' => 'required|integer|min:1',
-            'value'       => 'nullable|string|max:100',
+            'value'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:-1',
         ]);
 

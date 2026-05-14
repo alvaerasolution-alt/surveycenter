@@ -43,6 +43,7 @@
                     <select name="category" required
                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                         <option value="tunai" {{ old('category', $item->category ?? '') === 'tunai' ? 'selected' : '' }}>Uang Tunai</option>
+                        <option value="saldo" {{ old('category', $item->category ?? '') === 'saldo' ? 'selected' : '' }}>Saldo Deposit (Voucher)</option>
                         <option value="lainnya" {{ old('category', $item->category ?? '') === 'lainnya' ? 'selected' : '' }}>Lain-lain</option>
                     </select>
                 </div>
@@ -59,10 +60,10 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Nilai / Label</label>
-                    <input type="text" name="value" value="{{ old('value', $item->value ?? '') }}"
+                    <input type="text" name="value" value="{{ old('value', $item->value ?? '') }}" required
                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="Contoh: Rp 25.000">
-                    <p class="text-xs text-gray-400 mt-1">Label yang ditampilkan ke user (opsional)</p>
+                        placeholder="Contoh: 25000">
+                    <p class="text-xs text-gray-400 mt-1">Isi angka nominal (misal: 25000) khususnya untuk Saldo/Tunai.</p>
                 </div>
 
                 <div>

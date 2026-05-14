@@ -66,7 +66,7 @@ class RewardController extends Controller
                 'phone_number' => 'required|string|max:255',
             ]);
             $phoneNumber = $request->phone_number;
-        } else {
+        } elseif ($rewardItem->category === RewardItem::CATEGORY_LAINNYA) {
             $phoneNumber = $request->phone_number;
         }
 
@@ -79,21 +79,40 @@ class RewardController extends Controller
                 'description' => 'Tukar poin: ' . $rewardItem->name,
             ]);
 
+            $status = $rewardItem->category === RewardItem::CATEGORY_SALDO 
+                ? RewardRedemption::STATUS_COMPLETED 
+                : RewardRedemption::STATUS_PENDING;
+
             // Create redemption record
             RewardRedemption::create([
                 'user_id' => $user->id,
                 'reward_item_id' => $rewardItem->id,
                 'point_transaction_id' => $pointTx->id,
                 'points_spent' => $rewardItem->points_cost,
-                'status' => RewardRedemption::STATUS_PENDING,
+                'status' => $status,
                 'phone_number' => $phoneNumber,
             ]);
+
+            // Add Saldo instantly if category is saldo
+            if ($rewardItem->category === RewardItem::CATEGORY_SALDO) {
+                \App\Models\TopupTransaction::create([
+                    'user_id' => $user->id,
+                    'amount' => $rewardItem->value,
+                    'status' => \App\Models\TopupTransaction::STATUS_PAID,
+                    'payment_method' => 'reward_points',
+                    'payment_ref' => 'RWD-' . $pointTx->id . '-' . now()->format('YmdHis'),
+                ]);
+            }
 
             // Decrease stock if not unlimited
             if ($rewardItem->stock > 0) {
                 $rewardItem->decrement('stock');
             }
         });
+
+        if ($rewardItem->category === RewardItem::CATEGORY_SALDO) {
+            return back()->with('success', 'Penukaran berhasil! Saldo Deposit Anda telah ditambahkan sebesar Rp ' . number_format($rewardItem->value, 0, ',', '.'));
+        }
 
         return back()->with('success', 'Penukaran reward berhasil! Tim kami akan memproses dalam 1x24 jam.');
     }

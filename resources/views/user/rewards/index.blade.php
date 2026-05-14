@@ -194,7 +194,7 @@
         <p id="redeemModalDesc" class="text-sm text-gray-600 mb-4"></p>
         <form id="redeemForm" method="POST">
             @csrf
-            <div class="mb-4">
+            <div id="redeemInputWrapper" class="mb-4">
                 <label id="redeemPhoneLabel" class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
                 <input type="text" name="phone_number" id="redeemPhone"
                     class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none"
@@ -219,19 +219,26 @@ function openRedeemModal(itemId, itemName, pointsCost, category) {
     const form = document.getElementById('redeemForm');
     const phoneInput = document.getElementById('redeemPhone');
     const phoneLabel = document.getElementById('redeemPhoneLabel');
+    const inputWrapper = document.getElementById('redeemInputWrapper');
 
     desc.textContent = 'Tukar ' + pointsCost.toLocaleString('id-ID') + ' poin untuk ' + itemName + '?';
     form.action = '{{ url("rewards") }}/' + itemId + '/redeem';
     phoneInput.value = '';
 
-    if (category === 'tunai') {
-        phoneLabel.innerHTML = 'Nomor Rekening / E-Wallet <span class="text-red-500">*</span>';
-        phoneInput.required = true;
-        phoneInput.placeholder = 'Contoh: Dana 08123xxx / BCA 123xxx';
-    } else {
-        phoneLabel.innerHTML = 'Keterangan <span class="text-gray-400 font-normal">(Opsional)</span>';
+    if (category === 'saldo') {
+        inputWrapper.style.display = 'none';
         phoneInput.required = false;
-        phoneInput.placeholder = 'Catatan tambahan (opsional)';
+    } else {
+        inputWrapper.style.display = 'block';
+        if (category === 'tunai') {
+            phoneLabel.innerHTML = 'Nomor Rekening / E-Wallet <span class="text-red-500">*</span>';
+            phoneInput.required = true;
+            phoneInput.placeholder = 'Contoh: Dana 08123xxx / BCA 123xxx';
+        } else {
+            phoneLabel.innerHTML = 'Keterangan <span class="text-gray-400 font-normal">(Opsional)</span>';
+            phoneInput.required = false;
+            phoneInput.placeholder = 'Catatan tambahan (opsional)';
+        }
     }
 
     modal.classList.remove('hidden');

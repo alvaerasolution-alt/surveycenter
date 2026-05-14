@@ -11,6 +11,7 @@ class RewardItem extends Model
 
     public const CATEGORY_TUNAI = 'tunai';
     public const CATEGORY_LAINNYA = 'lainnya';
+    public const CATEGORY_SALDO = 'saldo';
 
     protected $fillable = [
         'name',
@@ -46,6 +47,7 @@ class RewardItem extends Model
         return match ($category) {
             self::CATEGORY_TUNAI => 'Uang Tunai',
             self::CATEGORY_LAINNYA => 'Lain-lain',
+            self::CATEGORY_SALDO => 'Saldo Deposit',
             default => ucfirst($category),
         };
     }
@@ -55,6 +57,7 @@ class RewardItem extends Model
         return match ($category) {
             self::CATEGORY_TUNAI => 'banknote',
             self::CATEGORY_LAINNYA => 'gift',
+            self::CATEGORY_SALDO => 'wallet',
             default => 'gift',
         };
     }
