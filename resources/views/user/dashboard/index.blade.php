@@ -115,23 +115,51 @@
         </div>
     </div>
 
-    {{-- Poin Reward Card --}}
-    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/80 p-5">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                    <i data-lucide="coins" class="w-6 h-6 text-amber-600"></i>
+    {{-- Saldo & Reward Cards --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- Saldo Deposit Card --}}
+        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200/80 p-5">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                        <i data-lucide="wallet" class="w-6 h-6 text-emerald-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">Saldo Deposit Anda</p>
+                        <p class="text-2xl font-extrabold text-emerald-600">Rp {{ number_format($user->deposit_balance, 0, ',', '.') }}</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5">Gunakan saldo untuk pembayaran survey yang lebih cepat!</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm font-semibold text-gray-900">Reward & Poin Anda</p>
-                    <p class="text-2xl font-extrabold text-amber-600">{{ number_format($user->point_balance, 0, ',', '.') }} <span class="text-sm font-medium text-gray-500">poin</span></p>
-                    <p class="text-[11px] text-gray-500 mt-0.5">Rp 1.000 transaksi = 1 poin. Tukarkan dengan pulsa atau voucher!</p>
+                <div class="flex gap-2">
+                    <a href="{{ route('user.topups.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-50 transition shadow-sm">
+                        Riwayat
+                    </a>
+                    <a href="{{ route('user.topups.create') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition shadow-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Top Up
+                    </a>
                 </div>
             </div>
-            <a href="{{ route('user.rewards.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600 transition shadow-sm">
-                <i data-lucide="gift" class="w-4 h-4"></i>
-                Lihat Reward
-            </a>
+        </div>
+
+        {{-- Poin Reward Card --}}
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/80 p-5">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                        <i data-lucide="coins" class="w-6 h-6 text-amber-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">Reward & Poin Anda</p>
+                        <p class="text-2xl font-extrabold text-amber-600">{{ number_format($user->point_balance, 0, ',', '.') }} <span class="text-sm font-medium text-gray-500">poin</span></p>
+                        <p class="text-[11px] text-gray-500 mt-0.5">Rp 1.000 transaksi = 1 poin. Tukarkan dengan tunai!</p>
+                    </div>
+                </div>
+                <a href="{{ route('user.rewards.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600 transition shadow-sm">
+                    <i data-lucide="gift" class="w-4 h-4"></i>
+                    Lihat Reward
+                </a>
+            </div>
         </div>
     </div>
 

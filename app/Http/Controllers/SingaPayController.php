@@ -71,19 +71,37 @@ class SingaPayController extends Controller
         Log::info('SingaPay Callback', $data);
 
         $transaction = Transaction::find($data['reference_number'] ?? null);
+        $topupTransaction = \App\Models\TopupTransaction::where('singapay_ref', $data['reference_number'] ?? null)
+            ->orWhere('id', $data['reference_number'] ?? null) // sometimes id is sent as reference
+            ->first();
+
+        $incomingStatus = $data['status'] ?? 'unknown';
+        $mappedStatus = match ($incomingStatus) {
+            'paid', 'settlement', 'success' => Transaction::STATUS_PAID,
+            'pending', 'unpaid', 'created' => Transaction::STATUS_PENDING,
+            'processing' => Transaction::STATUS_PROCESSING,
+            'failed', 'cancelled', 'expired' => Transaction::STATUS_FAILED,
+            default => $incomingStatus,
+        };
 
         if ($transaction) {
-            $incomingStatus = $data['status'] ?? 'unknown';
-            $mappedStatus = match ($incomingStatus) {
-                'paid', 'settlement', 'success' => Transaction::STATUS_PAID,
-                'pending', 'unpaid', 'created' => Transaction::STATUS_PENDING,
-                'processing' => Transaction::STATUS_PROCESSING,
-                'failed', 'cancelled', 'expired' => Transaction::STATUS_FAILED,
+            $transaction->update([
+                'status'       => $mappedStatus,
+                'singapay_ref' => $data['transaction_id'] ?? null,
+            ]);
+        }
+
+        if ($topupTransaction) {
+            $mappedTopupStatus = match ($incomingStatus) {
+                'paid', 'settlement', 'success' => \App\Models\TopupTransaction::STATUS_PAID,
+                'pending', 'unpaid', 'created' => \App\Models\TopupTransaction::STATUS_PENDING,
+                'processing' => \App\Models\TopupTransaction::STATUS_PROCESSING,
+                'failed', 'cancelled', 'expired' => \App\Models\TopupTransaction::STATUS_FAILED,
                 default => $incomingStatus,
             };
 
-            $transaction->update([
-                'status'       => $mappedStatus,
+            $topupTransaction->update([
+                'status'       => $mappedTopupStatus,
                 'singapay_ref' => $data['transaction_id'] ?? null,
             ]);
         }

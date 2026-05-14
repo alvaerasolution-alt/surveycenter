@@ -129,8 +129,8 @@ class FaspayTestTransactionController extends Controller
                 'cust_phone' => $testTransaction->customer_phone,
                 'due_date' => $testTransaction->expires_at?->format('Y-m-d H:i:s'),
                 'bill_expired_date' => $testTransaction->expires_at?->format('Y-m-d H:i:s'),
-                'return_url' => route('faspay.return'),
-                'notif_url' => route('faspay.notification'),
+                'return_url' => config('faspay.webhook_urls.return') ?: route('faspay.return'),
+                'notif_url' => config('faspay.webhook_urls.notification') ?: route('faspay.notification'),
             ];
 
             // Create invoice at Faspay

@@ -93,7 +93,7 @@ class TransactionController extends Controller
             'cust_email' => Auth::user()->email ?? '',
             'cust_phone' => Auth::user()->phone ?? '081234567890',
             'bill_expired_date' => now()->addMinutes((int) config('faspay.invoice_expiration', 30))->format('Y-m-d H:i:s'),
-            'return_url' => route('faspay.return'),
+            'return_url' => config('faspay.webhook_urls.return') ?: route('faspay.return'),
         ];
 
         $response = $this->faspayService->createInvoice($invoiceData);

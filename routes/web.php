@@ -112,6 +112,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{rewardItem}/redeem', [RewardController::class, 'redeem'])->name('redeem');
     });
 
+    // User Topups
+    Route::prefix('topups')->name('user.topups.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\User\TopupController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\User\TopupController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\User\TopupController::class, 'store'])->name('store');
+    });
+
     // User Affiliate
     Route::prefix('affiliate')->name('user.affiliate.')->group(function () {
         Route::get('/', [AffiliateController::class, 'index'])->name('index');

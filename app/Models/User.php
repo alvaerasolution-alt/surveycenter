@@ -163,4 +163,25 @@ class User extends Authenticatable
     {
         return url('/register?ref=' . $this->referral_code);
     }
+
+    public function topupTransactions()
+    {
+        return $this->hasMany(TopupTransaction::class);
+    }
+
+    /**
+     * Get user's current deposit balance (Total Top Up - Total Survey Paid)
+     */
+    public function getDepositBalanceAttribute(): int
+    {
+        $totalTopup = (int) $this->topupTransactions()
+            ->where('status', TopupTransaction::STATUS_PAID)
+            ->sum('amount');
+
+        $totalSurveyPaid = (int) $this->transactions()
+            ->where('status', Transaction::STATUS_PAID)
+            ->sum('amount');
+
+        return max(0, $totalTopup - $totalSurveyPaid);
+    }
 }

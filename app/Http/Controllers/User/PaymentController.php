@@ -16,12 +16,6 @@ use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    private SingaPayService $singaPay;
-
-    public function __construct(SingaPayService $singaPay)
-    {
-        $this->singaPay = $singaPay;
-    }
 
     /**
      * Show payment page for a transaction
@@ -39,15 +33,11 @@ class PaymentController extends Controller
                 ->with('info', 'Transaksi ini sudah dibayar.');
         }
 
-        $gatewayOptions = $this->getGatewayOptions();
-        $defaultGateway = $this->resolveDefaultGateway($gatewayOptions);
+        $depositBalance = Auth::user()->deposit_balance;
 
-        return view('user.payments.show', compact('transaction', 'gatewayOptions', 'defaultGateway'));
+        return view('user.payments.show', compact('transaction', 'depositBalance'));
     }
 
-    /**
-     * Process payment - initiate Singapay invoice
-     */
     public function process(Request $request, Transaction $transaction)
     {
         // Ensure user owns this transaction
@@ -55,97 +45,40 @@ class PaymentController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $gatewayOptions = $this->getGatewayOptions();
-        $availableGatewayKeys = collect($gatewayOptions)
-            ->filter(fn (array $gateway) => ($gateway['enabled'] ?? false) && ($gateway['configured'] ?? false))
-            ->keys()
-            ->all();
-
-        $defaultGateway = $this->resolveDefaultGateway($gatewayOptions);
-
-        $validated = $request->validate([
-            'payment_gateway' => 'nullable|string',
-            'payment_method' => 'required|in:qris,virtual_account,e_wallet',
-        ]);
-
-        $selectedGateway = $validated['payment_gateway'] ?? $defaultGateway;
-
-        if (!in_array($selectedGateway, $availableGatewayKeys, true)) {
-            return back()->withInput()->withErrors([
-                'payment_gateway' => 'Gateway pembayaran yang dipilih tidak tersedia.',
-            ]);
-        }
-
         // Don't process if already paid
         if ($transaction->status === Transaction::STATUS_PAID) {
             return back()->with('warning', 'Transaksi ini sudah dibayar.');
         }
 
-        if ((bool) config('payment_gateways.mock_mode', false)) {
-            return $this->processMockPayment($transaction, $validated['payment_method'], $selectedGateway);
+        $depositBalance = Auth::user()->deposit_balance;
+
+        if ($depositBalance < $transaction->amount) {
+            return back()->with('error', 'Saldo tidak mencukupi. Silakan lakukan Top Up terlebih dahulu.');
         }
-
-        try {
-            if ($selectedGateway === 'faspay') {
-                return $this->processFaspayPayment($transaction, $validated['payment_method']);
-            }
-
-            return $this->processSingaPayPayment($transaction, $validated['payment_method']);
-        } catch (\Exception $e) {
-            Log::error('Payment Processing Exception', [
-                'transaction_id' => $transaction->id,
-                'user_id' => Auth::id(),
-                'gateway' => $selectedGateway,
-                'error' => $e->getMessage()
-            ]);
-
-            return back()->with('error', 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.');
-        }
-    }
-
-    private function processMockPayment(Transaction $transaction, string $paymentMethod, string $gateway)
-    {
-        $defaultStatus = (string) config('payment_gateways.mock_default_status', Transaction::STATUS_PAID);
-        $allowedStatuses = [
-            Transaction::STATUS_PENDING,
-            Transaction::STATUS_PROCESSING,
-            Transaction::STATUS_PAID,
-            Transaction::STATUS_FAILED,
-        ];
-
-        $nextStatus = in_array($defaultStatus, $allowedStatuses, true)
-            ? $defaultStatus
-            : Transaction::STATUS_PAID;
-
-        $mockReference = 'MOCK-' . Str::upper(Str::random(12));
 
         $transaction->update([
-            'payment_method' => $paymentMethod,
-            'singapay_ref' => $mockReference,
-            'status' => $nextStatus,
+            'payment_method' => 'saldo',
+            'status' => Transaction::STATUS_PAID,
         ]);
 
-        Log::info('Mock payment processed', [
+        Log::info('Payment processed with balance', [
             'transaction_id' => $transaction->id,
             'user_id' => Auth::id(),
-            'gateway' => $gateway,
-            'payment_method' => $paymentMethod,
-            'status' => $nextStatus,
-            'reference' => $mockReference,
+            'amount' => $transaction->amount,
         ]);
 
-        if ($nextStatus === Transaction::STATUS_PAID) {
-            return redirect()->route('user.payments.success', $transaction)
-                ->with('success', 'Mock payment berhasil (mode development).');
+        // Send success email
+        try {
+            Mail::to($transaction->user->email)->queue(new PaymentSuccessMail($transaction));
+        } catch (\Exception $e) {
+            Log::error('Failed to Queue Payment Success Email', [
+                'transaction_id' => $transaction->id,
+                'error' => $e->getMessage()
+            ]);
         }
 
-        if ($nextStatus === Transaction::STATUS_FAILED) {
-            return redirect()->route('user.payments.failed', $transaction)
-                ->with('error', 'Mock payment gagal (mode development).');
-        }
-
-        return redirect()->route('user.transactions.show', $transaction)
-            ->with('info', 'Mock payment dibuat dengan status: ' . $nextStatus . '.');
+        return redirect()->route('user.payments.success', $transaction)
+            ->with('success', 'Pembayaran berhasil menggunakan Saldo.');
     }
 
     /**
@@ -237,158 +170,5 @@ class PaymentController extends Controller
         return false;
     }
 
-    private function processSingaPayPayment(Transaction $transaction, string $paymentMethod)
-    {
-        $redirectUrl = route('user.payments.success', $transaction);
 
-        $invoice = $this->singaPay->createInvoice(
-            $transaction->amount,
-            [
-                [
-                    'name' => $transaction->survey->title ?? 'Survey Payment',
-                    'quantity' => 1,
-                    'unit_price' => $transaction->amount,
-                ],
-            ],
-            $redirectUrl
-        );
-
-        if (!isset($invoice['success']) || !$invoice['success']) {
-            Log::error('SingaPay payment failed', [
-                'transaction_id' => $transaction->id,
-                'user_id' => Auth::id(),
-                'error' => $invoice['message'] ?? 'Unknown error',
-            ]);
-
-            return back()->with('error', 'Gagal membuat pembayaran: ' . ($invoice['message'] ?? 'Kesalahan tidak diketahui.'));
-        }
-
-        $transaction->update([
-            'payment_method' => $paymentMethod,
-            'singapay_ref' => $invoice['reff_no'] ?? null,
-            'status' => Transaction::STATUS_PROCESSING,
-        ]);
-
-        Log::info('SingaPay payment started', [
-            'transaction_id' => $transaction->id,
-            'user_id' => Auth::id(),
-            'reference' => $invoice['reff_no'] ?? null,
-        ]);
-
-        return redirect($invoice['payment_url']);
-    }
-
-    private function processFaspayPayment(Transaction $transaction, string $paymentMethod)
-    {
-        /** @var FaspayService $faspayService */
-        $faspayService = app(FaspayService::class);
-
-        if (!$faspayService->isConfigured()) {
-            return back()->withInput()->withErrors([
-                'payment_gateway' => 'Faspay belum dikonfigurasi. Silakan pilih SingaPay.',
-            ]);
-        }
-
-        $billNo = $this->generateBillNo($transaction->id);
-
-        $invoiceData = [
-            'bill_no' => $billNo,
-            'bill_reff' => 'SURVEY-' . $transaction->id,
-            'bill_total' => $transaction->amount,
-            'bill_description' => $transaction->survey->title ?? 'Survey Payment',
-            'cust_name' => Auth::user()->name ?? 'Customer',
-            'cust_email' => Auth::user()->email ?? '',
-            'cust_phone' => Auth::user()->phone ?? '',
-            'due_date' => now()->addMinutes((int) config('faspay.invoice_expiration', 30))->format('Y-m-d H:i:s'),
-            'bill_expired_date' => now()->addMinutes((int) config('faspay.invoice_expiration', 30))->format('Y-m-d H:i:s'),
-            'return_url' => route('faspay.return'),
-            'notif_url' => route('faspay.notification'),
-        ];
-
-        $response = $faspayService->createInvoice($invoiceData);
-
-        if (!($response['success'] ?? false) || empty($response['payment_url'])) {
-            Log::error('Faspay payment failed', [
-                'transaction_id' => $transaction->id,
-                'user_id' => Auth::id(),
-                'response' => $response,
-            ]);
-
-            $reason = $response['message'] ?? 'Gagal membuat link pembayaran Faspay. Silakan coba lagi.';
-
-            return back()->with('error', $reason);
-        }
-
-        $transaction->update([
-            'payment_method' => $paymentMethod,
-            'singapay_ref' => $billNo,
-            'bill_no' => $billNo,
-            'payment_ref' => $billNo,
-            'trx_id' => $response['trx_id'] ?? null,
-            'status' => Transaction::STATUS_PROCESSING,
-        ]);
-
-        Log::info('Faspay payment started', [
-            'transaction_id' => $transaction->id,
-            'user_id' => Auth::id(),
-            'bill_no' => $billNo,
-            'trx_id' => $response['trx_id'] ?? null,
-        ]);
-
-        return redirect($response['payment_url']);
-    }
-
-    private function getGatewayOptions(): array
-    {
-        $gateways = config('payment_gateways.gateways', []);
-        $order = config('payment_gateways.order', []);
-
-        if (empty($order)) {
-            return $gateways;
-        }
-
-        $ordered = [];
-
-        foreach ($order as $key) {
-            if (isset($gateways[$key])) {
-                $ordered[$key] = $gateways[$key];
-            }
-        }
-
-        foreach ($gateways as $key => $gateway) {
-            if (!isset($ordered[$key])) {
-                $ordered[$key] = $gateway;
-            }
-        }
-
-        return $ordered;
-    }
-
-    private function resolveDefaultGateway(array $gatewayOptions): string
-    {
-        $configuredDefault = (string) config('payment_gateways.default', 'singapay');
-
-        if (
-            isset($gatewayOptions[$configuredDefault])
-            && ($gatewayOptions[$configuredDefault]['enabled'] ?? false)
-            && ($gatewayOptions[$configuredDefault]['configured'] ?? false)
-        ) {
-            return $configuredDefault;
-        }
-
-        foreach ($gatewayOptions as $key => $gateway) {
-            if (($gateway['enabled'] ?? false) && ($gateway['configured'] ?? false)) {
-                return $key;
-            }
-        }
-
-        return 'singapay';
-    }
-
-    private function generateBillNo(int $transactionId): string
-    {
-        $prefix = config('payment_gateways.invoice_prefix', 'TRX');
-
-        return $prefix . '-' . $transactionId . '-' . now()->format('YmdHis');
-    }
 }

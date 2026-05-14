@@ -150,8 +150,9 @@ class SingaPayService
         }
 
         $order = Transaction::where('singapay_ref', $reffNo)->first();
+        $topupTransaction = \App\Models\TopupTransaction::where('singapay_ref', $reffNo)->first();
 
-        if (!$order) {
+        if (!$order && !$topupTransaction) {
             return [
                 'received' => true,
                 'handled' => false,
@@ -161,9 +162,17 @@ class SingaPayService
         $status = data_get($payload, 'data.transaction.status');
 
         if ($status === Transaction::STATUS_PAID) {
-            $order->status = Transaction::STATUS_PAID;
-            $order->payment_method = data_get($payload, 'data.payment.method');
-            $order->save();
+            if ($order) {
+                $order->status = Transaction::STATUS_PAID;
+                $order->payment_method = data_get($payload, 'data.payment.method');
+                $order->save();
+            }
+
+            if ($topupTransaction) {
+                $topupTransaction->status = \App\Models\TopupTransaction::STATUS_PAID;
+                $topupTransaction->payment_method = data_get($payload, 'data.payment.method');
+                $topupTransaction->save();
+            }
         }
 
         return [

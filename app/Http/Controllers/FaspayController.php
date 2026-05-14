@@ -61,7 +61,13 @@ class FaspayController extends Controller
                 $mainTransaction = Transaction::where('payment_ref', $notification['bill_no'])->first();
             }
 
-            if (!$transaction && !$mainTransaction) {
+            // Cari di tabel topup_transactions
+            $topupTransaction = \App\Models\TopupTransaction::where('bill_no', $notification['bill_no'])->first();
+            if (!$topupTransaction) {
+                $topupTransaction = \App\Models\TopupTransaction::where('payment_ref', $notification['bill_no'])->first();
+            }
+
+            if (!$transaction && !$mainTransaction && !$topupTransaction) {
                 Log::warning('Faspay transaction not found', ['bill_no' => $notification['bill_no']]);
 
                 return response()->json([
@@ -79,6 +85,13 @@ class FaspayController extends Controller
                 Log::info('Main transaction already paid, skipping re-processing', [
                     'bill_no' => $notification['bill_no'],
                     'transaction_id' => $mainTransaction->id,
+                ]);
+            }
+
+            if ($topupTransaction && $topupTransaction->status === \App\Models\TopupTransaction::STATUS_PAID) {
+                Log::info('Topup transaction already paid, skipping re-processing', [
+                    'bill_no' => $notification['bill_no'],
+                    'transaction_id' => $topupTransaction->id,
                 ]);
             }
 
@@ -104,6 +117,13 @@ class FaspayController extends Controller
                         ]);
                     }
 
+                    if ($topupTransaction && $topupTransaction->status !== \App\Models\TopupTransaction::STATUS_PAID) {
+                        $topupTransaction->update([
+                            'status' => \App\Models\TopupTransaction::STATUS_PAID,
+                            'payment_method' => strtolower((string) ($notification['payment_channel'] ?? $topupTransaction->payment_method)),
+                        ]);
+                    }
+
                     Log::info('Transaction marked as paid', ['bill_no' => $notification['bill_no'], 'trx_id' => $notification['trx_id']]);
                     break;
 
@@ -115,6 +135,12 @@ class FaspayController extends Controller
                     if ($mainTransaction && $mainTransaction->status !== Transaction::STATUS_PAID) {
                         $mainTransaction->update([
                             'status' => Transaction::STATUS_FAILED,
+                        ]);
+                    }
+
+                    if ($topupTransaction && $topupTransaction->status !== \App\Models\TopupTransaction::STATUS_PAID) {
+                        $topupTransaction->update([
+                            'status' => \App\Models\TopupTransaction::STATUS_FAILED,
                         ]);
                     }
 
@@ -132,6 +158,12 @@ class FaspayController extends Controller
                         ]);
                     }
 
+                    if ($topupTransaction && $topupTransaction->status !== \App\Models\TopupTransaction::STATUS_PAID) {
+                        $topupTransaction->update([
+                            'status' => \App\Models\TopupTransaction::STATUS_FAILED,
+                        ]);
+                    }
+
                     Log::info('Transaction expired', ['bill_no' => $notification['bill_no']]);
                     break;
 
@@ -143,6 +175,12 @@ class FaspayController extends Controller
                     if ($mainTransaction && $mainTransaction->status !== Transaction::STATUS_PAID) {
                         $mainTransaction->update([
                             'status' => Transaction::STATUS_FAILED,
+                        ]);
+                    }
+
+                    if ($topupTransaction && $topupTransaction->status !== \App\Models\TopupTransaction::STATUS_PAID) {
+                        $topupTransaction->update([
+                            'status' => \App\Models\TopupTransaction::STATUS_FAILED,
                         ]);
                     }
 
@@ -158,6 +196,12 @@ class FaspayController extends Controller
                     if ($mainTransaction && $mainTransaction->status !== Transaction::STATUS_PAID) {
                         $mainTransaction->update([
                             'status' => Transaction::STATUS_PROCESSING,
+                        ]);
+                    }
+
+                    if ($topupTransaction && $topupTransaction->status !== \App\Models\TopupTransaction::STATUS_PAID) {
+                        $topupTransaction->update([
+                            'status' => \App\Models\TopupTransaction::STATUS_PROCESSING,
                         ]);
                     }
 
@@ -235,6 +279,19 @@ class FaspayController extends Controller
                     // Redirect ke halaman transaksi user
                     return redirect()->route('user.transactions.show', $mainTransaction)
                         ->with('info', 'Pembayaran sedang diproses. Status akan diperbarui otomatis.');
+                }
+
+                $topupTransaction = \App\Models\TopupTransaction::where('bill_no', $billNo)
+                    ->orWhere('payment_ref', $billNo)
+                    ->first();
+
+                if ($topupTransaction) {
+                    if ($trxId) {
+                        $topupTransaction->update(['trx_id' => $trxId]);
+                    }
+
+                    return redirect()->route('user.topups.index')
+                        ->with('info', 'Top up sedang diproses. Status akan diperbarui otomatis.');
                 }
 
                 Log::warning('Return URL: Transaction not found in both tables', ['bill_no' => $billNo]);
