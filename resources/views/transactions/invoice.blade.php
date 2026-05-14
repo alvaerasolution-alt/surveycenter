@@ -5,9 +5,12 @@
     <div class="max-w-4xl mx-auto my-12 p-8 bg-white rounded-2xl shadow-2xl font-sans">
         <!-- Header -->
         <div class="flex items-start justify-between mb-8 border-b pb-4">
-            <div>
-                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Invoice</h1>
-                <p class="text-sm text-gray-500 font-mono">#{{ $transaction->id }}</p>
+            <div class="flex items-center gap-4">
+                <img src="{{ asset('assets/logosc.png') }}" alt="Survey Center Logo" class="h-12 w-auto rounded">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Invoice</h1>
+                    <p class="text-sm text-gray-500 font-mono">#{{ $transaction->id }}</p>
+                </div>
             </div>
 
             <div class="text-right">

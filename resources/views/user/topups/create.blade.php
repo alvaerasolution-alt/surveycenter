@@ -14,7 +14,7 @@
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200/80 overflow-hidden">
-        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-5 border-b border-gray-100">
+        <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-6 py-5 border-b border-gray-100">
             <h3 class="text-lg font-semibold text-gray-900">Form Top Up</h3>
             <p class="text-sm text-gray-600 mt-1">Masukkan nominal dan pilih metode pembayaran</p>
         </div>
@@ -28,17 +28,19 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <span class="text-gray-500 font-medium">Rp</span>
                     </div>
-                    <input type="number" name="amount" id="amount" x-model="amount" min="1" step="1" class="pl-12 block w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-lg font-medium" required>
+                    <input type="number" name="amount" id="amount" x-model="amount" min="1" step="1" class="pl-12 block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-lg font-medium" required>
                 </div>
                 
                 {{-- Preset Buttons --}}
                 <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-2">
-                    <button type="button" @click="amount = 20000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 20000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">20.000</button>
-                    <button type="button" @click="amount = 50000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 50000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">50.000</button>
-                    <button type="button" @click="amount = 100000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 100000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">100.000</button>
-                    <button type="button" @click="amount = 200000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 200000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">200.000</button>
-                    <button type="button" @click="amount = 500000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 500000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">500.000</button>
-                    <button type="button" @click="amount = 1000000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 1000000 ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">1.000.000</button>
+                    <button type="button" @click="amount = 10000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 10000 ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">10.000</button>
+                    <button type="button" @click="amount = 20000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 20000 ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">20.000</button>
+                    <button type="button" @click="amount = 50000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 50000 ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">50.000</button>
+                    <button type="button" @click="amount = 100000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 100000 ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">100.000</button>
+                    <button type="button" @click="amount = 200000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 200000 ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">200.000</button>
+                    <button type="button" @click="amount = 500000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 500000 ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">500.000</button>
+                    <button type="button" @click="amount = 1000000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 1000000 ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">1.000.000</button>
+                    <button type="button" @click="amount = 2000000" class="py-1.5 px-3 rounded-lg border text-sm font-medium transition-colors" :class="amount == 2000000 ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'">2.000.000</button>
                 </div>
                 
                 <p class="text-xs text-gray-500">Tidak ada minimal top up</p>
@@ -124,10 +126,10 @@
                                 {{ $selectedGateway === $gatewayKey ? 'checked' : '' }}
                                 {{ $isAvailable ? '' : 'disabled' }}
                             >
-                            <div class="relative border-2 border-gray-200 rounded-lg p-4 transition {{ $isAvailable ? 'cursor-pointer group-has-[:checked]:border-emerald-600 group-has-[:checked]:bg-emerald-50' : 'cursor-not-allowed' }}">
+                            <div class="relative border-2 border-gray-200 rounded-lg p-4 transition {{ $isAvailable ? 'cursor-pointer group-has-[:checked]:border-orange-600 group-has-[:checked]:bg-orange-50' : 'cursor-not-allowed' }}">
                                 <div class="flex items-start gap-4">
                                     <div class="mt-1">
-                                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 {{ $isAvailable ? 'group-has-[:checked]:border-emerald-600 group-has-[:checked]:bg-emerald-600' : 'bg-gray-200 border-gray-300' }} flex items-center justify-center flex-shrink-0">
+                                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 {{ $isAvailable ? 'group-has-[:checked]:border-orange-600 group-has-[:checked]:bg-orange-600' : 'bg-gray-200 border-gray-300' }} flex items-center justify-center flex-shrink-0">
                                             @if($isAvailable)
                                                 <i class="w-3 h-3 text-white hidden group-has-[:checked]:block">
                                                     <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
@@ -182,7 +184,7 @@
                 <a href="{{ route('user.topups.index') }}" class="flex-1 px-4 py-3 bg-gray-100 text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-200 transition text-center">
                     Batal
                 </a>
-                <button type="submit" class="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-lg font-medium text-sm hover:bg-emerald-700 transition flex items-center justify-center gap-2">
+                <button type="submit" class="flex-1 px-4 py-3 bg-orange-600 text-white rounded-lg font-medium text-sm hover:bg-orange-700 transition flex items-center justify-center gap-2">
                     <i data-lucide="zap" class="w-4 h-4"></i>
                     Top Up Sekarang
                 </button>
