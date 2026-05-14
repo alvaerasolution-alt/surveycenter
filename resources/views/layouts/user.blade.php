@@ -159,6 +159,26 @@
 
             <div class="mx-4 border-t border-white/20"></div>
 
+            {{-- Saldo Widget --}}
+            @auth
+            <div class="mx-3 mt-4 mb-1 p-3 rounded-xl bg-white/10 border border-white/10 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4 blur-lg"></div>
+                
+                <div x-show="sidebarOpen" x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <p class="text-2xs font-semibold uppercase tracking-[0.15em] text-orange-200 mb-1">Saldo Deposit</p>
+                    <p class="text-lg font-bold text-white mb-2.5">Rp {{ number_format(auth()->user()->deposit_balance ?? 0, 0, ',', '.') }}</p>
+                    <a href="{{ route('user.topups.create') }}" class="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-white/10 text-white hover:bg-white transition text-xs font-semibold hover:text-orange-600 border border-white/20 shadow-sm">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        Top Up
+                    </a>
+                </div>
+
+                <div x-show="!sidebarOpen" class="flex flex-col items-center justify-center relative cursor-pointer" @click="sidebarOpen = true" x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <i data-lucide="wallet" class="w-5 h-5 text-orange-200 group-hover:text-white transition"></i>
+                </div>
+            </div>
+            @endauth
+
             {{-- Navigation --}}
             <nav class="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto sidebar-scroll">
 

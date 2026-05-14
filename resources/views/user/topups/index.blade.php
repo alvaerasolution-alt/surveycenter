@@ -9,7 +9,7 @@
     <div>
         <p class="text-sm font-medium text-gray-500 mb-1">Saldo Anda Saat Ini</p>
         <p class="text-3xl font-bold text-emerald-600">
-            Rp {{ number_format(Auth::user()->deposit_balance, 0, ',', '.') }}
+            Rp {{ number_format(auth()->user()->deposit_balance, 0, ',', '.') }}
         </p>
     </div>
     <a href="{{ route('user.topups.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg font-medium text-sm hover:bg-orange-700 transition">
